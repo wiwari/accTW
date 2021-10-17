@@ -727,10 +727,10 @@ if (L.Browser.mobile){
 //   }
 // }).addTo( map );
 
-L.easyButton('fa-bars', function(btn, map){
-  alert("已複製到剪貼簿");  
+// L.easyButton('fa-bars', function(btn, map){
+//   alert("已複製到剪貼簿");  
 
-}).addTo( map );
+// }).addTo( map );
 
 
 //context menu testing
