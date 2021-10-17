@@ -79,11 +79,11 @@ const map = L.map('map',{
 	    iconCls: 'fa fa-align-center ',
       // icon: 'images/zoom-in.png',
 	    callback: centerMap
-	}, {
-	    text: '複製到剪貼簿',
-	    iconCls: 'fa fa-clipboard ',
-      // icon: 'images/zoom-in.png',
-	    callback: copyShareURLtoclipboard
+	// }, {
+	//     text: '複製到剪貼簿',
+	//     iconCls: 'fa fa-clipboard ',
+  //     // icon: 'images/zoom-in.png',
+	//     callback: copyShareURLtoclipboard
 	}, {
 	    text: '複製分享連結',
 	    iconCls: 'fa fa-share-alt',
