@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>集水區查詢 | catchment Look-up</title>
+  <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" /> -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous"> -->
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+
+  <link rel="stylesheet" href="app.css" />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.5.0/dist/geosearch.css" />
+  
+  <!-- <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet-src.js"></script> -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@ngageoint/leaflet-geopackage@3.0.3/dist/leaflet-geopackage.min.js"></script>
+  <!-- <script src="https://raw.githubusercontent.com/frogcat/leaflet-tilelayer-colorpicker/master/leaflet-tilelayer-colorpicker.js" type="module"></script> -->
+  <script src="https://unpkg.com/regenerator-runtime" type="text/javascript"></script>
+  <script src="https://unpkg.com/leaflet-topography" type="text/javascript"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script> -->
+  
+  <script src="https://cdn.jsdelivr.net/gh/frogcat/leaflet-tilelayer-colorpicker@348648f0b13cb57b3b36fedcd43979dcedd89076/leaflet-tilelayer-colorpicker.js"></script>
+  <!-- <script src="leaflet-tilelayer-colorpicker.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.js"></script>
+
+
+  <script src="https://unpkg.com/leaflet-doubletapdrag"></script>
+  <script src="https://unpkg.com/leaflet-doubletapdragzoom"></script>
+
+<!-- Make sure you put this AFtER leaflet.js, when using with leaflet -->
+<!-- <script src="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.umd.js"></script> -->
+<script src="https://unpkg.com/leaflet-geosearch@3.5.0/dist/geosearch.umd.js"></script>
+
+
+<script src="https://unpkg.com/leaflet-center-cross@0.0.8/dist/leaflet.CenterCross.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css" />
+<script src="https://cdn.jsdelivr.net/gh/aratcliffe/Leaflet.contextmenu@master/dist/leaflet.contextmenu.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/aratcliffe/Leaflet.contextmenu@master/dist/leaflet.contextmenu.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+
+</head>
+<body>
+  <div class="container">
+    <div id="map" class="map">
+
+      <!-- <div class="leaflet-top leaflet-left">ABC</div> -->
+    </div>
+  </div>  
+  <script type="text/javascript" src="accTW-ll.js"></script>
+  <!-- <script type="module" src="index-canyoning-ll.js"></script> -->
+    
+  
+</body>
+</html>

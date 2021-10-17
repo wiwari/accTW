@@ -1,0 +1,24 @@
+.map {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;  
+  font-size: 20px;  
+}
+.my-div-icon {
+  color:brown ;
+  text-shadow: white 5px 0 20px;
+  font-size: 32px;
+}
+/* .moeacgs-div-span {
+  color:blue ;  
+  text-shadow: white 5px 0 20px;
+  font-size: 12px;  
+} */
+/* .leaflet-tooltip {
+  font-size: 32px;    
+} */
+/* .my-div-span {
+    font-size: 100px; 
+} */
