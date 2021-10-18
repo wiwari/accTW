@@ -11,6 +11,8 @@ const urlParams = new URLSearchParams(queryString);
 var customzoom = 10;
 var customcenter =new L.latLng(22.75, 120.75); //default view for Shensan Canyon
 
+// const ios=!window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent); //iOS detection
+
 const regxCenter=/^(-?\d+.?\d+),(-?\d+.?\d+)$/;  
 if(urlParams.has('center')) //URL papameter format: ?center=lat,lng
   if (found = urlParams.get('center').match(regxCenter)){
@@ -736,13 +738,25 @@ if (L.Browser.mobile){
 //context menu testing
 
 function copyShareURLtoclipboard(e){
-  navigator.clipboard.writeText(getShareUrl()).then(function() {
-    /* clipboard successfully set */
-    // console.log("pasted");
-  }, function() {
-    /* clipboard write failed */
-    console.log("ERROR while copy share URL to clipboard");
-  });
+  
+    // // for Firfox only
+    // console.log("not iOS");
+    // navigator.clipboard.writeText(getShareUrl()).then(function() {
+    //   /* clipboard successfully set */
+    //   // console.log("pasted");
+    // }, function() {
+    //   /* clipboard write failed */
+    //   console.log("ERROR while copy share URL to clipboard");
+    // });
+
+    // for iOS and chrome and better compatibility for newer broser    
+    $(".ios-clipboard").show(); 
+    $(".ios-clipboard").val(getShareUrl());
+    iosCopyToClipboard(document.getElementsByClassName('ios-clipboard')[0]);
+    document.getElementsByClassName('map')[0].focus();   
+    // document.getSelection().removeAllRanges();
+    $(".ios-clipboard").hide();
+  
 }
 
 function showCoordinates (e) {
@@ -825,3 +839,41 @@ function getShareUrl(){
 
 
 map.setView(customcenter, customzoom);
+
+
+
+L.Control.urlCtrl4iOS = L.Control.extend({
+  onAdd: function(map) {
+      var text = L.DomUtil.create('input',"ios-clipboard");       
+      text.style.width = '100px'; 
+      text.style.display = 'none';
+      text.value="Clipboard";
+      return text;
+  },
+  onRemove: function(map) {
+      // Nothing to do here
+  }
+});
+new L.Control.urlCtrl4iOS({ position: 'topright' }).addTo(map);
+$(".ios-clipboard").hide();
+
+function iosCopyToClipboard(el) {  
+  var oldContentEditable = el.contentEditable,
+      oldReadOnly = el.readOnly,
+      range = document.createRange();
+
+  el.contentEditable = true;
+  el.readOnly = false;
+  range.selectNodeContents(el);
+
+  var s = window.getSelection();
+  s.removeAllRanges();
+  s.addRange(range);
+
+  el.setSelectionRange(0, 999999); // A big number, to cover anything that could be inside the element.
+
+  el.contentEditable = oldContentEditable;
+  el.readOnly = oldReadOnly;
+
+  document.execCommand('copy');  
+}
