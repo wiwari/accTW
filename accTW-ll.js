@@ -16,7 +16,7 @@ var customcenter =new L.latLng(22.75, 120.75); //default view for Shensan Canyon
 const regxCenter=/^(-?\d+.?\d+),(-?\d+.?\d+)$/;  
 if(urlParams.has('center')) //URL papameter format: ?center=lat,lng
   if (found = urlParams.get('center').match(regxCenter)){
-    customcenter = new L.latLng(found[1],found[2]);
+    customcenter = new L.latLng(found[1],found[2]); 
     console.log(customcenter);
   }
 
@@ -241,11 +241,19 @@ const MOEACGS = L.tileLayer(
 
 MOEACGS.on("add", eadd);
 function eadd(e){
-  map.on("click", queryMOEACGS);    
+  map.on("click", queryMOEACGS);
+  gtag('event', 'layerOn', {
+    'event_category': 'layer',
+    'event_label': 'MOEACGS',
+  });
 }
 MOEACGS.on("remove", eremove);
 function eremove(e){  
   map.off("click", queryMOEACGS);
+  gtag('event', 'layerOff', {
+    'event_category': 'layer',
+    'event_label': 'MOEACGS',
+  });
 }
 
 const nlscLiDAR2019 = L.tileLayer(
@@ -373,7 +381,7 @@ const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiw
 
 // test show basin size
 const wscircle = L.circle([22.75, 120.75], { radius: 2000, dashArray: '2, 6', interactive: false, fillOpacity: 0, });
-basinsizeTP = L.tooltip({ offset: L.point(30, -30) });
+basinsizeTP = L.tooltip({ offset: L.point(30, -30), opacity:1 });
 wscircle.bindTooltip(basinsizeTP);
 wscircle.setTooltipContent("集水區????km²");
 wscircle.closeTooltip();
@@ -503,6 +511,9 @@ async function queryMOEACGS(e){
   const queryzoom = (map.getZoom() > 17) ? 17 : map.getZoom();
   await $.getJSON("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
     var cleandata = data['tooltip'];
+    cleandata = cleandata.replace(/構造名稱：/g,"");
+    cleandata = cleandata.replace(/構造名稱：\s*\n/g,"");
+    cleandata = cleandata.replace(/構造描述：/g,"");
     cleandata = cleandata.replace(/地質年代：/g,"");    
     cleandata = cleandata.replace(/地層名稱：/g,"");
     cleandata = cleandata.replace(/圖例描述：/g,"");
@@ -528,6 +539,10 @@ async function queryMOEACGS(e){
       .setContent("<ul>"+cleandata+"</ul>")
       .openOn(map);
     }
+    gtag('event', 'queryMOEACGS', {
+      'event_category': 'layer',
+      'event_label': 'MOEACGS',
+    });
   });
   // console.log();
     // TEST ====================
@@ -756,7 +771,12 @@ function copyShareURLtoclipboard(e){
     document.getElementsByClassName('map')[0].focus();   
     // document.getSelection().removeAllRanges();
     $(".ios-clipboard").hide();
-  
+
+    gtag('event', 'share', {
+      'event_category': 'engagement',
+      'event_label': 'method',    
+      // 'non_interaction': true  
+    });      
 }
 
 function showCoordinates (e) {
@@ -772,6 +792,11 @@ function openNavigate (e) {
     // https://www.google.com/maps/@?api=1&map_action=map&center=23,121&zoom=11
   }
   window.open(shareUrl);  
+  gtag('event', 'openMap', {
+    'event_category': 'context',
+    'event_label': 'navigate',   
+    'non_interaction': true     
+  });
 }
 
 
@@ -784,6 +809,11 @@ function openTWMap3 (e) {
   // shareUrl = "geo:"+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"?z="+map.getZoom(); // Android only open APP
   shareUrl = "https://map.happyman.idv.tw/~mountain/twmap3/?goto="+lookupLatLng.lat.toFixed(6)+","+ lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom(); // Android pin on the point
   window.open(shareUrl);
+  gtag('event', 'openMap', {
+    'event_category': 'context',
+    'event_label': 'TWMap3',   
+    'non_interaction': true     
+  });
 }
 
 function openNLSC (e) {	
@@ -791,6 +821,11 @@ function openNLSC (e) {
   // shareUrl = "geo:"+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"?z="+map.getZoom(); // Android only open APP
   shareUrl = "https://maps.nlsc.gov.tw/go/"+lookupLatLng.lng.toFixed(6)+"/"+ lookupLatLng.lat.toFixed(6) + "/" + map.getZoom();  // Android pin on the point
   window.open(shareUrl);
+  gtag('event', 'openMap', {
+    'event_category': 'context',
+    'event_label': 'NLSC',   
+    'non_interaction': true     
+  });
 }
 
 function openMC (e) {	
@@ -798,24 +833,44 @@ function openMC (e) {
   // shareUrl = "geo:"+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"?z="+map.getZoom(); // Android only open APP
   shareUrl = "https://mc.basecamp.tw/#"+ map.getZoom()+"/"+lookupLatLng.lat.toFixed(6) + "/"+lookupLatLng.lng.toFixed(6)  ;  // Android pin on the point
   window.open(shareUrl);
+  gtag('event', 'openMap', {
+    'event_category': 'context',
+    'event_label': 'MC',   
+    'non_interaction': true     
+  });
 }
 
 function openWindy (e) {	
   const lookupLatLng = map.getCenter();  
   shareUrl = "https://www.windy.com/"+lookupLatLng.lat.toFixed(3)+"/"+ lookupLatLng.lng.toFixed(3) + "/meteogram?rain,"+lookupLatLng.lat.toFixed(3)+"," +lookupLatLng.lng.toFixed(3)+","+ map.getZoom()+",m:ek1ajxt";  // Android pin on the point
   window.open(shareUrl);
+  gtag('event', 'openFCST', {
+    'event_category': 'context',
+    'event_label': 'windy',   
+    'non_interaction': true     
+  });
 }
 
 function openMeteoblue (e) {	
   const lookupLatLng = map.getCenter();
   shareUrl = "https://www.meteoblue.com/en/weather/maps/#coords="+ map.getZoom()+ "/" +lookupLatLng.lat.toFixed(3)+"/"+ lookupLatLng.lng.toFixed(3) + "";  // Android pin on the point
   window.open(shareUrl);
+  gtag('event', 'openFCST', {
+    'event_category': 'context',
+    'event_label': 'mb',   
+    'non_interaction': true     
+  });
 }
 
 function openWingGuru (e) {	
   const lookupLatLng = map.getCenter();  
   shareUrl = "https://www.windguru.cz/map/?lat="+lookupLatLng.lat.toFixed(6)+"&lon="+lookupLatLng.lng.toFixed(6)+"&zoom="+map.getZoom();  // Android pin on the point
   window.open(shareUrl);
+  gtag('event', 'openFCST', {
+    'event_category': 'context',
+    'event_label': 'wg',   
+    'non_interaction': true     
+  });
 }
 
 function centerMap (e) {
