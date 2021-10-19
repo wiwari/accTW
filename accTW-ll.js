@@ -774,7 +774,7 @@ function copyShareURLtoclipboard(e){
 
     gtag('event', 'share', {
       'event_category': 'engagement',
-      'event_label': 'method',    
+      'event_label': 'copy URL',
       // 'non_interaction': true  
     });      
 }
