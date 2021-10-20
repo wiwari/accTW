@@ -143,7 +143,7 @@ L.control.scale().addTo(map);
 
 
 const nlscEMAPtileLowDPI = L.tileLayer(    
-  'http://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}', // standard EMAP  
+  'https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}', // standard EMAP  
   {
     attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
     minZoom: 7, //native zoom 7-19  //note: high DPI missing zoom 8,9
@@ -154,7 +154,7 @@ const nlscEMAPtileLowDPI = L.tileLayer(
   });
 // nlscEMAPtileLowDPI.addTo(map);
 const nlscEMAPtileHighDPI = L.tileLayer(  
-  'http://wmts.nlsc.gov.tw/wmts/EMAP96/default/EPSG:3857/{z}/{y}/{x}', // highDPI EMAP
+  'https://wmts.nlsc.gov.tw/wmts/EMAP96/default/EPSG:3857/{z}/{y}/{x}', // highDPI EMAP
   {
     attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
     minZoom: 10, //native zoom 7-19  //note: high DPI missing zoom 8,9
@@ -171,7 +171,7 @@ nlscEMAP.addTo(map);
 
 // //TEST WMTS failure
 // const nlscEMAPwmts = L.tileLayer.wms(    
-//   // 'http://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}', // standard EMAP
+//   // 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}', // standard EMAP
 //   'https://wmts.nlsc.gov.tw/wmts?', // highDPI EMAP
 //   {
 //     // crs=EPSG:3857
@@ -207,7 +207,7 @@ happymantile.addTo(map);
 
 
 const nlscphoto2tile = L.tileLayer(
-  'http://wmts.nlsc.gov.tw/wmts/PHOTO2/default/EPSG:3857/{z}/{y}/{x}',
+  'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/EPSG:3857/{z}/{y}/{x}',
   {
     attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
     minZoom: 17, //native zoom 7~19 
@@ -281,7 +281,7 @@ var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020]);
 nlscLiDAR.addTo(map);
 
 const happymanGPXoverlay = L.tileLayer(
-  'http://tile.happyman.idv.tw/map/gpxtrack/{z}/{x}/{y}.png',
+  'https://tile.happyman.idv.tw/map/gpxtrack/{z}/{x}/{y}.png',
   {
     attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
     minZoom: 14, //native zoom 10~19
@@ -295,7 +295,7 @@ const happymanGPXoverlay = L.tileLayer(
 happymanGPXoverlay.addTo(map);
 
 const happymanBNoverlay = L.tileLayer(
-  'http://tile.happyman.idv.tw/map/rudy_bn/{z}/{x}/{y}.png',
+  'https://tile.happyman.idv.tw/map/rudy_bn/{z}/{x}/{y}.png',
   {
     attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
     minZoom: 17, //native zoom 8-22
@@ -310,7 +310,7 @@ happymanBNoverlay.addTo(map);
 
       
 const nlscEMAPoverlay = L.tileLayer(
-  'http://wmts.nlsc.gov.tw/wmts/EMAP12/default/EPSG:3857/{z}/{y}/{x}',
+  'https://wmts.nlsc.gov.tw/wmts/EMAP12/default/EPSG:3857/{z}/{y}/{x}',
   {
     attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
     minZoom: 16, //native zoom 9-19
