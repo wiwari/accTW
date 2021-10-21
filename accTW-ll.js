@@ -8,16 +8,19 @@ const urlParams = new URLSearchParams(queryString);
 // }
 // console.log("-------------");
 
+// //default view for Shensan Canyon
+// var customzoom = 10;
+// var customcenter =new L.latLng(22.75, 120.75); 
+// default view for Taiwan
 var customzoom = 10;
-var customcenter =new L.latLng(22.75, 120.75); //default view for Shensan Canyon
+var customcenter =new L.latLng(23.6, 121); //default view for Shensan Canyon
 
 // const ios=!window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent); //iOS detection
 
 const regxCenter=/^(-?\d+.?\d+),(-?\d+.?\d+)$/;  
 if(urlParams.has('center')) //URL papameter format: ?center=lat,lng
   if (found = urlParams.get('center').match(regxCenter)){
-    customcenter = new L.latLng(found[1],found[2]); 
-    console.log(customcenter);
+    customcenter = new L.latLng(found[1],found[2]);     
   }
 
 // a nice way to share to different APPs
@@ -35,8 +38,7 @@ if(urlParams.has('center')) //URL papameter format: ?center=lat,lng
 
 if(urlParams.has('zoom')) //URL papameter format: ?center=lat,lng
   if (foundz = urlParams.get('zoom').match(/^(\d*)$/)){
-    customzoom = parseInt(foundz[1],10);
-    console.log(customzoom);
+    customzoom = parseInt(foundz[1],10);    
 }
 
 // flash URL ? parameters in browser
@@ -48,9 +50,9 @@ const map = L.map('map',{
   contextmenu: true,
   contextmenuWidth: 140,
 	contextmenuItems: [{
-	    text: '顯示座標',
-	    callback: showCoordinates
-	}, {
+	//     text: '顯示座標',
+	//     callback: showCoordinates
+	// }, {
 	    text: '導航...',
       iconCls: 'fa fa-map',
 	    callback: openNavigate,
@@ -322,11 +324,7 @@ nlscEMAPoverlay.addTo(map);
 
 
 
-L.control.layers({
-  "正射影像":nlscphoto2tile,
-},{
-  "光達影像":nlscLiDAR,"地質查詢":MOEACGS,"產生器GPX":happymanGPXoverlay,"產生器BN":happymanBNoverlay,"nlsc透明":nlscEMAPoverlay,
-}).addTo(map);
+
 
 // ------------------
 // DOC https://github.com/OsmHackTW/terrain-rgb
@@ -375,10 +373,6 @@ const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiw
   bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound
 }).addTo(map);
 
-
-
-
-
 // test show basin size
 const wscircle = L.circle([22.75, 120.75], { radius: 2000, dashArray: '2, 6', interactive: false, fillOpacity: 0, });
 basinsizeTP = L.tooltip({ offset: L.point(30, -30), opacity:1 });
@@ -421,6 +415,7 @@ function lookupvalue(event) {
       wscircle.setRadius(1000.0 * Math.sqrt(accVal / Math.PI));
     }
   }
+
   //---- Get DTM
   var dtmPix = dtmTW.getColor(lookupLatLng);
   var dtmVal = NaN;
@@ -445,39 +440,33 @@ function lookupvalue(event) {
   // map.attributionControl.setPrefix(promptinfo);  
 }
 
-// geo:23.458,120.267?z=8
+// geo:23.458,120.267?z=8 
 
-read_catchment=L.featureGroup ();
-read_catchment.addLayer(wscircle);
+read_catchment=L.featureGroup();
+read_catchment.addLayer(catchment);
+// read_catchment.addLayer(wscircle);
 
-function wsLookupOff(event){  
+read_catchment.on("add",wsLookupOn);
+read_catchment.on("remove ",wsLookupOff);
+map.on("zoomend", zoomend_check);
+map.on("zoomstart", zoomstart_check);
+
+
+function zoomend_check(e){
   if (map.getZoom()>=8 && map.getZoom()<=18){
-    if (L.Browser.mobile) {
-      map.off("move", lookupvalue);
-    } else {
-      map.off("mousemove", lookupvalue);
-    }
-    read_catchment.removeFrom(map);  
-    wscircle.openTooltip();
+    lyctrl.addOverlay(read_catchment,"集水區");
+    read_catchment.addLayer(wscircle);
+  }  
+}
+function zoomstart_check(e){
+  if (map.getZoom()>=8 && map.getZoom()<=18){
+    lyctrl.removeLayer(read_catchment);
+    read_catchment.removeLayer(wscircle);
   }  
 }
 
-function wsLookupOn(event){  
-  if (map.getZoom()>=7 && map.getZoom()<=18){
-    if (L.Browser.mobile) {
-      map.on("move", lookupvalue);
-    } else {
-      map.on("mousemove", lookupvalue);
-    }
-    read_catchment.addTo(map);  
-    wscircle.closeTooltip();
-  }     
-}
-
-wsLookupOn(null);
-
-map.on("zoomend",wsLookupOn);
-map.on("zoomstart",wsLookupOff);
+// map.on("zoomend",wsLookupOn);
+// map.on("zoomstart",wsLookupOff);
 
 // TODO外連連結
 // https://image.afasi.gov.tw/map_searching/map.aspx //農林航照
@@ -542,7 +531,7 @@ async function queryMOEACGS(e){
     gtag('event', 'queryMOEACGS', {
       'event_category': 'layer',
       'event_label': 'MOEACGS',
-    });
+    }); 
   });
   // console.log();
     // TEST ====================
@@ -627,6 +616,42 @@ var parkIcon = L.icon({
   // shadowAnchor: [4, 62],  // the same for the shadow
   popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
+
+
+const lyctrl=L.control.layers({
+  "正射影像":nlscphoto2tile,
+},{
+  "光達影像":nlscLiDAR,"地質查詢":MOEACGS,"產生器GPX":happymanGPXoverlay,"產生器BN":happymanBNoverlay,"nlsc透明":nlscEMAPoverlay,
+  //"集水區":read_catchment,
+}).addTo(map);
+
+
+
+function wsLookupOff(event){    
+  
+  if (L.Browser.mobile) {
+    map.off("move", lookupvalue);
+  } else {
+    map.off("mousemove", lookupvalue);
+  }
+  wscircle.closeTooltip();
+  // read_catchment.removeFrom(map);  
+  // wscircle.closenTooltip();
+  
+}
+
+function wsLookupOn(event){
+  if (L.Browser.mobile) {
+    map.on("move", lookupvalue);
+  } else {
+    map.on("mousemove", lookupvalue);
+  }
+  // read_catchment.addTo(map);  
+  // wscircle.openTooltip();    
+      
+}
+read_catchment.addTo(map); 
+// wsLookupOn(null);
 
 // //GeoPackageTest =========================================================================
 // L.geoPackageFeatureLayer([], {
@@ -717,6 +742,15 @@ const searchControl = new GeoSearch.SearchControl({
 });
 map.addControl(searchControl);
 
+map.on('geosearch/showlocation',searched );
+function searched(e){
+  gtag('event', 'searched', {
+    'event_category': 'poi',
+    'event_label': "search: "+$(".glass").val(),
+    // 'non_interaction': true  
+  });      
+}
+
 // Gross hair for mobile device
 if (L.Browser.mobile){
   var controlCross =L.control.centerCross({show: true, toggleText: '✛', toggleTitle: '十字標示'});
@@ -787,7 +821,15 @@ function openNavigate (e) {
   if(L.Browser.android){ //Andoird works perfectly
     shareUrl = "geo:"+ lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+ "?q="+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"&z="+map.getZoom();  // Android pin on the point
   }else{ //iOS and PC not so good should handle wscircle action
-    shareUrl = "https://www.google.com/maps/@?api=1&map_action=map&center="+map.getCenter().lat.toFixed(6) +"," + map.getCenter().lng.toFixed(6)+"&zoom=" +map.getZoom(); // Android only open APP
+    
+    if(L.Browser.mobile){ //iOS
+      shareUrl = "https://www.google.com/maps/dir/?api=1&destination="+ map.getCenter().lat.toFixed(6) +"," + map.getCenter().lng.toFixed(6); // Android only open APP    
+    }else{ //PC
+      shareUrl = "https://www.google.com/maps/dir/?api=1&destination="+ e.latlng.lat.toFixed(6) +"," + e.latlng.lng.toFixed(6); // Android only open APP    
+    }
+
+    // Show Google Map only
+    // shareUrl = "https://www.google.com/maps/@?api=1&map_action=map&center="+map.getCenter().lat.toFixed(6) +"," + map.getCenter().lng.toFixed(6)+"&zoom=" +map.getZoom(); // Android only open APP
 
     // https://www.google.com/maps/@?api=1&map_action=map&center=23,121&zoom=11
   }
@@ -885,7 +927,7 @@ function zoomOut (e) {
 }
 
 map.on("contextmenu.show", wsLookupOff);
-map.on("contextmenu.hide",wsLookupOff);
+map.on("contextmenu.hide",wsLookupOn);
 
 
 function getShareUrl(){
