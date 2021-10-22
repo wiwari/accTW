@@ -41,10 +41,7 @@ if(urlParams.has('zoom')) //URL papameter format: ?center=lat,lng
     customzoom = parseInt(foundz[1],10);    
 }
 
-// flash URL ? parameters in browser
-// history.pushState({page: 1}, "", "?");
-history.replaceState(null, "", "?");
-// console.log(window.location.search);
+
 
 const map = L.map('map',{
   contextmenu: true,
@@ -54,29 +51,39 @@ const map = L.map('map',{
 	//     callback: showCoordinates
 	// }, {
 	    text: '導航...',
-      iconCls: 'fa fa-map',
+      // iconCls: 'fa fa-map',
+      iconCls: 'fa fa-location-arrow',
 	    callback: openNavigate,
-  }, {
+  }, '-',  {
 	    text: 'NLSC...',
-      iconCls: 'fa fa-map-o',
+      // iconCls: 'fa fa-map-o',
+      icon:'https://maps.nlsc.gov.tw/pics/icon-60x60-ios.png',
 	    callback: openNLSC,
   }, {
 	    text: '地圖瀏覽器...',
-      iconCls: 'fa fa-map-o',
-	    callback: openTWMap3,
+      // iconCls: 'fa fa-map-o',
+      icon: 'https://map.happyman.idv.tw/twmap/icons/twmap3.jpg',
+	    callback: openTWMap3,      
   }, {	    text: '地圖對照器...',
       iconCls: 'fa fa-map-o',
 	    callback: openMC,
+  }, {	    text: 'Google地圖...',
+      // iconCls: 'fa fa-map-o',
+      icon: 'https://lh3.googleusercontent.com/V0Lu6YzAVaCVcjSJ_4Qb0mR_idw-GApETGbkodvDKTH-rpDvHuD6J84jshR_FvXdl5mJxqbIHVdebYCCbQMJNxIxRaIHYFSq6z7laA',
+	    callback: openGM,
   }, '-', {	    text: 'Windy...',
-      iconCls: 'fa fa-cloud',
+      // iconCls: 'fa fa-cloud',
+      icon: 'https://www.windy.com/favicon.ico',
 	    callback: openWindy,
   }, {
 	    text: 'WingGuru...',
-      iconCls: 'fa fa-cloud',
+      // iconCls: 'fa fa-cloud',
+      icon: 'https://www.windguru.cz/img/windguru-icon-192x192.png',
 	    callback: openWingGuru,
   }, {
 	    text: 'Meteoblue...',
-      iconCls: 'fa fa-cloud',
+      // iconCls: 'fa fa-cloud',
+      icon:'https://www.meteoblue.com/favicon.ico',
 	    callback: openMeteoblue,
 	}, '-', {	    
       text: '置中',
@@ -454,7 +461,7 @@ map.on("zoomstart", zoomstart_check);
 
 function zoomend_check(e){
   if (map.getZoom()>=8 && map.getZoom()<=18){
-    lyctrl.addOverlay(read_catchment,"集水區");
+    lyctrl.addOverlay(read_catchment,"集水面積");
     read_catchment.addLayer(wscircle);
   }  
 }
@@ -748,12 +755,13 @@ function searched(e){
     'event_category': 'poi',
     'event_label': "search: "+$(".glass").val(),
     // 'non_interaction': true  
-  });      
+  });
+  history.replaceState(null, "", "?q="+$(".glass").val());
 }
 
 // Gross hair for mobile device
-if (L.Browser.mobile){
-  var controlCross =L.control.centerCross({show: true, toggleText: '✛', toggleTitle: '十字標示'});
+if (L.Browser.mobile) {
+  var controlCross = L.control.centerCross({ show: true, toggleText: '✛', toggleTitle: '十字標示' });
   map.addControl(controlCross);
 }
 
@@ -786,70 +794,59 @@ if (L.Browser.mobile){
 
 //context menu testing
 
-function copyShareURLtoclipboard(e){
-  
-    // // for Firfox only
-    // console.log("not iOS");
-    // navigator.clipboard.writeText(getShareUrl()).then(function() {
-    //   /* clipboard successfully set */
-    //   // console.log("pasted");
-    // }, function() {
-    //   /* clipboard write failed */
-    //   console.log("ERROR while copy share URL to clipboard");
-    // });
+function copyShareURLtoclipboard(e) {
 
-    // for iOS and chrome and better compatibility for newer broser    
-    $(".ios-clipboard").show(); 
-    $(".ios-clipboard").val(getShareUrl());
-    iosCopyToClipboard(document.getElementsByClassName('ios-clipboard')[0]);
-    document.getElementsByClassName('map')[0].focus();   
-    // document.getSelection().removeAllRanges();
-    $(".ios-clipboard").hide();
+  // // for Firfox only
+  // console.log("not iOS");
+  // navigator.clipboard.writeText(getShareUrl()).then(function() {
+  //   /* clipboard successfully set */
+  //   // console.log("pasted");
+  // }, function() {
+  //   /* clipboard write failed */
+  //   console.log("ERROR while copy share URL to clipboard");
+  // });
 
-    gtag('event', 'share', {
-      'event_category': 'engagement',
-      'event_label': 'copy URL',
-      // 'non_interaction': true  
-    });      
-}
+  // for iOS and chrome and better compatibility for newer broser    
+  $(".ios-clipboard").show();
+  $(".ios-clipboard").val(getShareUrl());
+  iosCopyToClipboard(document.getElementsByClassName('ios-clipboard')[0]);
+  document.getElementsByClassName('map')[0].focus();
+  // document.getSelection().removeAllRanges();
+  $(".ios-clipboard").hide();
 
-function showCoordinates (e) {
-	alert(e.latlng);
-}
-function openNavigate (e) {	  
-  const lookupLatLng = map.getCenter();
-  if(L.Browser.android){ //Andoird works perfectly
-    shareUrl = "geo:"+ lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+ "?q="+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"&z="+map.getZoom();  // Android pin on the point
-  }else{ //iOS and PC not so good should handle wscircle action
-    
-    if(L.Browser.mobile){ //iOS
-      shareUrl = "https://www.google.com/maps/dir/?api=1&destination="+ map.getCenter().lat.toFixed(6) +"," + map.getCenter().lng.toFixed(6); // Android only open APP    
-    }else{ //PC
-      shareUrl = "https://www.google.com/maps/dir/?api=1&destination="+ e.latlng.lat.toFixed(6) +"," + e.latlng.lng.toFixed(6); // Android only open APP    
-    }
-
-    // Show Google Map only
-    // shareUrl = "https://www.google.com/maps/@?api=1&map_action=map&center="+map.getCenter().lat.toFixed(6) +"," + map.getCenter().lng.toFixed(6)+"&zoom=" +map.getZoom(); // Android only open APP
-
-    // https://www.google.com/maps/@?api=1&map_action=map&center=23,121&zoom=11
-  }
-  window.open(shareUrl);  
-  gtag('event', 'openMap', {
-    'event_category': 'context',
-    'event_label': 'navigate',   
-    'non_interaction': true     
+  gtag('event', 'share', {
+    'event_category': 'engagement',
+    'event_label': 'copy URL',
+    // 'non_interaction': true  
   });
 }
 
+function showCoordinates(e) {
+  alert(e.latlng);
+}
+function openNavigate(e) {
+  const lookupLatLng = map.getCenter();
+  if (L.Browser.android) { //Andoird works perfectly
+    shareUrl = "geo:" + lookupLatLng.lat.toFixed(6) + "," + lookupLatLng.lng.toFixed(6) + "?q=" + lookupLatLng.lat.toFixed(6) + "," + lookupLatLng.lng.toFixed(6) + "&z=" + map.getZoom();  // Android pin on the point
+  } else { //iOS and PC not so good should handle wscircle action
 
-// https://map.happyman.idv.tw/~mountain/twmap3/?goto=24.000000,121.000000&zoom=14
-// https://map.happyman.idv.tw/~mountain/twmap3/?zoom=12&goto="POI"
-// Studing happyman URL parameter
+    if (L.Browser.mobile) { //iOS
+      shareUrl = "https://www.google.com/maps/dir/?api=1&destination=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6); // Android only open APP    
+    } else { //PC
+      shareUrl = "https://www.google.com/maps/dir/?api=1&destination=" + e.latlng.lat.toFixed(6) + "," + e.latlng.lng.toFixed(6); // Android only open APP    
+    }
+  }
+  window.open(shareUrl);
+  gtag('event', 'openMap', {
+    'event_category': 'context',
+    'event_label': 'navigate',
+    'non_interaction': true
+  });
+}
 
 function openTWMap3 (e) {	
-  const lookupLatLng = map.getCenter();
-  // shareUrl = "geo:"+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"?z="+map.getZoom(); // Android only open APP
-  shareUrl = "https://map.happyman.idv.tw/~mountain/twmap3/?goto="+lookupLatLng.lat.toFixed(6)+","+ lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom(); // Android pin on the point
+  const lookupLatLng = map.getCenter();  
+  shareUrl = "https://map.happyman.idv.tw/~mountain/twmap3/?goto="+lookupLatLng.lat.toFixed(6)+","+ lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom();
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
@@ -859,9 +856,8 @@ function openTWMap3 (e) {
 }
 
 function openNLSC (e) {	
-  const lookupLatLng = map.getCenter();
-  // shareUrl = "geo:"+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"?z="+map.getZoom(); // Android only open APP
-  shareUrl = "https://maps.nlsc.gov.tw/go/"+lookupLatLng.lng.toFixed(6)+"/"+ lookupLatLng.lat.toFixed(6) + "/" + map.getZoom();  // Android pin on the point
+  const lookupLatLng = map.getCenter();  
+  shareUrl = "https://maps.nlsc.gov.tw/go/"+lookupLatLng.lng.toFixed(6)+"/"+ lookupLatLng.lat.toFixed(6) + "/" + map.getZoom();
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
@@ -870,15 +866,25 @@ function openNLSC (e) {
   });
 }
 
-function openMC (e) {	
+function openMC(e) {
   const lookupLatLng = map.getCenter();
-  // shareUrl = "geo:"+lookupLatLng.lat.toFixed(6) +"," + lookupLatLng.lng.toFixed(6)+"?z="+map.getZoom(); // Android only open APP
-  shareUrl = "https://mc.basecamp.tw/#"+ map.getZoom()+"/"+lookupLatLng.lat.toFixed(6) + "/"+lookupLatLng.lng.toFixed(6)  ;  // Android pin on the point
+  shareUrl = "https://mc.basecamp.tw/#" + map.getZoom() + "/" + lookupLatLng.lat.toFixed(6) + "/" + lookupLatLng.lng.toFixed(6);
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
-    'event_label': 'MC',   
-    'non_interaction': true     
+    'event_label': 'MC',
+    'non_interaction': true
+  });
+}
+
+function openGM(e) {
+  const lookupLatLng = map.getCenter();
+  shareUrl = "https://www.google.com/maps/@?api=1&map_action=map&center=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6) + "&zoom=" + map.getZoom() + "&basemap=satellite";   
+  window.open(shareUrl);
+  gtag('event', 'openMap', {
+    'event_category': 'context',
+    'event_label': 'GoogleMap',
+    'non_interaction': true
   });
 }
 
@@ -917,13 +923,6 @@ function openWingGuru (e) {
 
 function centerMap (e) {
 	map.panTo(e.latlng);
-}
-
-function zoomIn (e) {
-	map.zoomIn();
-}
-function zoomOut (e) {
-	map.zoomOut();
 }
 
 map.on("contextmenu.show", wsLookupOff);
@@ -974,3 +973,16 @@ function iosCopyToClipboard(el) {
 
   document.execCommand('copy');  
 }
+
+
+
+if (urlParams.has('q')) { //URL papameter format: ?center=lat,lng
+  if (querypoi = urlParams.get('q').match(/^(\S*)$/)) {    
+    $(".glass").val(querypoi[1]);
+  }
+}
+
+// flash URL ? parameters in browser
+// history.pushState({page: 1}, "", "?");
+history.replaceState(null, "", "?");
+// console.log(window.location.search);
