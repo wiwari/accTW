@@ -1,5 +1,5 @@
 const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);  
+const urlParams = new URLSearchParams(queryString);
 // console.log(queryString);
 // console.log("-------------");
 // console.log("SHOW ALL URL PARAMETERS");    
@@ -13,18 +13,18 @@ const urlParams = new URLSearchParams(queryString);
 // var customcenter =new L.latLng(22.75, 120.75); 
 // default view for Taiwan
 var customzoom = 10;
-var customcenter =new L.latLng(23.6, 121); //default view for Shensan Canyon
+var customcenter = new L.latLng(23.6, 121); //default view for Shensan Canyon
 
 // const ios=!window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent); //iOS detection
 
-const regxCenter=/^(-?\d+.?\d+),(-?\d+.?\d+)$/;  
-if(urlParams.has('center')) //URL papameter format: ?center=lat,lng
-  if (found = urlParams.get('center').match(regxCenter)){
-    customcenter = new L.latLng(found[1],found[2]);     
+const regxCenter = /^(-?\d+.?\d+),(-?\d+.?\d+)$/;
+if (urlParams.has('center')) //URL papameter format: ?center=lat,lng
+  if (found = urlParams.get('center').match(regxCenter)) {
+    customcenter = new L.latLng(found[1], found[2]);
   }
 
 // a nice way to share to different APPs
-  //geo:23.458,120.267?z=8
+//geo:23.458,120.267?z=8
 
 //#map=8/23.611/120.768 refer to openstreetmap
 // console.log(window.location.hash); //show hash
@@ -36,82 +36,85 @@ if(urlParams.has('center')) //URL papameter format: ?center=lat,lng
 
 // ?zoom=8&center=25,121
 
-if(urlParams.has('zoom')) //URL papameter format: ?center=lat,lng
-  if (foundz = urlParams.get('zoom').match(/^(\d*)$/)){
-    customzoom = parseInt(foundz[1],10);    
-}
+if (urlParams.has('zoom')) //URL papameter format: ?center=lat,lng
+  if (foundz = urlParams.get('zoom').match(/^(\d*)$/)) {
+    customzoom = parseInt(foundz[1], 10);
+  }
 
 
 
-const map = L.map('map',{
+const map = L.map('map', {
   contextmenu: true,
   contextmenuWidth: 140,
-	contextmenuItems: [{
-	//     text: '顯示座標',
-	//     callback: showCoordinates
-	// }, {
-	    text: '導航...',
-      // iconCls: 'fa fa-map',
-      iconCls: 'fa fa-location-arrow',
-	    callback: openNavigate,
-  }, '-',  {
-	    text: 'NLSC...',
-      // iconCls: 'fa fa-map-o',
-      icon:'https://maps.nlsc.gov.tw/pics/icon-60x60-ios.png',
-	    callback: openNLSC,
+  contextmenuItems: [{
+    //     text: '顯示座標',
+    //     callback: showCoordinates
+    // }, {
+    text: '導航...',
+    // iconCls: 'fa fa-map',
+    iconCls: 'fa fa-location-arrow',
+    callback: openNavigate,
+  }, '-', {
+    text: 'NLSC...',
+    // iconCls: 'fa fa-map-o',
+    icon: 'https://maps.nlsc.gov.tw/pics/icon-60x60-ios.png',
+    callback: openNLSC,
   }, {
-	    text: '地圖瀏覽器...',
-      // iconCls: 'fa fa-map-o',
-      icon: 'https://map.happyman.idv.tw/twmap/icons/twmap3.jpg',
-	    callback: openTWMap3,      
-  }, {	    text: '地圖對照器...',
-      iconCls: 'fa fa-map-o',
-	    callback: openMC,
-  }, {	    text: 'Google地圖...',
-      // iconCls: 'fa fa-map-o',
-      icon: 'https://lh3.googleusercontent.com/V0Lu6YzAVaCVcjSJ_4Qb0mR_idw-GApETGbkodvDKTH-rpDvHuD6J84jshR_FvXdl5mJxqbIHVdebYCCbQMJNxIxRaIHYFSq6z7laA',
-	    callback: openGM,
-  }, '-', {	    text: 'Windy...',
-      // iconCls: 'fa fa-cloud',
-      icon: 'https://www.windy.com/favicon.ico',
-	    callback: openWindy,
+    text: '地圖瀏覽器...',
+    // iconCls: 'fa fa-map-o',
+    icon: 'https://map.happyman.idv.tw/twmap/icons/twmap3.jpg',
+    callback: openTWMap3,
   }, {
-	    text: 'WingGuru...',
-      // iconCls: 'fa fa-cloud',
-      icon: 'https://www.windguru.cz/img/windguru-icon-192x192.png',
-	    callback: openWingGuru,
+    text: '地圖對照器...',
+    iconCls: 'fa fa-map-o',
+    callback: openMC,
   }, {
-	    text: 'Meteoblue...',
-      // iconCls: 'fa fa-cloud',
-      icon:'https://www.meteoblue.com/favicon.ico',
-	    callback: openMeteoblue,
-	}, '-', {	    
-      text: '置中',
-	    iconCls: 'fa fa-align-center ',
-      // icon: 'images/zoom-in.png',
-	    callback: centerMap
-	// }, {
-	//     text: '複製到剪貼簿',
-	//     iconCls: 'fa fa-clipboard ',
-  //     // icon: 'images/zoom-in.png',
-	//     callback: copyShareURLtoclipboard
-	}, {
-	    text: '複製分享連結',
-	    iconCls: 'fa fa-share-alt',
-      // icon: 'images/zoom-out.png',
-	    callback: copyShareURLtoclipboard
-	}],
-  zoomControl: true,
+    text: 'Google地圖...',
+    // iconCls: 'fa fa-map-o',
+    icon: 'https://lh3.googleusercontent.com/V0Lu6YzAVaCVcjSJ_4Qb0mR_idw-GApETGbkodvDKTH-rpDvHuD6J84jshR_FvXdl5mJxqbIHVdebYCCbQMJNxIxRaIHYFSq6z7laA',
+    callback: openGM,
+  }, '-', {
+    text: 'Windy...',
+    // iconCls: 'fa fa-cloud',
+    icon: 'https://www.windy.com/favicon.ico',
+    callback: openWindy,
+  }, {
+    text: 'WingGuru...',
+    // iconCls: 'fa fa-cloud',
+    icon: 'https://www.windguru.cz/img/windguru-icon-192x192.png',
+    callback: openWingGuru,
+  }, {
+    text: 'Meteoblue...',
+    // iconCls: 'fa fa-cloud',
+    icon: 'https://www.meteoblue.com/favicon.ico',
+    callback: openMeteoblue,
+  }, '-', {
+    text: '置中',
+    iconCls: 'fa fa-align-center ',
+    // icon: 'images/zoom-in.png',
+    callback: centerMap
+    // }, {
+    //     text: '複製到剪貼簿',
+    //     iconCls: 'fa fa-clipboard ',
+    //     // icon: 'images/zoom-in.png',
+    //     callback: copyShareURLtoclipboard
+  }, {
+    text: '複製分享連結',
+    iconCls: 'fa fa-share-alt',
+    // icon: 'images/zoom-out.png',
+    callback: copyShareURLtoclipboard
+  }],
+  zoomControl: false,
   // boxZoom: true,
-  wheelPxPerZoomLevel : 200,
+  wheelPxPerZoomLevel: 200,
   wheelDebounceTime: 30,
   doubleTapDragZoom: "center",
   keyboard: true,
-  bounds: ([[5,100], [40,140]]), //WGS DEM bound
+  bounds: ([[5, 100], [40, 140]]), //WGS DEM bound
   doubleTapDragZoomOptions: {
     reverse: true,
   },
-  
+
 });
 // map.setView([22.75, 120.75], 10);  //default view for Shensan Canyon
 
@@ -151,7 +154,7 @@ L.control.scale().addTo(map);
 // rudytile.addTo(map);
 
 
-const nlscEMAPtileLowDPI = L.tileLayer(    
+const nlscEMAPtileLowDPI = L.tileLayer(
   'https://wmts.nlsc.gov.tw/wmts/EMAP/default/EPSG:3857/{z}/{y}/{x}', // standard EMAP  
   {
     attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
@@ -162,7 +165,7 @@ const nlscEMAPtileLowDPI = L.tileLayer(
 
   });
 // nlscEMAPtileLowDPI.addTo(map);
-const nlscEMAPtileHighDPI = L.tileLayer(  
+const nlscEMAPtileHighDPI = L.tileLayer(
   'https://wmts.nlsc.gov.tw/wmts/EMAP96/default/EPSG:3857/{z}/{y}/{x}', // highDPI EMAP
   {
     attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
@@ -171,7 +174,7 @@ const nlscEMAPtileHighDPI = L.tileLayer(
     maxNativeZoom: 19,
     // bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound
   });
-  // nlscEMAPtileHighDPI.addTo(map);
+// nlscEMAPtileHighDPI.addTo(map);
 
 var nlscEMAP = L.layerGroup([nlscEMAPtileLowDPI, nlscEMAPtileHighDPI]);
 nlscEMAP.addTo(map);
@@ -210,7 +213,7 @@ const happymantile = L.tileLayer(
     maxNativeZoom: 16,
     // zoomOffset: (L.Browser.retina ? -1 : 0),
     // tileSize: (L.Browser.retina ? 512 : 256),
-    bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound
+    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
   });
 happymantile.addTo(map);
 
@@ -222,7 +225,7 @@ const nlscphoto2tile = L.tileLayer(
     minZoom: 17, //native zoom 7~19 
     maxZoom: 20,
     maxNativeZoom: 19,
-    bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound
+    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
   });
 nlscphoto2tile.addTo(map);
 
@@ -231,15 +234,15 @@ const MOEACGS = L.tileLayer(
   {
     // source: https://gis3.moeacgs.gov.tw/api/Tile/v1/oas/#/default/get_getTile_cfm
     attribution: '© <strong><a href="https://gis3.moeacgs.gov.tw">MOEGCGS</a> </strong>',
-    minZoom: 7, 
+    minZoom: 7,
     maxZoom: 20,
     minNativeZoom: 1,
-    maxNativeZoom: 17,  
+    maxNativeZoom: 17,
     opacity: 0.3,
     // interactive: true,  
-    bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound  
+    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound  
   });
-  // MOEACGS.addTo(map);
+// MOEACGS.addTo(map);
 
 
 
@@ -249,7 +252,7 @@ const MOEACGS = L.tileLayer(
 //   .openOn(MOEACGS);
 
 MOEACGS.on("add", eadd);
-function eadd(e){
+function eadd(e) {
   map.on("click", queryMOEACGS);
   gtag('event', 'layerOn', {
     'event_category': 'layer',
@@ -257,7 +260,8 @@ function eadd(e){
   });
 }
 MOEACGS.on("remove", eremove);
-function eremove(e){  
+function eremove(e) {
+  map.closePopup();
   map.off("click", queryMOEACGS);
   gtag('event', 'layerOff', {
     'event_category': 'layer',
@@ -272,7 +276,7 @@ const nlscLiDAR2019 = L.tileLayer(
     minZoom: 17, //native zoom 9-20, set 17 as default 
     maxZoom: 21,
     maxNativeZoom: 20,
-    bounds: ([[23.923255,120.482868],[24.498475,121.508168]]),    
+    bounds: ([[23.923255, 120.482868], [24.498475, 121.508168]]),
   });
 // nlscLiDAR2019.addTo(map);
 const nlscLiDAR2020 = L.tileLayer(
@@ -282,7 +286,7 @@ const nlscLiDAR2020 = L.tileLayer(
     minZoom: 17, //native zoom 9-20, set 17 as default 
     maxZoom: 21,
     maxNativeZoom: 20,
-    bounds: ([[22.723201,120.857965],[23.94844,121.133177]]),
+    bounds: ([[22.723201, 120.857965], [23.94844, 121.133177]]),
   });
 // nlscLiDAR2020.addTo(map);
 
@@ -299,7 +303,7 @@ const happymanGPXoverlay = L.tileLayer(
     zoomOffset: -1,
     tileSize: 512,
     opacity: 0.4,
-    
+
   });
 happymanGPXoverlay.addTo(map);
 
@@ -313,11 +317,11 @@ const happymanBNoverlay = L.tileLayer(
     zoomOffset: -1,
     tileSize: 512,
     opacity: 0.6,
-    bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound
+    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
   });
 happymanBNoverlay.addTo(map);
 
-      
+
 const nlscEMAPoverlay = L.tileLayer(
   'https://wmts.nlsc.gov.tw/wmts/EMAP12/default/EPSG:3857/{z}/{y}/{x}',
   {
@@ -325,7 +329,7 @@ const nlscEMAPoverlay = L.tileLayer(
     minZoom: 16, //native zoom 9-19
     maxZoom: 19,
     maxNativeZoom: 19,
-    bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound  
+    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound  
   });
 nlscEMAPoverlay.addTo(map);
 
@@ -348,9 +352,9 @@ const dtmTW = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/t
   opacity: 0,
   minZoom: 7, //min 10
   // maxZoom: 14,
-  minNativeZoom: 6, 
+  minNativeZoom: 6,
   maxNativeZoom: 12,
-  bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS TW DEM bound
+  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS TW DEM bound
   // bounds: ([[20.72799,122.9312], [26.60305,118.1036]]), //bound provided by osmhacktw
 }).addTo(map);
 
@@ -375,14 +379,14 @@ const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiw
   opacity: 0.0,
   minZoom: 7, //min 10
   // maxZoom: 14,
-  minNativeZoom: 7, 
-  maxNativeZoom: 14,  
-  bounds: ([[21.89080851,122.01364715], [25.30194682,120.01663670]]), //WGS DEM bound
+  minNativeZoom: 7,
+  maxNativeZoom: 14,
+  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
 }).addTo(map);
 
 // test show basin size
 const wscircle = L.circle([22.75, 120.75], { radius: 2000, dashArray: '2, 6', interactive: false, fillOpacity: 0, });
-basinsizeTP = L.tooltip({ offset: L.point(30, -30), opacity:1 });
+basinsizeTP = L.tooltip({ offset: L.point(30, -30), opacity: 1 });
 wscircle.bindTooltip(basinsizeTP);
 wscircle.setTooltipContent("集水區????km²");
 wscircle.closeTooltip();
@@ -413,10 +417,10 @@ function lookupvalue(event) {
     accVal = accVal === 0x800000 ? NaN : (accVal > 0x800000 ? accVal - 0x1000000 : accVal) * 0.1 - 10000.0; //convension base -10000, internal 0.1 
     if (accVal < 0.1 || isNaN(accVal)) {
       wscircle.closeTooltip();
-      wscircle.setStyle({opacity:0});
+      wscircle.setStyle({ opacity: 0 });
     } else {
       wscircle.openTooltip();
-      wscircle.setStyle({opacity:1});
+      wscircle.setStyle({ opacity: 1 });
     }
     if ((accVal) >= 0.0) {
       wscircle.setRadius(1000.0 * Math.sqrt(accVal / Math.PI));
@@ -431,45 +435,45 @@ function lookupvalue(event) {
     // h = h === 0x800000 ? NaN : (h > 0x800000 ? h - 0x1000000 : h) / 100;
     dtmVal = dtmVal === 0x800000 ? NaN : (dtmVal > 0x800000 ? dtmVal - 0x1000000 : dtmVal) * 0.1 - 10000.0; //convension base -10000, internal 0.1
   }
-  
-  accinfo=(isNaN(accVal) ? "" : //no raster data
-    (accVal < 0) ? "" : //nodata in raster
-    (accVal < 10) ? "💧"+accVal.toFixed(1) + "km²" : //nodata in raster    
-    "💧"+accVal.toFixed(0) + "km²");
-    accinfo = "<div>"+accinfo+"</div>";
-  
-  dtminfo = (isNaN(dtmVal) ? "" : //no raster data
-     "h "+dtmVal.toFixed(0) + "m" );
-  dtminfo = "<div>"+dtminfo+"</div>";
 
-  promptinfo = accinfo + dtminfo ;
+  accinfo = (isNaN(accVal) ? "" : //no raster data
+    (accVal < 0) ? "" : //nodata in raster
+      (accVal < 10) ? "💧" + accVal.toFixed(1) + "km²" : //nodata in raster    
+        "💧" + accVal.toFixed(0) + "km²");
+  accinfo = "<div>" + accinfo + "</div>";
+
+  dtminfo = (isNaN(dtmVal) ? "" : //no raster data
+    "h " + dtmVal.toFixed(0) + "m");
+  dtminfo = "<div>" + dtminfo + "</div>";
+
+  promptinfo = accinfo + dtminfo;
   wscircle.setTooltipContent(promptinfo);
   // map.attributionControl.setPrefix(promptinfo);  
 }
 
 // geo:23.458,120.267?z=8 
 
-read_catchment=L.featureGroup();
+read_catchment = L.featureGroup();
 read_catchment.addLayer(catchment);
 // read_catchment.addLayer(wscircle);
 
-read_catchment.on("add",wsLookupOn);
-read_catchment.on("remove ",wsLookupOff);
+read_catchment.on("add", wsLookupOn);
+read_catchment.on("remove ", wsLookupOff);
 map.on("zoomend", zoomend_check);
 map.on("zoomstart", zoomstart_check);
 
 
-function zoomend_check(e){
-  if (map.getZoom()>=8 && map.getZoom()<=18){
-    lyctrl.addOverlay(read_catchment,"集水面積");
+function zoomend_check(e) {
+  if (map.getZoom() >= 8 && map.getZoom() <= 18) {
+    lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);
-  }  
+  }
 }
-function zoomstart_check(e){
-  if (map.getZoom()>=8 && map.getZoom()<=18){
+function zoomstart_check(e) {
+  if (map.getZoom() >= 8 && map.getZoom() <= 18) {
     lyctrl.removeLayer(read_catchment);
     read_catchment.removeLayer(wscircle);
-  }  
+  }
 }
 
 // map.on("zoomend",wsLookupOn);
@@ -478,23 +482,35 @@ function zoomstart_check(e){
 // TODO外連連結
 // https://image.afasi.gov.tw/map_searching/map.aspx //農林航照
 
-  proj4.defs([
-    [
-      'EPSG:4326',      
-      '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
-    [
-      'EPSG:3826',
-      '+title=TWD97 TM2+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +units=公尺 +no_defs'
-    ],
-    [
-      'EPSG:3828',
-      '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=aust_SA'
-    ]
-   ]);
-  var EPSG3826 = new proj4.Proj('EPSG:3826');//TWD97 121分帶  
-  var EPSG4326 = new proj4.Proj('EPSG:4326');//WGS84
- 
-async function queryMOEACGS(e){
+proj4.defs([
+  [
+    'EPSG:4326',
+    '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
+  [
+    'EPSG:3826',
+    '+title=TWD97 TM2+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +units=公尺 +no_defs'
+  ],
+  [
+    'EPSG:3828',
+    // '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=aust_SA' //
+    '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=aust_SA +towgs84=-752,-358,-179,-0.0000011698,0.0000018398,0.0000009822,0.00002329 +units=m +no_defs'
+  ],
+  [
+    'EPSG:3821',
+    '+proj=longlat +ellps=aust_SA +no_defs'
+  ],
+  [
+    'EPSG:3824',
+    '+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs'
+  ]
+]);
+var EPSG4326 = new proj4.Proj('EPSG:4326');//WGS84
+var EPSG3826 = new proj4.Proj('EPSG:3826');//TWD97 121分帶  
+var EPSG3821 = new proj4.Proj('EPSG:3821');//TWD67 經緯度
+var EPSG3824 = new proj4.Proj('EPSG:3824');//TWD97 經緯度
+
+
+async function queryMOEACGS(e) {
   // Todo 地質查詢 ================================
   // https://gis3.moeacgs.gov.tw/api/Tile/v1/oas/#/default/get_getTooltip_cfm
   // 地質資訊 https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=12&x=309758&y=2730559
@@ -502,51 +518,51 @@ async function queryMOEACGS(e){
   // zoom: 1-17
 
   //4326轉3826 (經緯度轉TWD97)
-  var tw97 = proj4(EPSG4326, EPSG3826, [e.latlng.lng , e.latlng.lat ]);  
+  var tw97 = proj4(EPSG4326, EPSG3826, [e.latlng.lng, e.latlng.lat]);
   // console.log(tw97[0],  tw97[1]);
   const queryzoom = (map.getZoom() > 17) ? 17 : map.getZoom();
   await $.getJSON("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
     var cleandata = data['tooltip'];
-    cleandata = cleandata.replace(/構造名稱：/g,"");
-    cleandata = cleandata.replace(/構造名稱：\s*\n/g,"");
-    cleandata = cleandata.replace(/構造描述：/g,"");
-    cleandata = cleandata.replace(/地質年代：/g,"");    
-    cleandata = cleandata.replace(/地層名稱：/g,"");
-    cleandata = cleandata.replace(/圖例描述：/g,"");
-    cleandata = cleandata.replace(/斷層名稱：/g,"");
-    cleandata = cleandata.replace(/斷層描述：/g,"");
-    cleandata = cleandata.replace(/地層組成：/g,"");
-    cleandata = cleandata.replace(/(資料來源：\s*一百萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g,"1M地質圖, $3");    
-    cleandata = cleandata.replace(/(資料來源：\s*五十萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g,"50萬地質圖, $3");
-    cleandata = cleandata.replace(/(資料來源：五十萬分之一臺灣區域地質圖數值檔-臺灣)/g,"50萬地質圖"); 
-    cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g,"25萬地質圖, $3"); 
-    cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔-臺灣)/g,"25萬地質圖");     
-    cleandata = cleandata.replace(/(資料來源：\s*五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g,"5萬地質圖-$2, $3");                                         
-    cleandata = cleandata.replace(/([^\n]+)/g,"<li>$1</li>");
+    cleandata = cleandata.replace(/構造名稱：/g, "");
+    cleandata = cleandata.replace(/構造名稱：\s*\n/g, "");
+    cleandata = cleandata.replace(/構造描述：/g, "");
+    cleandata = cleandata.replace(/地質年代：/g, "");
+    cleandata = cleandata.replace(/地層名稱：/g, "");
+    cleandata = cleandata.replace(/圖例描述：/g, "");
+    cleandata = cleandata.replace(/斷層名稱：/g, "");
+    cleandata = cleandata.replace(/斷層描述：/g, "");
+    cleandata = cleandata.replace(/地層組成：/g, "");
+    cleandata = cleandata.replace(/(資料來源：\s*一百萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "1M地質圖, $3");
+    cleandata = cleandata.replace(/(資料來源：\s*五十萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "50萬地質圖, $3");
+    cleandata = cleandata.replace(/(資料來源：五十萬分之一臺灣區域地質圖數值檔-臺灣)/g, "50萬地質圖");
+    cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "25萬地質圖, $3");
+    cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔-臺灣)/g, "25萬地質圖");
+    cleandata = cleandata.replace(/(資料來源：\s*五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "5萬地質圖-$2, $3");
+    cleandata = cleandata.replace(/([^\n]+)/g, "<li>$1</li>");
     // cleandata = cleandata.replace(/([^\n]+)/g,"$1");
-    cleandata = cleandata.replace(/\s+/g," ");    
-    cleandata = cleandata.replace(/(\S)\(/g,"$1 (");
-    cleandata = cleandata.replace(/\(/g,"<br />(");
-    cleandata = cleandata.replace(/\s+\)/g,")");
-    cleandata = cleandata.replace(/，/g,"、");
-    if (cleandata != ""){
-    L.popup({className: "moeacgs-div-span",})
-      .setLatLng(e.latlng)
-      .setContent("<ul>"+cleandata+"</ul>")
-      .openOn(map);
+    cleandata = cleandata.replace(/\s+/g, " ");
+    cleandata = cleandata.replace(/(\S)\(/g, "$1 (");
+    cleandata = cleandata.replace(/\(/g, "<br />(");
+    cleandata = cleandata.replace(/\s+\)/g, ")");
+    cleandata = cleandata.replace(/，/g, "、");
+    if (cleandata != "") {
+      L.popup({ className: "moeacgs-div-span", MOEACGS})
+        .setLatLng(e.latlng)
+        .setContent("<ul>" + cleandata + "</ul>")
+        .openOn(map);
     }
     gtag('event', 'queryMOEACGS', {
       'event_category': 'layer',
       'event_label': 'MOEACGS',
-    }); 
+    });
   });
   // console.log();
-    // TEST ====================
+  // TEST ====================
 
 
-    // MOEACGS.bindTooltip("ABC");
-    // MOEACGS.openTooltip();
-    // MOEACGS.setTooltipContent("XXX");
+  // MOEACGS.bindTooltip("ABC");
+  // MOEACGS.openTooltip();
+  // MOEACGS.setTooltipContent("XXX");
 }
 // map.on("click", queryMOEACGS);
 
@@ -564,7 +580,7 @@ async function queryMOEACGS(e){
 //   // for (const [key, value] of urlParams) {
 //   //   console.log(key + " : " + value);    
 //   // } 
-  
+
 // })
 
 // // Configure leaflet-topography seems a better way to work without rendering
@@ -625,17 +641,17 @@ var parkIcon = L.icon({
 });
 
 
-const lyctrl=L.control.layers({
-  "正射影像":nlscphoto2tile,
-},{
-  "光達影像":nlscLiDAR,"地質查詢":MOEACGS,"產生器GPX":happymanGPXoverlay,"產生器BN":happymanBNoverlay,"nlsc透明":nlscEMAPoverlay,
+const lyctrl = L.control.layers({
+  "正射影像": nlscphoto2tile,
+}, {
+  "光達影像": nlscLiDAR, "地質查詢": MOEACGS, "產生器GPX": happymanGPXoverlay, "產生器BN": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
   //"集水區":read_catchment,
 }).addTo(map);
 
 
 
-function wsLookupOff(event){    
-  
+function wsLookupOff(event) {
+
   if (L.Browser.mobile) {
     map.off("move", lookupvalue);
   } else {
@@ -644,10 +660,10 @@ function wsLookupOff(event){
   wscircle.closeTooltip();
   // read_catchment.removeFrom(map);  
   // wscircle.closenTooltip();
-  
+
 }
 
-function wsLookupOn(event){
+function wsLookupOn(event) {
   if (L.Browser.mobile) {
     map.on("move", lookupvalue);
   } else {
@@ -655,10 +671,83 @@ function wsLookupOn(event){
   }
   // read_catchment.addTo(map);  
   // wscircle.openTooltip();    
-      
+
 }
-read_catchment.addTo(map); 
+read_catchment.addTo(map);
 // wsLookupOn(null);
+
+
+var eDate = new Date();
+var sQDate= new Date(eDate.valueOf()-90*24*60*60*1000);
+var sYDate= new Date(eDate.valueOf()-366*24*60*60*1000);
+
+var eDate_str=eDate.getFullYear()+"/"+eDate.getMonth()+"/"+eDate.getDate();
+var sQDate_str=sQDate.getFullYear()+"/"+sQDate.getMonth()+"/"+sQDate.getDate();
+var sYDate_str=sYDate.getFullYear()+"/"+sYDate.getMonth()+"/"+sYDate.getDate();
+
+
+const wl_ly = L.geoJSON([],{
+  style: function (feature) {
+      return {color: feature.properties.color};
+      // return {};
+  }
+}).bindPopup(function (layer) {
+  
+  wl_url_q= "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id +"&category=rtLE&sdate="+sQDate_str+"&edate="+eDate_str;
+  wl_url_y= "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id +"&category=rtLE&sdate="+sYDate_str+"&edate="+eDate_str;
+  return layer.feature.properties.name + " : "  + layer.feature.properties.id +" - "+ layer.feature.properties.river 
+  + '<br /><a href="'+wl_url_q+'">Q</a>'
+  + ', <a href="'+wl_url_y+'">Y</a>';
+});
+// wl_ly.addTo(map);
+
+
+
+async function readWLGeoJON() {
+  console.log("added");
+  // Query Station of Water Level
+  await $.getJSON("http://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?")
+    .done(function (data) {
+      console.log("second success");
+      wl_obs = JSON.parse(data.contents);
+      // console.log(data.contents);
+      // console.log(data.contents.RiverStageObservatoryProfile_OPENDATA);
+      wl_obs.RiverStageObservatoryProfile_OPENDATA.forEach(ob => {
+        if (ob.ObservationStatus == "現存") {
+          obs97loc = ob.LocationByTWD97_XY.match(/(\S+)\s(\S+)/);
+          wgs84 = proj4(EPSG3826, EPSG4326, [parseFloat(obs97loc[1]), parseFloat(obs97loc[2])]);
+          console.log(ob.BasinIdentifier, ob.ObservatoryName, wgs84[0], wgs84[1]);
+          pt = {
+            "type": "Feature",
+            "properties": {
+              "id": ob.BasinIdentifier.replace(/ /g, ""),
+              "name": ob.ObservatoryName.replace(/ /g, ""),
+              "river": ob.RiverName.replace(/ /g, ""),              
+            },
+            "geometry": {
+              "type": "Point",
+              "coordinates": [wgs84[0], wgs84[1]]
+            }
+          };
+          wl_ly.addData(pt);
+        }
+      });
+      lyctrl.addOverlay(wl_ly, "水利署水位站");
+    })
+    .fail(function (data) {
+      console.log("WL Station query error");
+    })
+    .always(function (data) {
+      console.log("complete");
+    });
+}
+// 即時水位 
+// JSON https://gweb.wra.gov.tw/HydroInfoMobile/Chart?containerID=chart-single-rtle&category=rtLE&stno=1140H099&sYear=2021&sMonth=10&sDay=21&eYear=2021&eMonth=10&eDay=24&timeframe=YYMMDD&timeType=hh&mode=0&flow_cnt=&searchType=
+// Chart https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=1140H099&category=rtLE&deptID=14&sdate=2021/07/22&edate=2021/10/24&flow_cnt=&searchType=
+// https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=1140H099&category=rtLE&sdate=2021/03/22&edate=2021/10/24
+
+
+readWLGeoJON();
 
 // //GeoPackageTest =========================================================================
 // L.geoPackageFeatureLayer([], {
@@ -721,27 +810,27 @@ read_catchment.addTo(map);
 
 
 // GPS button for mobile devices
-if(L.Browser.mobile){
+if (L.Browser.mobile) {
   var locator = L.control.locate({
     position: 'topleft',
     strings: {
-        title: "所在位置"
+      title: "所在位置"
     }
   }).addTo(map);
 }
 
 // GeoSearch Button
-const GeoSearch= window.GeoSearch;
+const GeoSearch = window.GeoSearch;
 osmSearcher = new GeoSearch.OpenStreetMapProvider({
   params: {
-    countrycodes: 'tw',   
+    countrycodes: 'tw',
     'accept-language': 'zh',
   },
 });
 const searchControl = new GeoSearch.SearchControl({
   // style: 'button', //'button' | 'bar',
   searchLabel: '搜尋地點',
-  autoComplete : false, 
+  autoComplete: false,
   autoClose: true,
   keepResult: true,
   retainZoomLevel: true,
@@ -749,14 +838,14 @@ const searchControl = new GeoSearch.SearchControl({
 });
 map.addControl(searchControl);
 
-map.on('geosearch/showlocation',searched );
-function searched(e){
+map.on('geosearch/showlocation', searched);
+function searched(e) {
   gtag('event', 'searched', {
     'event_category': 'poi',
-    'event_label': "search: "+$(".glass").val(),
+    'event_label': "search: " + $(".glass").val(),
     // 'non_interaction': true  
   });
-  history.replaceState(null, "", "?q="+$(".glass").val());
+  history.replaceState(null, "", "?q=" + $(".glass").val());
 }
 
 // Gross hair for mobile device
@@ -786,10 +875,13 @@ if (L.Browser.mobile) {
 //   }
 // }).addTo( map );
 
-// L.easyButton('fa-bars', function(btn, map){
-//   alert("已複製到剪貼簿");  
 
-// }).addTo( map );
+
+
+L.easyButton('fa-bars', function(btn, map){
+  // alert("已複製到剪貼簿");  
+
+}).addTo( map );
 
 
 //context menu testing
@@ -844,25 +936,25 @@ function openNavigate(e) {
   });
 }
 
-function openTWMap3 (e) {	
-  const lookupLatLng = map.getCenter();  
-  shareUrl = "https://map.happyman.idv.tw/~mountain/twmap3/?goto="+lookupLatLng.lat.toFixed(6)+","+ lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom();
+function openTWMap3(e) {
+  const lookupLatLng = map.getCenter();
+  shareUrl = "https://map.happyman.idv.tw/~mountain/twmap3/?goto=" + lookupLatLng.lat.toFixed(6) + "," + lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom();
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
-    'event_label': 'TWMap3',   
-    'non_interaction': true     
+    'event_label': 'TWMap3',
+    'non_interaction': true
   });
 }
 
-function openNLSC (e) {	
-  const lookupLatLng = map.getCenter();  
-  shareUrl = "https://maps.nlsc.gov.tw/go/"+lookupLatLng.lng.toFixed(6)+"/"+ lookupLatLng.lat.toFixed(6) + "/" + map.getZoom();
+function openNLSC(e) {
+  const lookupLatLng = map.getCenter();
+  shareUrl = "https://maps.nlsc.gov.tw/go/" + lookupLatLng.lng.toFixed(6) + "/" + lookupLatLng.lat.toFixed(6) + "/" + map.getZoom();
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
-    'event_label': 'NLSC',   
-    'non_interaction': true     
+    'event_label': 'NLSC',
+    'non_interaction': true
   });
 }
 
@@ -879,7 +971,7 @@ function openMC(e) {
 
 function openGM(e) {
   const lookupLatLng = map.getCenter();
-  shareUrl = "https://www.google.com/maps/@?api=1&map_action=map&center=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6) + "&zoom=" + map.getZoom() + "&basemap=satellite";   
+  shareUrl = "https://www.google.com/maps/@?api=1&map_action=map&center=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6) + "&zoom=" + map.getZoom() + "&basemap=satellite";
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
@@ -888,49 +980,49 @@ function openGM(e) {
   });
 }
 
-function openWindy (e) {	
-  const lookupLatLng = map.getCenter();  
-  shareUrl = "https://www.windy.com/"+lookupLatLng.lat.toFixed(3)+"/"+ lookupLatLng.lng.toFixed(3) + "/meteogram?rain,"+lookupLatLng.lat.toFixed(3)+"," +lookupLatLng.lng.toFixed(3)+","+ map.getZoom()+",m:ek1ajxt";  // Android pin on the point
-  window.open(shareUrl);
-  gtag('event', 'openFCST', {
-    'event_category': 'context',
-    'event_label': 'windy',   
-    'non_interaction': true     
-  });
-}
-
-function openMeteoblue (e) {	
+function openWindy(e) {
   const lookupLatLng = map.getCenter();
-  shareUrl = "https://www.meteoblue.com/en/weather/maps/#coords="+ map.getZoom()+ "/" +lookupLatLng.lat.toFixed(3)+"/"+ lookupLatLng.lng.toFixed(3) + "";  // Android pin on the point
+  shareUrl = "https://www.windy.com/" + lookupLatLng.lat.toFixed(3) + "/" + lookupLatLng.lng.toFixed(3) + "/meteogram?rain," + lookupLatLng.lat.toFixed(3) + "," + lookupLatLng.lng.toFixed(3) + "," + map.getZoom() + ",m:ek1ajxt";  // Android pin on the point
   window.open(shareUrl);
   gtag('event', 'openFCST', {
     'event_category': 'context',
-    'event_label': 'mb',   
-    'non_interaction': true     
+    'event_label': 'windy',
+    'non_interaction': true
   });
 }
 
-function openWingGuru (e) {	
-  const lookupLatLng = map.getCenter();  
-  shareUrl = "https://www.windguru.cz/map/?lat="+lookupLatLng.lat.toFixed(6)+"&lon="+lookupLatLng.lng.toFixed(6)+"&zoom="+map.getZoom();  // Android pin on the point
+function openMeteoblue(e) {
+  const lookupLatLng = map.getCenter();
+  shareUrl = "https://www.meteoblue.com/en/weather/maps/#coords=" + map.getZoom() + "/" + lookupLatLng.lat.toFixed(3) + "/" + lookupLatLng.lng.toFixed(3) + "";  // Android pin on the point
   window.open(shareUrl);
   gtag('event', 'openFCST', {
     'event_category': 'context',
-    'event_label': 'wg',   
-    'non_interaction': true     
+    'event_label': 'mb',
+    'non_interaction': true
   });
 }
 
-function centerMap (e) {
-	map.panTo(e.latlng);
+function openWingGuru(e) {
+  const lookupLatLng = map.getCenter();
+  shareUrl = "https://www.windguru.cz/map/?lat=" + lookupLatLng.lat.toFixed(6) + "&lon=" + lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom();  // Android pin on the point
+  window.open(shareUrl);
+  gtag('event', 'openFCST', {
+    'event_category': 'context',
+    'event_label': 'wg',
+    'non_interaction': true
+  });
+}
+
+function centerMap(e) {
+  map.panTo(e.latlng);
 }
 
 map.on("contextmenu.show", wsLookupOff);
-map.on("contextmenu.hide",wsLookupOn);
+map.on("contextmenu.hide", wsLookupOn);
 
 
-function getShareUrl(){
-  return (window.location.origin + window.location.pathname+"?center=" + map.getCenter().lat.toFixed(6) + ","+ map.getCenter().lng.toFixed(6)+"&zoom=" +map.getZoom());
+function getShareUrl() {
+  return (window.location.origin + window.location.pathname + "?center=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6) + "&zoom=" + map.getZoom());
 }
 
 
@@ -939,24 +1031,24 @@ map.setView(customcenter, customzoom);
 
 
 L.Control.urlCtrl4iOS = L.Control.extend({
-  onAdd: function(map) {
-      var text = L.DomUtil.create('input',"ios-clipboard");       
-      text.style.width = '100px'; 
-      text.style.display = 'none';
-      text.value="Clipboard";
-      return text;
+  onAdd: function (map) {
+    var text = L.DomUtil.create('input', "ios-clipboard");
+    text.style.width = '100px';
+    text.style.display = 'none';
+    text.value = "Clipboard";
+    return text;
   },
-  onRemove: function(map) {
-      // Nothing to do here
+  onRemove: function (map) {
+    // Nothing to do here
   }
 });
 new L.Control.urlCtrl4iOS({ position: 'topright' }).addTo(map);
 $(".ios-clipboard").hide();
 
-function iosCopyToClipboard(el) {  
+function iosCopyToClipboard(el) {
   var oldContentEditable = el.contentEditable,
-      oldReadOnly = el.readOnly,
-      range = document.createRange();
+    oldReadOnly = el.readOnly,
+    range = document.createRange();
 
   el.contentEditable = true;
   el.readOnly = false;
@@ -971,13 +1063,13 @@ function iosCopyToClipboard(el) {
   el.contentEditable = oldContentEditable;
   el.readOnly = oldReadOnly;
 
-  document.execCommand('copy');  
+  document.execCommand('copy');
 }
 
 
 
 if (urlParams.has('q')) { //URL papameter format: ?center=lat,lng
-  if (querypoi = urlParams.get('q').match(/^(\S*)$/)) {    
+  if (querypoi = urlParams.get('q').match(/^(\S*)$/)) {
     $(".glass").val(querypoi[1]);
   }
 }

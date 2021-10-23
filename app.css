@@ -1,10 +1,21 @@
+/* body {
+  padding: 0;
+  margin: 0;
+} */
+/* html, body, #map {
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}  */
+
 .map {
-  position: absolute;
+  position: fixed;
   top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px;  
-  font-size: 20px;  
+  font-size: 18px;  
 }
 .my-div-icon {
   color:brown ;
