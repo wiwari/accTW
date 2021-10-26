@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1, user-scalable=no">
   <title>集水區觀察員 | 溪降、溯溪、獨木舟、登山必備工具</title>
   <meta name="keywords" content="計算 集水區 溪降 溯溪 獨木舟 地質 catchment canyoning kayak" />
-  <meta name="description" content="溪流活動的好幫手，計算溪流集水區面積大小，利用內政部 20mDTM 推估逕流累積集水面積，沒紙本兩萬五地圖也能輕鬆查詢得知。" />
+  <meta name="description" content="溪流活動的好幫手，計算溪流集水區面積大小，利用內政部 20mDTM 推估逕流累積集水面積，沒紙本兩萬五地圖也能輕鬆查詢得知。同時查詢鄰近的水位站、雨量站。" />
   <meta property="og:url" content="https://wiwari.github.io/accTW" />
   <meta property="og:title" content="集水區觀察員 | 溪降、溯溪、獨木舟、登山必備工具" />
   <meta property="og:description" content="不數格子就能計算集水區面積？雖然懷念著出隊前拿著經建版畫水線、稜線，框出集水區範圍開始數格子的觸感。但使用手機時，集水區觀察員 (Flow Catchment Observer) 幫你快速估算上游集水區大小。" />  
@@ -13,7 +13,8 @@
   <meta property="og:image" content="https://wiwari.github.io/accTW/og-img600.jpg" />
   <meta property="og:site_name" content="WIWARI"/>
   <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" /> -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin="" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.css">
@@ -24,7 +25,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.5.0/dist/geosearch.css" />
   
   <!-- <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet-src.js"></script> -->
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
   <script src="https://unpkg.com/@ngageoint/leaflet-geopackage@3.0.3/dist/leaflet-geopackage.min.js"></script>
   <!-- <script src="https://raw.githubusercontent.com/frogcat/leaflet-tilelayer-colorpicker/master/leaflet-tilelayer-colorpicker.js" type="module"></script> -->
   <script src="https://unpkg.com/regenerator-runtime" type="text/javascript"></script>
@@ -72,7 +73,7 @@
 
 </head>
 <body>  
-    <div class="container-fluid">
+    <div class="container">
       <div id="map" class="map">
 
         <!-- <div class="leaflet-top leaflet-left">ABC</div> -->
@@ -88,8 +89,9 @@
           <a href="https://grass.osgeo.org/">Grass GIS</a>
           ，推估逕流累積集水面積後，使用 <a href="https://www.osgeo.org/projects/gdal/">GDAL/OGR</a> 轉換並切圖為圖磚形式，提供有網路環境下快速查詢集水區的方式，對於手邊沒有實體紙本地圖者能省略繁瑣的查詢步驟，
           此外，亦界接中央地質調查所提供的 API 供查閱岩質。               
-          <a href="https://github.com/wiwari/accTW"> 台灣區等高線圖磚 github 專案 </a>
+          <a href="https://github.com/wiwari/accTW"> 台灣區等高線圖磚 github 專案 </a> 
         </p>
+        <p>2021/10/26 新增水利署與氣象局的開放資料，取得水位站與雨量站資訊呈現圖上。</p>
         <h1>待辦清單</h1>
         <ul><li>澎湖</li><li>金門</li></ul>
       </div>
