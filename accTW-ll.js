@@ -758,7 +758,7 @@ lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
   // Get realtime waterlevel data
   // https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=2D09DB8B-6A1B-485E-88B5-923A462F475C 
   var realtime_waterlevel={};  
-    $.getJSON("http://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D2D09DB8B-6A1B-485E-88B5-923A462F475C&callback=?", function (data) {    
+    $.getJSON("https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D2D09DB8B-6A1B-485E-88B5-923A462F475C&callback=?", function (data) {    
       
     wlrt_obj=JSON.parse(data.contents);    
       wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
@@ -772,7 +772,7 @@ lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
     // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697
     
     // await $.getJSON("http://localhost:8080/28E06316-FE39-40E2-8C35-7BF070FD8697.json")
-    await $.getJSON("http://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?")
+    await $.getJSON("https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?")
       .done(function (data) {
         // console.log("second success");
         wl_obs = JSON.parse(data.contents);
