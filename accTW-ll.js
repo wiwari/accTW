@@ -642,6 +642,13 @@ var levelupIcon = L.divIcon({
 }
 );
 
+
+var folderIcon = L.divIcon({
+  className: 'container-sm ',
+  html: '<span class="btn-sm btn-primary"> <i class="fa fa-folder text-light" aria-hidden="true"></i></span>'
+}
+);
+
 var myparkIcon = L.divIcon({
   className: 'my-div-icon',
   html: '<span class="my-div-span"> 🅿 </span>'
@@ -972,6 +979,81 @@ async function readRAStatGeoJON() {
 }
 readRAStatGeoJON();
 
+
+
+// 考慮改用 https://fhy.wra.gov.tw/WraApi#!/ReservoirApi/ReservoirApi_Station
+// 104pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station    
+//  68pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/RealTimeInfo
+//  76pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily
+// 98pcs SWRESOIR
+// 335pcs 水庫水情資料 https://data.gov.tw/dataset/45501 名稱由 水庫每日營運狀況 取得
+// 76 水庫每日營運狀況
+// 95 水庫代碼
+// 351 https://data.startupterrace.tw/api/dataset_api/1c81ddae-2bc7-4ca2-b3ff-02ffac0fbc7d 水庫水情資料 from https://data.startupterrace.tw/search/detail/2632a049-d925-4956-b802-7829a9f2a0e1/%E6%B0%B4%E5%BA%AB%E6%B0%B4%E6%83%85%E8%B3%87%E6%96%99
+
+const wraRES = L.geoJSON([], {
+  pointToLayer: function (geoJsonPoint, latlng) {
+    return L.marker(latlng, { icon: folderIcon });
+  }
+}).bindPopup(function (layer) {
+
+  // gtag('event', 'click', {
+  //   'event_category': 'waterlevel',
+  //   'event_label': "station: " + layer.feature.properties.name,
+  //   // 'non_interaction': true  
+  // });
+
+  // eDate = new Date();
+  // sMDate = new Date(eDate.valueOf() - 31 * 24 * 60 * 60 * 1000);
+  // sQDate = new Date(eDate.valueOf() - 92 * 24 * 60 * 60 * 1000);
+  // sYDate = new Date(eDate.valueOf() - 366 * 24 * 60 * 60 * 1000);
+
+  // eDate_str = eDate.getFullYear() + "/" + (eDate.getMonth() + 1) + "/" + eDate.getDate();
+  // sMDate_str = sMDate.getFullYear() + "/" + (sMDate.getMonth() + 1) + "/" + sMDate.getDate();
+  // sQDate_str = sQDate.getFullYear() + "/" + (sQDate.getMonth() + 1) + "/" + sQDate.getDate();
+  // sYDate_str = sYDate.getFullYear() + "/" + (sYDate.getMonth() + 1) + "/" + sYDate.getDate();
+
+  // wl_url_m = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sMDate_str + "&edate=" + eDate_str;
+  // wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sQDate_str + "&edate=" + eDate_str;
+  // wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sYDate_str + "&edate=" + eDate_str;
+
+  // wlrtstr="";
+  // if(realtime_waterlevel.hasOwnProperty(layer.feature.properties.id))
+  //   wlrtstr=     
+  //   "<sub>"+realtime_waterlevel[layer.feature.properties.id].RecordTime +"</sub><br />"
+  //   + realtime_waterlevel[layer.feature.properties.id].WaterLevel + "m<br />"
+  //   ;
+  
+  return '<div class="container-sm">' +
+     layer.feature.properties.RES_NAME + " : " + "<br/>"
+  //   /* + layer.feature.properties.id*/
+     + layer.feature.properties.RV_NAME + "<br/>"
+     + layer.feature.properties.STATUS + "<br/>"
+     + layer.feature.properties.ORG_MNG + "<br/>"
+    //  + '('+layer.feature.properties.ENG_NAME +')' + "<br/>"
+  //   + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
+  //   + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
+  //   + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a>'
+  //   // + '<br />' + wlrtstr
+     + '</div>'
+});
+
+wraRES.on('add',
+  function(){
+    if (map.getZoom() <=9) map.setZoom(10);  
+    read_catchment.remove();
+  }
+);
+lyctrl.addOverlay(wraRES, "水庫堤壩");
+
+$.getJSON("wra/SWRESOIR.json", function (data) {
+  wraRESdata = data;
+  wraRES.addData(wraRESdata.features);
+  // wlrt_obj=JSON.parse(data.contents);    
+  //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
+  //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
+  //   });
+});
 
 
 // //GeoPackageTest =========================================================================
