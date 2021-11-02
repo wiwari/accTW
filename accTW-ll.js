@@ -929,6 +929,9 @@ RALayer.on('add',
 
 lyctrl.addOverlay(RALayer,"雨量站");
 
+
+
+
 var rainstations={};
 
 //水利署水文資訊網 https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=01U050&category=rtRA&deptID=1&sdate=2021/10/22&edate=2021/10/25&flow_cnt=&searchType=
@@ -981,15 +984,17 @@ readRAStatGeoJON();
 
 
 
+
 // 考慮改用 https://fhy.wra.gov.tw/WraApi#!/ReservoirApi/ReservoirApi_Station
-// 104pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station    
+// 104pcs 對照最多，座標有缺 https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station     
 //  68pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/RealTimeInfo
 //  76pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily
-// 98pcs SWRESOIR
+// 98pcs SWRESOIR 最多組座標
 // 335pcs 水庫水情資料 https://data.gov.tw/dataset/45501 名稱由 水庫每日營運狀況 取得
-// 76 水庫每日營運狀況
-// 95 水庫代碼
+// 76 水庫每日營運狀況 50C8256D-30C5-4B8D-9B84-2E14D5C6DF71.json
+// 95 水庫代碼 ID 與其他資料不相符  DD225E12-CF60-466F-B686-F97AF801AD0D.json
 // 351 https://data.startupterrace.tw/api/dataset_api/1c81ddae-2bc7-4ca2-b3ff-02ffac0fbc7d 水庫水情資料 from https://data.startupterrace.tw/search/detail/2632a049-d925-4956-b802-7829a9f2a0e1/%E6%B0%B4%E5%BA%AB%E6%B0%B4%E6%83%85%E8%B3%87%E6%96%99
+// 水庫基本資料 缺ID座標 D54BA676-ED9A-4077-9A10-A0971B3B020C.json
 
 const wraRES = L.geoJSON([], {
   pointToLayer: function (geoJsonPoint, latlng) {
@@ -1046,6 +1051,7 @@ wraRES.on('add',
 );
 lyctrl.addOverlay(wraRES, "水庫堤壩");
 
+var wraRESdata=null;
 $.getJSON("wra/SWRESOIR.json", function (data) {
   wraRESdata = data;
   wraRES.addData(wraRESdata.features);
@@ -1053,6 +1059,39 @@ $.getJSON("wra/SWRESOIR.json", function (data) {
   //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
   //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
   //   });
+});
+
+
+
+var wraRESstaAPI = {};
+$.ajax({ //GET JSON with header
+  dataType: "json",
+  beforeSend: function (request) {
+    request.setRequestHeader("Accept", "application/json");
+  },
+  url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station",
+  // data: data,
+  success: function (data) {
+    wraRESstaAPI = data;
+    wraRESstaAPI.forEach(element => {
+
+      if (element.hasOwnProperty('Latitude') && element['Longitude']) {
+        console.log(element['StationName'], element['StationNo'], element['Latitude'], element['Longitude']);
+      }
+      else {
+        console.log(element['StationName'], element['StationNo']);
+        wraRESdata.features.forEach(el => {
+          if (el.properties.RES_NAME == element['StationName'])
+          console.log(el.geometry.coordinates[0],el.geometry.coordinates[1], el.properties.RES_NAME);
+        });
+      }
+    });
+    // wraRES.addData(wraRESdata.features);
+    // wlrt_obj=JSON.parse(data.contents);    
+    //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
+    //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
+    //   });
+  }
 });
 
 
