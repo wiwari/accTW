@@ -982,14 +982,11 @@ async function readRAStatGeoJON() {
 }
 readRAStatGeoJON();
 
-
-
-
 // 考慮改用 https://fhy.wra.gov.tw/WraApi#!/ReservoirApi/ReservoirApi_Station
 // 104pcs 對照最多，座標有缺 https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station     
 //  68pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/RealTimeInfo
 //  76pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily
-// 98pcs SWRESOIR 最多組座標
+// 98pcs SWRESOIR 最多組座標 缺部份 ID
 // 335pcs 水庫水情資料 https://data.gov.tw/dataset/45501 名稱由 水庫每日營運狀況 取得
 // 76 水庫每日營運狀況 50C8256D-30C5-4B8D-9B84-2E14D5C6DF71.json
 // 95 水庫代碼 ID 與其他資料不相符  DD225E12-CF60-466F-B686-F97AF801AD0D.json
@@ -1007,40 +1004,32 @@ const wraRES = L.geoJSON([], {
   //   'event_label': "station: " + layer.feature.properties.name,
   //   // 'non_interaction': true  
   // });
-
-  // eDate = new Date();
-  // sMDate = new Date(eDate.valueOf() - 31 * 24 * 60 * 60 * 1000);
-  // sQDate = new Date(eDate.valueOf() - 92 * 24 * 60 * 60 * 1000);
-  // sYDate = new Date(eDate.valueOf() - 366 * 24 * 60 * 60 * 1000);
-
-  // eDate_str = eDate.getFullYear() + "/" + (eDate.getMonth() + 1) + "/" + eDate.getDate();
-  // sMDate_str = sMDate.getFullYear() + "/" + (sMDate.getMonth() + 1) + "/" + sMDate.getDate();
-  // sQDate_str = sQDate.getFullYear() + "/" + (sQDate.getMonth() + 1) + "/" + sQDate.getDate();
-  // sYDate_str = sYDate.getFullYear() + "/" + (sYDate.getMonth() + 1) + "/" + sYDate.getDate();
-
-  // wl_url_m = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sMDate_str + "&edate=" + eDate_str;
-  // wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sQDate_str + "&edate=" + eDate_str;
-  // wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sYDate_str + "&edate=" + eDate_str;
-
-  // wlrtstr="";
-  // if(realtime_waterlevel.hasOwnProperty(layer.feature.properties.id))
-  //   wlrtstr=     
-  //   "<sub>"+realtime_waterlevel[layer.feature.properties.id].RecordTime +"</sub><br />"
-  //   + realtime_waterlevel[layer.feature.properties.id].WaterLevel + "m<br />"
-  //   ;
   
-  return '<div class="container-sm">' +
-     layer.feature.properties.RES_NAME + " : " + "<br/>"
-  //   /* + layer.feature.properties.id*/
-     + layer.feature.properties.RV_NAME + "<br/>"
-     + layer.feature.properties.STATUS + "<br/>"
-     + layer.feature.properties.ORG_MNG + "<br/>"
-    //  + '('+layer.feature.properties.ENG_NAME +')' + "<br/>"
+  popupinfo = "";
+  popupinfo += '<div class="container-sm">';
+  popupinfo += layer.feature.properties.name ;
+  popupinfo += (layer.feature.properties.id) ? "(" + layer.feature.properties.id + ")" :'';
+  popupinfo += "<br/>"
+  popupinfo += (layer.feature.properties.date) ? layer.feature.properties.date.replace(/(....-..-..)T.*/, "$1") + "<br/>" : '';
+  popupinfo += (layer.feature.properties.InflowTotal) ? "流入" + (layer.feature.properties.InflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>cms</sub><br/>" : '';
+  popupinfo += (layer.feature.properties.OutflowTotal) ? "流出" + (layer.feature.properties.OutflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>cms</sub><br/>" : '';
+  popupinfo += '</div>';
+
+  return popupinfo;
+  
+
+
+    //  layer.feature.properties.RES_NAME + " : " + "<br/>"
+  
+    //  + layer.feature.properties.RV_NAME + "<br/>"
+    //  + layer.feature.properties.STATUS + "<br/>"
+    //  + layer.feature.properties.ORG_MNG + "<br/>"
+  
   //   + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
   //   + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
   //   + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a>'
   //   // + '<br />' + wlrtstr
-     + '</div>'
+     
 });
 
 wraRES.on('add',
@@ -1051,10 +1040,10 @@ wraRES.on('add',
 );
 lyctrl.addOverlay(wraRES, "水庫堤壩");
 
-var wraRESdata=null;
+var wraRESshp=null;
 $.getJSON("wra/SWRESOIR.json", function (data) {
-  wraRESdata = data;
-  wraRES.addData(wraRESdata.features);
+  wraRESshp = data;
+  // wraRES.addData(wraRESdata.features); // use this json as layerinformation
   // wlrt_obj=JSON.parse(data.contents);    
   //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
   //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
@@ -1063,37 +1052,187 @@ $.getJSON("wra/SWRESOIR.json", function (data) {
 
 
 
+
+
+var wraRESdailyAPI ={};
+getwraRESdailyAPI();
+
 var wraRESstaAPI = {};
-$.ajax({ //GET JSON with header
-  dataType: "json",
-  beforeSend: function (request) {
-    request.setRequestHeader("Accept", "application/json");
-  },
-  url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station",
-  // data: data,
-  success: function (data) {
-    wraRESstaAPI = data;
-    wraRESstaAPI.forEach(element => {
+getwraRESstaAPI();
+function getwraRESstaAPI() {
+  $.ajax({ //GET JSON with header
+    dataType: "json",
+    beforeSend: function (request) {
+      request.setRequestHeader("Accept", "application/json");
+    },
+    url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station",
+    // data: data,
+    success: async function (data) {
+      wraRESstaAPI = data;
+      // CityCode (string):// 縣市代碼 ,
+      // EffectiveCapacity (number, optional): 有效容量(萬立方公尺) ,
+      // FullWaterHeight (number, optional): 滿水位標高(公尺) ,
+      // DeadWaterHeight (number, optional): 呆水位標高(公尺)(底床高) ,
+      // Latitude (number, optional): 緯度(WGS84) ,
+      // Longitude (number, optional) 經度(WGS84) ,
+      // Storage (number): 總蓄水量(萬立方公尺) ,
+      // ProtectionFlood (integer): 是否涉及防洪(0:否;1:是) ,
+      // HydraulicConstruction (integer): 水工結構物種類(1:水庫and壩;2:攔河堰) ,
+      // Importance (integer): 水庫堰壩之重要性(1:主要;0:其他) ,
+      // StationNo (string): 測站代碼 ,
+      // StationName (string): 測站中文名稱 ,
+      // BasinNo (string): 流域代碼 , 
+      // BasinName (string):// 流域名稱 
 
-      if (element.hasOwnProperty('Latitude') && element['Longitude']) {
-        console.log(element['StationName'], element['StationNo'], element['Latitude'], element['Longitude']);
-      }
-      else {
-        console.log(element['StationName'], element['StationNo']);
-        wraRESdata.features.forEach(el => {
-          if (el.properties.RES_NAME == element['StationName'])
-          console.log(el.geometry.coordinates[0],el.geometry.coordinates[1], el.properties.RES_NAME);
+
+      //append SWRESOIR.shp coordinates and stations
+      wraRESshp.features.forEach(sta_shp => {
+        s = "";
+        found = 0;
+        wraRESstaAPI.forEach(sta_api => {
+          if (sta_shp.properties.COMPARE_ID !== null && sta_shp.properties.COMPARE_ID && sta_shp.properties.COMPARE_ID == sta_api['StationNo']) { // overwrite station from API if any station in SWRESOIR.shp which has better resolution
+            s += (sta_shp.properties.COMPARE_ID) + sta_shp.properties.RES_NAME;
+            sta_api['Latitude'] = sta_shp.geometry.coordinates[1];
+            sta_api['Longitude'] = sta_shp.geometry.coordinates[0];
+            // s += sta_shp.geometry.coordinates[0] + " " +sta_shp.geometry.coordinates[1] + " 相同ID";
+            found = 1;
+          } else if ((sta_shp.properties.RES_NAME) == sta_api['StationName']) {
+            s += sta_shp.properties.RES_NAME;
+            sta_api['Latitude'] = sta_shp.geometry.coordinates[1];
+            sta_api['Longitude'] = sta_shp.geometry.coordinates[0];
+            // s  += sta_api['Latitude'] +" "+ sta_api['Longitude'] + " 相同名稱";
+            found = 1;
+          } else if (sta_shp.properties.RES_NAME.match(sta_api['StationName']) || sta_api['StationName'].match(sta_shp.properties.RES_NAME)) {
+            s += sta_shp.properties.RES_NAME;
+            sta_api['Latitude'] = sta_shp.geometry.coordinates[1];
+            sta_api['Longitude'] = sta_shp.geometry.coordinates[0];
+            // s  += sta_api['Latitude'] +" "+ sta_api['Longitude'] + " 包含名稱";
+            found = 1;
+          }
         });
-      }
-    });
-    // wraRES.addData(wraRESdata.features);
-    // wlrt_obj=JSON.parse(data.contents);    
-    //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
-    //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
-    //   });
-  }
-});
+        if (found != 1) { //append  SWRESOIR.shp only station
+          newsta = {};
+          if (sta_shp.properties.COMPARE_ID !== null && sta_shp.properties.COMPARE_ID) {
+            s += sta_shp.properties.COMPARE_ID + " ";
+            newsta["StationNo"] = sta_shp.properties.COMPARE_ID;
+          }
+          newsta["StationName"] = sta_shp.properties.RES_NAME;
+          newsta["Latitude"] = sta_shp.geometry.coordinates[1];
+          newsta["Longitude"] = sta_shp.geometry.coordinates[0];
+          wraRESstaAPI.push(newsta);
+          // s+=sta_shp.properties.RES_NAME + sta_shp.geometry.coordinates[0] + ", " + sta_shp.geometry.coordinates[1] + " not matching";           
+        }
+        // console.log(s);
+      });     
 
+      //append Daily data into station data
+      wraRESdailyAPI.forEach(rt_sta => { 
+        wraRESstaAPI.forEach(sta => {
+          if (rt_sta.StationNo == sta['StationNo']){
+            sta['date']=rt_sta['Time'];
+            if(rt_sta['InflowTotal'])              
+              sta['InflowTotal']=rt_sta['InflowTotal'];
+            if(rt_sta['OutflowTotal'])
+              sta['OutflowTotal']=rt_sta['OutflowTotal'];
+
+            // StationNo (string):測站代碼 ,
+            // Time (string):           // 水情時間(格式:yyyy-MM-dd HH:mm) ,
+            // EffectiveCapacity (number, optional):            // 有效容量(萬立方公尺) ,
+            // DeadWaterHeight (number, optional):            // 呆水位標高(公尺)(底床高) ,
+            // FullWaterHeight (number, optional):            // 滿水位標高(公尺) ,
+            // AccumulatedRainfall (number, optional):             // 集水區本日降雨量(mm) ,
+            // InflowTotal (number, optional):             // 本日總進水量(萬立方公尺) ,
+            // OutflowTotal (number, optional):            // 本日總出水量(萬立方公尺) 
+          }
+        });        
+      });
+  
+
+      wraRESstaAPI.forEach(sta_api => {
+        // s = sta_api['StationNo'] + " "+ sta_api['StationName'] + " ";
+        // console.log(s);
+
+        if (sta_api.hasOwnProperty('Latitude') && sta_api.hasOwnProperty('Longitude')) {
+          pt = {
+            "type": "Feature",
+            "properties": {
+              "id": sta_api['StationNo'],
+              "name": sta_api['StationName'],
+              "date": sta_api['date'],
+              "InflowTotal": sta_api['InflowTotal'],
+              "OutflowTotal": sta_api['OutflowTotal'],
+              // "time" : sta_time,   
+            },
+            "geometry": {
+              "type": "Point",
+              "coordinates": [sta_api['Longitude'], sta_api['Latitude']]
+            }
+          };
+          wraRES.addData(pt);
+        }
+
+      });
+
+
+      // wraRESdata.features.forEach(el => {
+      //   s = el.properties.RES_NAME + " " + el.geometry.coordinates[0]+ " " + el.geometry.coordinates[1];
+      //   wraRESstaAPI.forEach(element => {
+      //     if
+      //     (element['StationName'] == el.properties.RES_NAME)
+      //       s += element['StationName'];
+      //   });
+      //   console.log(s);
+      // });
+
+
+      // wraRES.addData(wraRESdata.features);
+      // wlrt_obj=JSON.parse(data.contents);    
+      //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
+      //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
+      //   });
+    }
+  });
+}
+
+
+
+
+
+
+
+
+function getwraRESdailyAPI() {
+  $.ajaxSettings.async = false;
+  $.ajax({
+    //GET JSON with header
+    dataType: "json",
+    beforeSend: function (request) {
+      request.setRequestHeader("Accept", "application/json");
+    },
+    url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily",
+    // url: "https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=50C8256D-30C5-4B8D-9B84-2E14D5C6DF71" ,
+    // data: data,
+    success: function (data) {
+      wraRESdailyAPI = data;
+      wraRESdailyAPI.forEach(rt_sta => {
+        1;
+        // console.log(rt_sta.StationNo);
+      });
+
+
+      // "StationNo": "31201",
+      // "Time": "2021-11-01T00:00:00",
+      // "EffectiveCapacity": 2651.317,
+      // "DeadWaterHeight": 100.2,
+      // "FullWaterHeight": 142,
+      // "AccumulatedRainfall": 1.1,
+      // "InflowTotal": 18.049,
+      // "OutflowTotal": 15.264
+
+    }
+  });
+  $.ajaxSettings.async = true;
+}
 
 // //GeoPackageTest =========================================================================
 // L.geoPackageFeatureLayer([], {
