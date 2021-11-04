@@ -1040,25 +1040,31 @@ wraRES.on('add',
 );
 lyctrl.addOverlay(wraRES, "水庫堤壩");
 
-var wraRESshp=null;
-$.getJSON("wra/SWRESOIR.json", function (data) {
-  wraRESshp = data;
-  // wraRES.addData(wraRESdata.features); // use this json as layerinformation
-  // wlrt_obj=JSON.parse(data.contents);    
-  //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
-  //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
-  //   });
-});
-
+var wraRESshp = null;
+getwraRESshp();
+function getwraRESshp() {
+  $.ajaxSettings.async = false;
+  $.getJSON("wra/SWRESOIR.json", function (data) {
+    wraRESshp = data;
+    // wraRES.addData(wraRESdata.features); // use this json as layerinformation
+    // wlrt_obj=JSON.parse(data.contents);    
+    //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
+    //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
+    //   });
+    getwraRESdailyAPI();
+  });
+  $.ajaxSettings.async = true;
+  
+}
 
 
 
 
 var wraRESdailyAPI ={};
-getwraRESdailyAPI();
+
 
 var wraRESstaAPI = {};
-getwraRESstaAPI();
+
 function getwraRESstaAPI() {
   $.ajax({ //GET JSON with header
     dataType: "json",
@@ -1219,7 +1225,7 @@ function getwraRESdailyAPI() {
         // console.log(rt_sta.StationNo);
       });
 
-
+      getwraRESstaAPI();
       // "StationNo": "31201",
       // "Time": "2021-11-01T00:00:00",
       // "EffectiveCapacity": 2651.317,
