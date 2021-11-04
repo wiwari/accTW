@@ -1011,8 +1011,8 @@ const wraRES = L.geoJSON([], {
   popupinfo += (layer.feature.properties.id) ? "(" + layer.feature.properties.id + ")" :'';
   popupinfo += "<br/>"
   popupinfo += (layer.feature.properties.date) ? layer.feature.properties.date.replace(/(....-..-..)T.*/, "$1") + "<br/>" : '';
-  popupinfo += (layer.feature.properties.InflowTotal) ? "流入" + (layer.feature.properties.InflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>cms</sub><br/>" : '';
-  popupinfo += (layer.feature.properties.OutflowTotal) ? "流出" + (layer.feature.properties.OutflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>cms</sub><br/>" : '';
+  popupinfo += (layer.feature.properties.InflowTotal) ? "流入" + (layer.feature.properties.InflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>m³/s</sub><br/>" : '';
+  popupinfo += (layer.feature.properties.OutflowTotal) ? "流出" + (layer.feature.properties.OutflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>m³/s</sub><br/>" : '';
   popupinfo += '</div>';
 
   return popupinfo;
