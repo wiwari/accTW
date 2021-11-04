@@ -999,11 +999,11 @@ const wraRES = L.geoJSON([], {
   }
 }).bindPopup(function (layer) {
 
-  // gtag('event', 'click', {
-  //   'event_category': 'waterlevel',
-  //   'event_label': "station: " + layer.feature.properties.name,
-  //   // 'non_interaction': true  
-  // });
+  gtag('event', 'click', {
+    'event_category': 'reservoir',
+    'event_label': "station: " + layer.feature.properties.name,
+    // 'non_interaction': true  
+  });
   
   popupinfo = "";
   popupinfo += '<div class="container-sm">';
