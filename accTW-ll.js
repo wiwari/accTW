@@ -704,7 +704,7 @@ read_catchment.addTo(map);
 // wsLookupOn(null);
 
 
-
+const ob_items = ["水位","流量","含砂量","流速"];
 
 const waterlevelLayer = L.geoJSON([], {
   pointToLayer: function (geoJsonPoint, latlng) {
@@ -732,22 +732,51 @@ const waterlevelLayer = L.geoJSON([], {
   wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sQDate_str + "&edate=" + eDate_str;
   wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sYDate_str + "&edate=" + eDate_str;
 
+  
+  // ob_item_str=layer.feature.properties.ObervationItems.replace(/0/,ob_items[0]);
+  // ob_item_str=ob_item_str.replace(/1/,ob_items[1]);
+  // ob_item_str=ob_item_str.replace(/2/,ob_items[2]);
+
+  // wl_url_ra = "https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&" +  layer.feature.properties.id ;//歷年雨量
+  // wl_url_di = "https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?DI&" + layer.feature.properties.id; //歷年流量
+  wl_url_le = "https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?LE&" + layer.feature.properties.id; //歷年水位
+
+  // ObervationItems 水位,流量,含砂量,流速　/0,1,2,4
   // wlrtstr="";
   // if(realtime_waterlevel.hasOwnProperty(layer.feature.properties.id))
-  //   wlrtstr=     
+  //   wlrtstr=
   //   "<sub>"+realtime_waterlevel[layer.feature.properties.id].RecordTime +"</sub><br />"
   //   + realtime_waterlevel[layer.feature.properties.id].WaterLevel + "m<br />"
   //   ;
 
-  return '<div class="container-sm">' +
+
+  wlpopupmsg=
+    '<div class="container-sm">' +
     layer.feature.properties.name + " : "
     /* + layer.feature.properties.id*/
     + layer.feature.properties.river + "<br/>"
+    + '即時：'
     + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
     + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
-    + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a>'
+    + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a><br />'
+    ;
+  his_str="";
+  if (layer.feature.properties.ObervationItems.match("0"))
+    his_str += "水位";    
+  if (layer.feature.properties.ObervationItems.match("1"))
+    his_str += "流量";    
+  if (his_str)
+    wlpopupmsg += '歷史： <a href="' + wl_url_le + '" target="_blank" class="btn btn-outline-primary btn-sm" >' + his_str + '</a>';
+  // if (layer.feature.properties.ObervationItems.match("2"))
+  //   wlpopupmsg += '含沙量';
+  // if (layer.feature.properties.ObervationItems.match("4"))
+  // wlpopupmsg += '流速';
+
     // + '<br />' + wlrtstr
-    + '</div>'
+  wlpopupmsg += '</div>';
+
+  return wlpopupmsg; 
+
 });
 
 waterlevelLayer.on('add',
@@ -791,6 +820,8 @@ lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
           sta_name=ob.ObservatoryName.replace(/ /g, "");
           sta_river=ob.RiverName.replace(/ /g, "");
           sta_TownIdentifier=ob.TownIdentifier.replace(/ /g, "");
+          sta_ObervationItems=ob.ObervationItems.replace(/ /g, "");
+          sta_ObervationItems=ob.ObervationItems.replace(/,/g, "");
 
           if (ob.ObservationStatus == "現存") {
             obs97loc = ob.LocationByTWD97_XY.match(/(\S+)\s(\S+)/);
@@ -807,12 +838,13 @@ lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
                 "id": sta_id,
                 "name": sta_name,
                 "river": sta_river,      
-                "TownIdentifier" : sta_TownIdentifier,   
+                "TownIdentifier" : sta_TownIdentifier,                
+                "ObervationItems" : sta_ObervationItems,
               },
               "geometry": {
                 "type": "Point",
                 "coordinates": [wgs84[0], wgs84[1]]
-              }
+              }              
             };
             waterlevelLayer.addData(pt);
           }
@@ -903,13 +935,21 @@ const RALayer = L.geoJSON([], {
   });
   $.ajaxSettings.async = true;
 
-    return '<div class="container-fluid">' +
-    layer.feature.properties.name + " : "
-    + '<a href="https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./,"$1")+ '" target="_blank" class="btn btn-outline-primary btn-sm">'+layer.feature.properties.id+'</a>' + "<br />"
-    // + layer.feature.properties.river + "<br/>"    
-    // + '<br />' + wlrtstr
-    + RApoi
-    + '</div>';
+  //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
+
+  RApopupmsg = "";
+  RApopupmsg += '<div class="container-fluid">';
+  RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
+  RApopupmsg += '<a href="https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
+  RApopupmsg += '<a href="https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' + "歷史" + '</a>' + "<br />";
+  // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;
+  // RApopupmsg+='<br />' + wlrtstr;
+  RApopupmsg += RApoi;
+  RApopupmsg += '</div>';
+  return RApopupmsg;
+
+
+
 });
 
 RALayer.on('add',
