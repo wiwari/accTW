@@ -1045,6 +1045,9 @@ const wraRES = L.geoJSON([], {
     // 'non_interaction': true  
   });
   
+  // API filter example
+  // "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$filter=StationName eq '羅好壩'"
+  // "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$filter=StationNo eq '10213'&$select=InflowTotal,OutflowTotal,Time"
   popupinfo = "";
   popupinfo += '<div class="container-sm">';
   popupinfo += layer.feature.properties.name ;
@@ -1056,19 +1059,6 @@ const wraRES = L.geoJSON([], {
   popupinfo += '</div>';
 
   return popupinfo;
-  
-
-
-    //  layer.feature.properties.RES_NAME + " : " + "<br/>"
-  
-    //  + layer.feature.properties.RV_NAME + "<br/>"
-    //  + layer.feature.properties.STATUS + "<br/>"
-    //  + layer.feature.properties.ORG_MNG + "<br/>"
-  
-  //   + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
-  //   + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
-  //   + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a>'
-  //   // + '<br />' + wlrtstr
      
 });
 
@@ -1086,11 +1076,6 @@ function getwraRESshp() {
   $.ajaxSettings.async = false;
   $.getJSON("wra/SWRESOIR.json", function (data) {
     wraRESshp = data;
-    // wraRES.addData(wraRESdata.features); // use this json as layerinformation
-    // wlrt_obj=JSON.parse(data.contents);    
-    //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
-    //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
-    //   });
     getwraRESdailyAPI();
   });
   $.ajaxSettings.async = true;
@@ -1111,7 +1096,8 @@ function getwraRESstaAPI() {
     beforeSend: function (request) {
       request.setRequestHeader("Accept", "application/json");
     },
-    url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station",
+    // url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station",
+    url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$select=Latitude,Longitude,StationNo,StationName",
     // data: data,
     success: async function (data) {
       wraRESstaAPI = data;
@@ -1256,6 +1242,7 @@ function getwraRESdailyAPI() {
       request.setRequestHeader("Accept", "application/json");
     },
     url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily",
+    // url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily",
     // url: "https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=50C8256D-30C5-4B8D-9B84-2E14D5C6DF71" ,
     // data: data,
     success: function (data) {
