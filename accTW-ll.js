@@ -471,7 +471,10 @@ map.on("zoomstart", zoomstart_check);
 function zoomend_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
     lyctrl.addOverlay(read_catchment, "集水面積");
-    read_catchment.addLayer(wscircle);
+    read_catchment.addLayer(wscircle);    
+    
+    gl.setUniform('uHeightThreshold', (4.0 * Math.pow(2,14-map.getZoom())));
+    gl.reRender();
   }
 }
 function zoomstart_check(e) {
@@ -1330,7 +1333,8 @@ function getwraRESdailyAPI() {
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
 
-var glShader1 = `
+var glShader = `
+  // uniform float uHeightThreshold;
   // precision highp float;       // Use 24-bit floating point numbers for everything
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
@@ -1363,11 +1367,7 @@ var glShader1 = `
     float a = gl_FragColor.a;
       vec3 newcolor ;
       
-      float heigth_threshold = 
-`
-      
-var glShader2 = `
-      ;
+//      float heigth_threshold = uHeightThreshold;
       
     newcolor = colours[0].rgb;
   
@@ -1385,7 +1385,7 @@ var glShader2 = `
       );
     }
       
-    if (height < heigth_threshold){
+    if (height < uHeightThreshold){
         gl_FragColor = vec4(0.,0.0,0.0,0.);
       }else{
         gl_FragColor = vec4(newcolor,1.0);
@@ -1394,11 +1394,12 @@ var glShader2 = `
   
 `
 
-glShader = glShader1 + (0.5 * Math.pow(4,14-map.getZoom())).toFixed(2) + glShader2;
-
 var gl = L.tileLayer.gl({
-  fragmentShader: glShader,
+  fragmentShader: glShader,  
   tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
+  uniforms: {
+	  uHeightThreshold: 5.0,
+	},
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
   zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
@@ -1410,7 +1411,9 @@ var gl = L.tileLayer.gl({
   maxNativeZoom: 14,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
 });
-lyctrl.addOverlay(gl, "GL");
+
+
+lyctrl.addOverlay(gl, "集水著色");
 
 
 
