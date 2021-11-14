@@ -1366,8 +1366,6 @@ var glShader = `
     float a = gl_FragColor.a;
       vec3 newcolor ;
       
-//      float heigth_threshold = uHeightThreshold;
-      
     newcolor = colours[0].rgb;
   
     for (int i=0; i < 7; i++) {
@@ -1410,7 +1408,7 @@ var streams = L.tileLayer.gl({
   minNativeZoom: 7,
   maxNativeZoom: 14,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
-});
+}).addTo(map);
 
 
 lyctrl.addOverlay(streams, "水線著色");
