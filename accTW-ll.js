@@ -1344,17 +1344,17 @@ var glShader = `
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
     vec4 colours[5];
     colours[0] = vec4(.1, .1, .5, 0.);
-    colours[1] = vec4(.4, .55, .3, 1.);
-    colours[2] = vec4(.9, .9, .6, 5000.);
-    colours[3] = vec4(.6, .4, .3, 20000.);
-    colours[4] = vec4(1., 1., 1., 40000.);
+    colours[1] = vec4(.4, .55, .3, 1);
+    colours[2] = vec4(.9, .9, .6, 500.);
+    colours[3] = vec4(.6, .4, .3, 2000.);
+    colours[4] = vec4(1., 1., 1., 4000.);
   
-    // Height is represented in TENTHS of a meter
+    // Height is represented in a meter
     highp float height = (
       texelColour.r * 255.0 * 256.0 * 256.0 +
       texelColour.g * 255.0 * 256.0 +
-      texelColour.b * 255.0 )
-    -100000.0;
+      texelColour.b * 255.0 ) /10.0
+    -10000.0;
   
     gl_FragColor.rgb = colours[0].rgb;
   
