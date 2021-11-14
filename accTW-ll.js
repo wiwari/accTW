@@ -1379,7 +1379,17 @@ var glShader = `
 
 var gl = L.tileLayer.gl({
   fragmentShader: glShader,
-  tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png']
+  tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
+  tms: false, // CLI generation required    
+  crs: L.CRS.EPSG3857,
+  zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
+  tileSize: 256,
+  opacity: 1.0,
+  minZoom: 7, //min 10
+  // maxZoom: 14,
+  minNativeZoom: 7,
+  maxNativeZoom: 14,
+  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
 });
 lyctrl.addOverlay(gl, "GL");
 
