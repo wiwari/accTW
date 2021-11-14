@@ -473,8 +473,8 @@ function zoomend_check(e) {
     lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);    
     
-    gl.setUniform('uHeightThreshold', (4.0 * Math.pow(2,14-map.getZoom())));
-    gl.reRender();
+    streams.setUniform('uHeightThreshold', (4.0 * Math.pow(2,14-map.getZoom())));
+    streams.reRender();
   }
 }
 function zoomstart_check(e) {
@@ -1334,7 +1334,6 @@ function getwraRESdailyAPI() {
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
 
 var glShader = `
-  // uniform float uHeightThreshold;
   // precision highp float;       // Use 24-bit floating point numbers for everything
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
@@ -1394,7 +1393,7 @@ var glShader = `
   
 `
 
-var gl = L.tileLayer.gl({
+var streams = L.tileLayer.gl({
   fragmentShader: glShader,  
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
@@ -1414,7 +1413,7 @@ var gl = L.tileLayer.gl({
 });
 
 
-lyctrl.addOverlay(gl, "水線著色");
+lyctrl.addOverlay(streams, "水線著色");
 
 
 
