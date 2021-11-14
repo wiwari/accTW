@@ -1396,7 +1396,8 @@ var glShader = `
 
 var gl = L.tileLayer.gl({
   fragmentShader: glShader,  
-  tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
+  tileLayers: [catchment],
+  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
   uniforms: {
 	  uHeightThreshold: 5.0,
 	},
@@ -1413,7 +1414,7 @@ var gl = L.tileLayer.gl({
 });
 
 
-lyctrl.addOverlay(gl, "集水著色");
+lyctrl.addOverlay(gl, "水線著色");
 
 
 
