@@ -1329,7 +1329,8 @@ function getwraRESdailyAPI() {
 
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
-var glShader = `
+
+var glShader1 = `
   // precision highp float;       // Use 24-bit floating point numbers for everything
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
@@ -1342,40 +1343,58 @@ var glShader = `
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
   
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
-    vec4 colours[5];
-    colours[0] = vec4(.1, .1, .5, 0.);
-    colours[1] = vec4(.4, .55, .3, 1);
-    colours[2] = vec4(.9, .9, .6, 500.);
-    colours[3] = vec4(.6, .4, .3, 2000.);
-    colours[4] = vec4(1., 1., 1., 4000.);
+    vec4 colours[8];
+    colours[0] = vec4(.0, .0, .2, 0.);
+      colours[1] = vec4(.0, .5, .9, .1);
+    colours[2] = vec4(.25, .75, .0, 5.);
+    colours[3] = vec4(.98, .79, .02, 30.);
+    colours[4] = vec4(.92, .31, .08, 100.);
+    colours[5] = vec4(.4, 0., 1., 300.);
+      colours[6] = vec4(.8, 0, 1., 1500.);    
+      colours[7] = vec4(1., .0, 1., 3500.);     
   
-    // Height is represented in a meter
+    // Height is represented in TENTHS of a meter
     highp float height = (
       texelColour.r * 255.0 * 256.0 * 256.0 +
       texelColour.g * 255.0 * 256.0 +
-      texelColour.b * 255.0 ) /10.0
+      texelColour.b * 255.0 )/10.
     -10000.0;
+      
+    float a = gl_FragColor.a;
+      vec3 newcolor ;
+      
+      float heigth_threshold = 
+`
+      
+var glShader2 = `
+      ;
+      
+    newcolor = colours[0].rgb;
   
-    gl_FragColor.rgb = colours[0].rgb;
-  
-    for (int i=0; i < 4; i++) {
+    for (int i=0; i < 7; i++) {
       // Do a smoothstep of the heights between steps. If the result is > 0
       // (meaning "the height is higher than the lower bound of this step"),
       // then replace the colour with a linear blend of the step.
       // If the result is 1, this means that the real colour will be applied
       // in a later loop.
   
-      gl_FragColor.rgb = mix(
-        gl_FragColor.rgb,
+      newcolor = mix(
+        newcolor,
         colours[i+1].rgb,
         smoothstep( colours[i].a, colours[i+1].a, height )
       );
     }
-  
-    gl_FragColor.a = 1.;
+      
+    if (height < heigth_threshold){
+        gl_FragColor = vec4(0.,0.0,0.0,0.);
+      }else{
+        gl_FragColor = vec4(newcolor,1.0);
+      }    
   }
   
 `
+
+glShader = glShader1 + (0.5 * Math.pow(4,14-map.getZoom())).toFixed(2) + glShader2;
 
 var gl = L.tileLayer.gl({
   fragmentShader: glShader,
