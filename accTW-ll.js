@@ -1327,6 +1327,65 @@ function getwraRESdailyAPI() {
 // map.locate({setView: true, maxZoom: 14}); 
 
 
+
+// https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
+var glShader = `
+  // precision highp float;       // Use 24-bit floating point numbers for everything
+  // uniform float uNow;          // Microseconds since page load, as per performance.now()
+  // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
+  // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
+  // varying vec2 vCRSCoords;     // CRS coordinates of this fragment
+  // varying vec2 vLatLngCoords;  // Lat-Lng coordinates of this fragment (linearly interpolated)
+  // uniform sampler2D uTexture0;
+  
+  void main(void) {
+    highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
+  
+    // Color ramp. The alpha value represents the elevation for that RGB colour stop.
+    vec4 colours[5];
+    colours[0] = vec4(.1, .1, .5, 0.);
+    colours[1] = vec4(.4, .55, .3, 1.);
+    colours[2] = vec4(.9, .9, .6, 5000.);
+    colours[3] = vec4(.6, .4, .3, 20000.);
+    colours[4] = vec4(1., 1., 1., 40000.);
+  
+    // Height is represented in TENTHS of a meter
+    highp float height = (
+      texelColour.r * 255.0 * 256.0 * 256.0 +
+      texelColour.g * 255.0 * 256.0 +
+      texelColour.b * 255.0 )
+    -100000.0;
+  
+    gl_FragColor.rgb = colours[0].rgb;
+  
+    for (int i=0; i < 4; i++) {
+      // Do a smoothstep of the heights between steps. If the result is > 0
+      // (meaning "the height is higher than the lower bound of this step"),
+      // then replace the colour with a linear blend of the step.
+      // If the result is 1, this means that the real colour will be applied
+      // in a later loop.
+  
+      gl_FragColor.rgb = mix(
+        gl_FragColor.rgb,
+        colours[i+1].rgb,
+        smoothstep( colours[i].a, colours[i+1].a, height )
+      );
+    }
+  
+    gl_FragColor.a = 1.;
+  }
+  
+`
+
+var gl = L.tileLayer.gl({
+  fragmentShader: glShader,
+  tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png']
+});
+lyctrl.addOverlay(gl, "GL");
+
+
+
+
 // GPS button for mobile devices
 if (L.Browser.mobile) {
   var locator = L.control.locate({
