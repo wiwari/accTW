@@ -472,10 +472,9 @@ function zoomend_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
     lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);    
-    
+  }  
     streams.setUniform('uHeightThreshold', (4.0 * Math.pow(2,14-map.getZoom())));
-    streams.reRender();
-  }
+    streams.reRender();  
 }
 function zoomstart_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
@@ -1408,12 +1407,8 @@ var streams = L.tileLayer.gl({
   minNativeZoom: 7,
   maxNativeZoom: 14,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
-}).addTo(map);
-
-
+});
 lyctrl.addOverlay(streams, "水線著色");
-
-
 
 
 // GPS button for mobile devices
