@@ -721,15 +721,18 @@ const waterlevelLayer = L.geoJSON([], {
   });
 
   eDate = new Date();
+  sWDate = new Date(eDate.valueOf() - 7 * 24 * 60 * 60 * 1000);
   sMDate = new Date(eDate.valueOf() - 31 * 24 * 60 * 60 * 1000);
   sQDate = new Date(eDate.valueOf() - 92 * 24 * 60 * 60 * 1000);
   sYDate = new Date(eDate.valueOf() - 366 * 24 * 60 * 60 * 1000);
 
   eDate_str = eDate.getFullYear() + "/" + (eDate.getMonth() + 1) + "/" + eDate.getDate();
+  sWDate_str = sWDate.getFullYear() + "/" + (sWDate.getMonth() + 1) + "/" + sWDate.getDate();
   sMDate_str = sMDate.getFullYear() + "/" + (sMDate.getMonth() + 1) + "/" + sMDate.getDate();
   sQDate_str = sQDate.getFullYear() + "/" + (sQDate.getMonth() + 1) + "/" + sQDate.getDate();
   sYDate_str = sYDate.getFullYear() + "/" + (sYDate.getMonth() + 1) + "/" + sYDate.getDate();
 
+  wl_url_w = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sWDate_str + "&edate=" + eDate_str;
   wl_url_m = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sMDate_str + "&edate=" + eDate_str;
   wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sQDate_str + "&edate=" + eDate_str;
   wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sYDate_str + "&edate=" + eDate_str;
@@ -758,6 +761,7 @@ const waterlevelLayer = L.geoJSON([], {
     /* + layer.feature.properties.id*/
     + layer.feature.properties.river + "<br/>"
     + '即時：'
+    + ' <a href="' + wl_url_w + '" target="_blank" class="btn btn-outline-primary btn-sm" >週</a>'
     + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
     + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
     + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a><br />'
