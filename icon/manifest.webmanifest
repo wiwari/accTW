@@ -1,4 +1,6 @@
 {
+    "short_name": "集水區",
+    "name": "集水區觀察員",
     "icons": [
         {
             "src": "wwr-acc-192.png",                    
