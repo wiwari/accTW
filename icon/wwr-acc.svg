@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="256" height="256" version="1.1" viewBox="0 0 67.733 67.733" xmlns="http://www.w3.org/2000/svg">
+ <g style="mix-blend-mode:normal">
+  <circle cx="43.303" cy="43.303" r="24.431" fill="#fc0" stop-color="#000000" style="mix-blend-mode:normal"/>
+  <g fill="none" stroke="#00aad4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1167">
+   <path d="m43.303 43.303-6.3276-6.3276-4.2105-15.714"/>
+   <path d="m36.975 36.975-15.714-4.2105"/>
+   <g>
+    <path d="m35.08 12.618-2.3161 8.6437-6.3276-6.3276"/>
+    <path d="m11.819 6.4942 14.618 8.4396"/>
+    <path d="m26.437 14.934-7.7053-13.346"/>
+    <path d="m41.715 5.9832-6.6345 6.6345-2.9554-11.03"/>
+    <path d="m10.504 1.5879 1.3146 4.9063"/>
+   </g>
+   <g transform="matrix(0 1 1 0 -4e-7 0)">
+    <path d="m35.08 12.618-2.3161 8.6437-6.3276-6.3276"/>
+    <path d="m11.819 6.4942 14.618 8.4396"/>
+    <path d="m26.437 14.934-7.7053-13.346"/>
+    <path d="m41.715 5.9832-6.6345 6.6345-2.9554-11.03"/>
+    <path d="m10.504 1.5879 1.3146 4.9063-8.4979-4.9063"/>
+   </g>
+  </g>
+  <path d="m38.102 44.361h-37.044v-43.303h43.303v37.02" fill="none" stop-color="#000000" stroke="#f00" stroke-linecap="round" stroke-width="2.1167" style="mix-blend-mode:normal"/>
+ </g>
+</svg>

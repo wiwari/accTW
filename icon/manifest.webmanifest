@@ -1,0 +1,14 @@
+{
+    "icons": [
+        {
+            "src": "wwr-acc-192.png",                    
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "wwr-acc-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
