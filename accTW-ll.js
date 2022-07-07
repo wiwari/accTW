@@ -1094,7 +1094,7 @@ var wrafhy_activeStationNo= null;
 getwrafhyActiveStationNo();
 function getwrafhyActiveStationNo() {
   $.ajaxSettings.async = false;
-  $.getJSON("/wra-fhy/active_stations.json", function (data) {
+  $.getJSON("/wra-fhy/data/active_stations.json", function (data) {
     wrafhy_activeStationNo = data[0].StationNoList;    
   });
   $.ajaxSettings.async = true;
