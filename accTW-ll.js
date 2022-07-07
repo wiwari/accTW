@@ -1062,7 +1062,7 @@ const wraRES = L.geoJSON([], {
   popupinfo += (layer.feature.properties.date) ? layer.feature.properties.date.replace(/(....-..-..)T.*/, "$1") + "<br/>" : '';
   popupinfo += (layer.feature.properties.InflowTotal) ? "流入" + (layer.feature.properties.InflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>m³/s</sub><br/>" : '';
   popupinfo += (layer.feature.properties.OutflowTotal) ? "流出" + (layer.feature.properties.OutflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>m³/s</sub><br/>" : '';
-  popupinfo += (wrafhy_activeStationNo.includes(parseInt(layer.feature.properties.id)))? '<a href="https://wiwari.github.io/wra-fhy/?StationNo='+ layer.feature.properties.id +' " target="_blank" class="btn btn-outline-primary btn-sm">前11日</a>' : '';
+  popupinfo += (wrafhy_activeStationNo.includes(parseInt(layer.feature.properties.id)))? '<a href="https://wiwari.github.io/wra-fhy/?StationNo='+ layer.feature.properties.id +' " target="_blank" class="btn btn-outline-primary btn-sm">近日平均流量</a>' : '';
   popupinfo += '</div>';
 
   return popupinfo;
