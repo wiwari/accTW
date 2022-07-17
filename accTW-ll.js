@@ -203,8 +203,7 @@ nlscEMAP.addTo(map);
 // nlscEMAPwmts.addTo(map);
 
 const happymantile = L.tileLayer(
-  // 'https://tile.happyman.idv.tw/map/moi_osm/{z}/{x}/{y}.png',
-  'https://rs.happyman.idv.tw/map/moi_osm/{z}/{x}/{y}.png',
+  'https://tile.happyman.idv.tw/map/moi_osm/{z}/{x}/{y}.png',
   {
     attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
     minZoom: 13, //native zoom 10~17
