@@ -1426,6 +1426,83 @@ var streams = L.tileLayer.gl({
 lyctrl.addOverlay(streams, "水線著色");
 
 
+var glShaderFindwater = `
+  // precision highp float;       // Use 24-bit floating point numbers for everything
+  // uniform float uNow;          // Microseconds since page load, as per performance.now()
+  // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
+  // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
+  // varying vec2 vCRSCoords;     // CRS coordinates of this fragment
+  // varying vec2 vLatLngCoords;  // Lat-Lng coordinates of this fragment (linearly interpolated)
+  // uniform sampler2D uTexture0;
+  
+  void main(void) {
+    highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
+  
+    // Color ramp. The alpha value represents the elevation for that RGB colour stop.
+    vec4 colours[8];
+    colours[0] = vec4(.0, .0, .2, 0.);
+    colours[1] = vec4(.9, 0, 0, .1);
+    colours[2] = vec4(.7, .7, .0, 0.5);
+    colours[3] = vec4(0, .8, 0, 1.);
+    colours[4] = vec4(0, 0, 0.9, 4.);
+    colours[5] = vec4(0, 0., 1., 3500.);  
+  
+    // Height is represented in TENTHS of a meter
+    highp float height = (
+      texelColour.r * 255.0 * 256.0 * 256.0 +
+      texelColour.g * 255.0 * 256.0 +
+      texelColour.b * 255.0 )/10.
+    -10000.0;
+      
+    float a = gl_FragColor.a;
+      vec3 newcolor ;
+      
+    newcolor = colours[0].rgb;
+  
+    for (int i=0; i < 5; i++) {
+      // Do a smoothstep of the heights between steps. If the result is > 0
+      // (meaning "the height is higher than the lower bound of this step"),
+      // then replace the colour with a linear blend of the step.
+      // If the result is 1, this means that the real colour will be applied
+      // in a later loop.
+  
+      newcolor = mix(
+        newcolor,
+        colours[i+1].rgb,
+        smoothstep( colours[i].a, colours[i+1].a, height )
+      );
+    }
+      
+    if (height < uHeightThreshold && height >=0.1 ){
+        gl_FragColor = vec4(newcolor,1.0);
+      }else{
+        gl_FragColor = vec4(0.,0.0,0.0,0.);
+      }    
+  }
+  
+`
+
+var findwater = L.tileLayer.gl({
+  fragmentShader: glShaderFindwater,  
+  tileLayers: [catchment],
+  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
+  uniforms: {
+	  uHeightThreshold: 3,
+	},
+  tms: false, // CLI generation required    
+  crs: L.CRS.EPSG3857,
+  zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
+  tileSize: 256,
+  opacity: 1.0,
+  minZoom: 7, //min 10
+  // maxZoom: 14,
+  minNativeZoom: 7,
+  maxNativeZoom: 14,
+  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
+});
+lyctrl.addOverlay(findwater, "找水源");
+
+
 // GPS button for mobile devices
 if (L.Browser.mobile) {
   var locator = L.control.locate({
