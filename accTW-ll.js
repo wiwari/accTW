@@ -1439,13 +1439,33 @@ var glShaderFindwater = `
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
   
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
-    vec4 colours[8];
-    colours[0] = vec4(.0, .0, .2, 0.);
-    colours[1] = vec4(.9, 0, 0, .1);
-    colours[2] = vec4(.7, .7, .0, 0.5);
-    colours[3] = vec4(0, .8, 0, 1.);
-    colours[4] = vec4(0, 0, 0.9, 4.);
-    colours[5] = vec4(0, 0., 1., 3500.);  
+    vec4 colours[11];
+    float stepHeight[11];
+    colours[0] = vec4(0, .0, 0.2, 0);
+    colours[1] = vec4(1, 0, 0, 0.3);       
+    colours[2] = vec4(1, 1, 0, 0.6);
+    colours[3] = vec4(0, 0.8, 0, 0.7);
+    colours[4] = vec4(0, 0.8, 0.5,1);
+    colours[5] = vec4(0, 0.8, 0.9, 1);
+    colours[6] = vec4(0, 0.5, 0.9, 1);
+    colours[7] = vec4(0, 0.1, .9, 1);
+    colours[8] = vec4(0.9, 0, 0.9, 1);
+    colours[9] = vec4(0.6, 0, 0.7, 1);    
+    colours[10] = vec4(0.4, 0 , 0.5, 1);     
+    stepHeight[0] = log(0.01);
+    stepHeight[1] = log(0.1);       
+    stepHeight[2] = log(0.5);
+    stepHeight[3] = log(1.);
+    stepHeight[4] = log(4.);
+    stepHeight[5] = log(5.);
+    stepHeight[6] = log(30.);
+    stepHeight[7] = log(100.);
+    stepHeight[8] = log(300.);
+    stepHeight[9] = log(1500.);    
+    stepHeight[10] = log(3500.);  
+    
+
+    
   
     // Height is represented in TENTHS of a meter
     highp float height = (
@@ -1455,11 +1475,11 @@ var glShaderFindwater = `
     -10000.0;
       
     float a = gl_FragColor.a;
-      vec3 newcolor ;
+    vec4 newcolor ;
       
-    newcolor = colours[0].rgb;
+    newcolor = colours[0].rgba;
   
-    for (int i=0; i < 5; i++) {
+    for (int i=0; i < 10; i++) {
       // Do a smoothstep of the heights between steps. If the result is > 0
       // (meaning "the height is higher than the lower bound of this step"),
       // then replace the colour with a linear blend of the step.
@@ -1468,16 +1488,16 @@ var glShaderFindwater = `
   
       newcolor = mix(
         newcolor,
-        colours[i+1].rgb,
-        smoothstep( colours[i].a, colours[i+1].a, height )
+        colours[i+1].rgba,
+        smoothstep( stepHeight[i], stepHeight[i+1], log(height) )
       );
     }
       
-    if (height < uHeightThreshold && height >=0.1 ){
-        gl_FragColor = vec4(newcolor,1.0);
-      }else{
-        gl_FragColor = vec4(0.,0.0,0.0,0.);
-      }    
+    if (height < uWaterThreshold){
+      gl_FragColor = vec4(0.,0.0,0.0,0.);
+    }else{
+      gl_FragColor = vec4(newcolor.rgba);
+    }    
   }
   
 `
@@ -1487,20 +1507,22 @@ var findwater = L.tileLayer.gl({
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
   uniforms: {
-	  uHeightThreshold: 3,
+	  uWaterThreshold: 0.1,
+    // uWaterAlphaMin: 0.1,
+    // uWaterAlphaMax: 5.0,
 	},
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
   zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
   tileSize: 256,
   opacity: 1.0,
-  minZoom: 7, //min 10
+  minZoom: 14, //min 10
   // maxZoom: 14,
   minNativeZoom: 7,
   maxNativeZoom: 14,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
 });
-lyctrl.addOverlay(findwater, "找水源");
+lyctrl.addOverlay(findwater, "取水雷達");
 
 
 // GPS button for mobile devices
