@@ -474,6 +474,8 @@ function zoomend_check(e) {
   }  
     streams.setUniform('uHeightThreshold', (4.0 * Math.pow(2,14-map.getZoom())));
     streams.reRender();  
+    findwater.setUniform('uWaterThreshold', (0.1 * Math.pow(3,15-map.getZoom())));
+    findwater.reRender();
 }
 function zoomstart_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
@@ -1441,7 +1443,7 @@ var glShaderFindwater = `
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
     vec4 colours[11];
     float stepHeight[11];
-    colours[0] = vec4(0, .0, 0.2, 0);
+    colours[0] = vec4(0, .0, 0.2, 0.0);
     colours[1] = vec4(1, 0, 0, 0.3);       
     colours[2] = vec4(1, 1, 0, 0.6);
     colours[3] = vec4(0, 0.8, 0, 0.7);
@@ -1464,8 +1466,6 @@ var glShaderFindwater = `
     stepHeight[9] = log(1500.);    
     stepHeight[10] = log(3500.);  
     
-
-    
   
     // Height is represented in TENTHS of a meter
     highp float height = (
@@ -1474,7 +1474,6 @@ var glShaderFindwater = `
       texelColour.b * 255.0 )/10.
     -10000.0;
       
-    float a = gl_FragColor.a;
     vec4 newcolor ;
       
     newcolor = colours[0].rgba;
@@ -1507,7 +1506,7 @@ var findwater = L.tileLayer.gl({
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
   uniforms: {
-	  uWaterThreshold: 0.1,
+	  uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
     // uWaterAlphaMax: 5.0,
 	},
@@ -1516,7 +1515,7 @@ var findwater = L.tileLayer.gl({
   zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
   tileSize: 256,
   opacity: 1.0,
-  minZoom: 14, //min 10
+  minZoom: 7, //min 10
   // maxZoom: 14,
   minNativeZoom: 7,
   maxNativeZoom: 14,
