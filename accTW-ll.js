@@ -472,8 +472,8 @@ function zoomend_check(e) {
     lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);    
   }  
-    streams.setUniform('uHeightThreshold', (4.0 * Math.pow(2,14-map.getZoom())));
-    streams.reRender();  
+    streams.setUniform('uWaterThreshold', (0.1 * Math.pow(3,15-map.getZoom())));
+    streams.reRender();
 }
 function zoomstart_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
@@ -1346,30 +1346,44 @@ function getwraRESdailyAPI() {
 
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
-
-var glShader = `
+var glShaderStreams = `
   // precision highp float;       // Use 24-bit floating point numbers for everything
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
   // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
   // varying vec2 vCRSCoords;     // CRS coordinates of this fragment
   // varying vec2 vLatLngCoords;  // Lat-Lng coordinates of this fragment (linearly interpolated)
-  // uniform sampler2D uTexture0;
+  // uniform sampler2D uTexture0;  
   
   void main(void) {
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
   
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
-    vec4 colours[8];
-    colours[0] = vec4(.0, .0, .2, 0.);
-      colours[1] = vec4(.0, .5, .9, .1);
-    colours[2] = vec4(.25, .75, .0, 5.);
-    colours[3] = vec4(.98, .79, .02, 30.);
-    colours[4] = vec4(.92, .31, .08, 100.);
-    colours[5] = vec4(.4, 0., 1., 300.);
-      colours[6] = vec4(.8, 0, 1., 1500.);    
-      colours[7] = vec4(1., .0, 1., 3500.);     
-  
+    vec4 colours[11];
+    float stepHeight[11];
+    colours[0] = vec4(0.0, 0.0, 0.2, 0.0);
+    colours[1] = vec4(1.0, 0.0, 0.0, 0.3);       
+    colours[2] = vec4(1.0, 1.0, 0.0, 0.6);
+    colours[3] = vec4(0.0, 0.8, 0.0, 0.7);
+    colours[4] = vec4(0.0, 0.8, 0.5,1.0);
+    colours[5] = vec4(0.0, 0.8, 0.9, 1.0);
+    colours[6] = vec4(0.0, 0.5, 0.9, 1.0);
+    colours[7] = vec4(0.0, 0.1, 0.9, 1.0);
+    colours[8] = vec4(0.9, 0.0, 0.9, 1.0);
+    colours[9] = vec4(0.6, 0.0, 0.7, 1.0);    
+    colours[10] = vec4(0.4, 0.0 , 0.5, 1.0);     
+    stepHeight[0] = log(0.01);
+    stepHeight[1] = log(0.1);       
+    stepHeight[2] = log(0.5);
+    stepHeight[3] = log(1.0);
+    stepHeight[4] = log(4.0);
+    stepHeight[5] = log(5.0);
+    stepHeight[6] = log(30.0);
+    stepHeight[7] = log(100.0);
+    stepHeight[8] = log(300.0);
+    stepHeight[9] = log(1500.0);    
+    stepHeight[10] = log(3500.0);  
+      
     // Height is represented in TENTHS of a meter
     highp float height = (
       texelColour.r * 255.0 * 256.0 * 256.0 +
@@ -1377,12 +1391,11 @@ var glShader = `
       texelColour.b * 255.0 )/10.
     -10000.0;
       
-    float a = gl_FragColor.a;
-      vec3 newcolor ;
+    vec4 newcolor ;
       
-    newcolor = colours[0].rgb;
+    newcolor = colours[0].rgba;
   
-    for (int i=0; i < 7; i++) {
+    for (int i=0; i < 10; i++) {
       // Do a smoothstep of the heights between steps. If the result is > 0
       // (meaning "the height is higher than the lower bound of this step"),
       // then replace the colour with a linear blend of the step.
@@ -1391,26 +1404,28 @@ var glShader = `
   
       newcolor = mix(
         newcolor,
-        colours[i+1].rgb,
-        smoothstep( colours[i].a, colours[i+1].a, height )
+        colours[i+1].rgba,
+        smoothstep( stepHeight[i], stepHeight[i+1], log(height) )
       );
     }
       
-    if (height < uHeightThreshold){
-        gl_FragColor = vec4(0.,0.0,0.0,0.);
-      }else{
-        gl_FragColor = vec4(newcolor,1.0);
-      }    
+    if (height < uWaterThreshold){
+      gl_FragColor = vec4(0.,0.0,0.0,0.);
+    }else{
+      gl_FragColor = vec4(newcolor.rgba);
+    }    
   }
   
 `
 
 var streams = L.tileLayer.gl({
-  fragmentShader: glShader,  
+  fragmentShader: glShaderStreams,  
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
   uniforms: {
-	  uHeightThreshold: 5.0,
+	  uWaterThreshold: 72.9, //0.1,
+    // uWaterAlphaMin: 0.1,
+    // uWaterAlphaMax: 5.0,
 	},
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
@@ -1423,7 +1438,7 @@ var streams = L.tileLayer.gl({
   maxNativeZoom: 14,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
 });
-lyctrl.addOverlay(streams, "水線著色");
+lyctrl.addOverlay(streams, "水線著色⁺");
 
 
 // GPS button for mobile devices
