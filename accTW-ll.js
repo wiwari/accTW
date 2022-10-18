@@ -1437,7 +1437,7 @@ var streams = L.tileLayer.gl({
   minNativeZoom: 7,
   maxNativeZoom: 14,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
-});
+}).addTo(map);
 lyctrl.addOverlay(streams, "水線著色⁺");
 
 
