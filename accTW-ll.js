@@ -473,7 +473,9 @@ function zoomend_check(e) {
     read_catchment.addLayer(wscircle);    
   }  
     streams.setUniform('uWaterThreshold', (0.1 * Math.pow(3,15-map.getZoom())));
-    streams.reRender();
+    // streams.reRender();
+    if (map.getZoom() >= streams.options.maxNativeZoom )
+      streams.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
 }
 function zoomstart_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
