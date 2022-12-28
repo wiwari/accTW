@@ -652,6 +652,12 @@ var folderIcon = L.divIcon({
 }
 );
 
+var cameraIcon = L.divIcon({
+  className: 'container-sm ',
+  html: '<span class="btn-sm btn-primary"> <i class="fa fa-camera text-light" aria-hidden="true"></i></span>'
+}
+);
+
 var myparkIcon = L.divIcon({
   className: 'my-div-icon',
   html: '<span class="my-div-span"> 🅿 </span>'
@@ -1029,6 +1035,63 @@ async function readRAStatGeoJON() {
     });
 }
 readRAStatGeoJON();
+
+
+// ===============
+// CCTV
+const staCCTV = L.geoJSON([], {
+  pointToLayer: function (geoJsonPoint, latlng) {
+    return L.marker(latlng, { icon: cameraIcon });
+  }
+}).bindPopup(function (layer) {
+
+  gtag('event', 'click', {
+    'event_category': 'cctv',
+    'event_label': "station: " + layer.feature.properties.name 
+    // 'non_interaction': true  
+  });
+  
+  popupinfo = "";
+  popupinfo += '<div class="container-sm">';
+  popupinfo += layer.feature.properties.name  ;
+  popupinfo += '<a href="' +layer.feature.properties.DivSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />'
+  popupinfo += layer.feature.properties.OpenName;
+  popupinfo += '<a href="' +layer.feature.properties.OpenSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />'
+  popupinfo += '</div>'
+
+  return popupinfo;
+     
+});
+
+staCCTV.on('add',
+  function(){
+    if (map.getZoom() <=9) map.setZoom(10);  
+    read_catchment.remove();
+  }
+);
+
+lyctrl.addOverlay(staCCTV, "CCTV");
+
+//----------------
+
+var cctv = null;
+getCCTV();
+function getCCTV() {
+  $.ajaxSettings.async = false;
+  $.getJSON("wrafmg/cctv.geojson", function (data) {
+    // cctv = data;    
+    data.features.forEach(sta => {
+        staCCTV.addData(sta);
+    });
+  });
+  $.ajaxSettings.async = true;  
+}
+// === end of CCTV ================ 
+
+
+
+
+
 
 // 考慮改用 https://fhy.wra.gov.tw/WraApi#!/ReservoirApi/ReservoirApi_Station
 // 104pcs 對照最多，座標有缺 https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station     
@@ -1441,6 +1504,9 @@ var streams = L.tileLayer.gl({
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
 }).addTo(map);
 lyctrl.addOverlay(streams, "水線著色⁺");
+
+
+
 
 
 // GPS button for mobile devices
