@@ -798,7 +798,7 @@ waterlevelLayer.on('add',
   }
 );
 
-lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
+lyctrl.addOverlay(waterlevelLayer, "水位站");
 
 
   // wl_ly.addTo(map);
@@ -903,66 +903,8 @@ const RALayer = L.geoJSON([], {
   pointToLayer: function (geoJsonPoint, latlng) {
     return L.marker(latlng, { icon: umbrellaIcon });
   }
-}).bindPopup( function (layer) {
-  gtag('event', 'click', {
-    'event_category': 'rainfall',
-    'event_label': "station: " + layer.feature.properties.name,
-  });
-  $.ajaxSettings.async = false;
-  // $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-  $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-    RApoi="";
-    if(data.success){
-      // console.log("OK!");
-      rra=data;
-      // if (rra.records.location[0].locationName == layer.feature.properties.name) {
-        rra.records.location.forEach(loc => {                
-          if (loc.stationId == layer.feature.properties.id) {    
-            RApoi+='<table class="table table-sm"><tbody>';
-            loc.weatherElement.forEach(el => {
-              // console.log(el.elementName,el.elementValue);
-              rainvalue = (el.elementValue > 0) ? parseFloat(el.elementValue).toFixed(1):
-                (el.elementValue = -998) ? "0.0" : "--";
-              //// Table tag
-              
-              RApoi += '<tr><th scope="row" >'+str_RA[el.elementName] + '</th><td class="text-right">' + rainvalue + '</td></tr>';
-              
-
-              // Div tag
-              
-              // RApoi+='<div class="row">';
-              // RApoi+='<div class="col-sm text-break">'+str_RA[el.elementName] + '</div><div class="col-sm">' + rainvalue + '</div>';
-              // RApoi+='</div>';
-              
-              
-
-            });
-          RApoi+='</tbody></table>';  
-          }
-          
-      });      
-      // data: ELEV, RAIN, MIN_10, HOUR_3, HOUR_6, HOUR_12, HOUR_24, NOW, latest_2days, latest_3days
-    }
-  });
-  $.ajaxSettings.async = true;
-
-  //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
-
-  RApopupmsg = "";
-  RApopupmsg += '<div class="container-fluid">';
-  RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
-  RApopupmsg += '<a href="https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
-  RApopupmsg += cwbCodis.exist(layer.feature.properties.id)? '<a href="'+cwbCodis.url(layer.feature.properties.id)+'" target="_blank" class="btn btn-outline-primary btn-sm">' +'月報' + '</a>' : '';
-  RApopupmsg += '<a href="https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' + "歷史" + '</a>' + "<br />";
-  // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;
-  // RApopupmsg+='<br />' + wlrtstr;
-  RApopupmsg += RApoi;
-  RApopupmsg += '</div>';
-  return RApopupmsg;
-
-
-
 });
+
 
 RALayer.on('add',
   function(){
@@ -979,7 +921,7 @@ RALayer.on('add',
 
 
 
-lyctrl.addOverlay(RALayer,"雨量站");
+// lyctrl.addOverlay(RALayer,"雨量站");
 
 
 
@@ -1032,11 +974,84 @@ async function readRAStatGeoJON() {
       // console.log("complete");
     });
 }
+
+
+$.ajaxSettings.async = false;
 readRAStatGeoJON();
+$.ajaxSettings.async = true;
+
+var clusterRA = L.markerClusterGroup();
+clusterRA.bindPopup( function (layer) {
+  gtag('event', 'click', {
+    'event_category': 'rainfall',
+    'event_label': "station: " + layer.feature.properties.name,
+  });
+  // $.ajaxSettings.async = false;
+  // $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
+  $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
+    RApoi="";
+    if(data.success){
+      // console.log("OK!");
+      rra=data;
+      // if (rra.records.location[0].locationName == layer.feature.properties.name) {
+        rra.records.location.forEach(loc => {                
+          if (loc.stationId == layer.feature.properties.id) {    
+            RApoi+='<table class="table table-sm"><tbody>';
+            loc.weatherElement.forEach(el => {
+              // console.log(el.elementName,el.elementValue);
+              rainvalue = (el.elementValue > 0) ? parseFloat(el.elementValue).toFixed(1):
+                (el.elementValue = -998) ? "0.0" : "--";
+              //// Table tag
+              
+              RApoi += '<tr><th scope="row" >'+str_RA[el.elementName] + '</th><td class="text-right">' + rainvalue + '</td></tr>';
+              
+
+              // Div tag
+              
+              // RApoi+='<div class="row">';
+              // RApoi+='<div class="col-sm text-break">'+str_RA[el.elementName] + '</div><div class="col-sm">' + rainvalue + '</div>';
+              // RApoi+='</div>';
+              
+              
+
+            });
+          RApoi+='</tbody></table>';  
+          }
+          
+      });      
+      // data: ELEV, RAIN, MIN_10, HOUR_3, HOUR_6, HOUR_12, HOUR_24, NOW, latest_2days, latest_3days
+    }
+  
+  });
+  // $.ajaxSettings.async = true;
+
+  //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
+
+  RApopupmsg = "";
+  RApopupmsg += '<div class="container-fluid">';
+  RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
+  RApopupmsg += '<a href="https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
+  RApopupmsg += cwbCodis.exist(layer.feature.properties.id)? '<a href="'+cwbCodis.url(layer.feature.properties.id)+'" target="_blank" class="btn btn-outline-primary btn-sm">' +'月報' + '</a>' : '';
+  RApopupmsg += '<a href="https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' + "歷史" + '</a>' + "<br />";
+  // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;
+  // RApopupmsg+='<br />' + wlrtstr;
+  RApopupmsg += RApoi;
+  RApopupmsg += '</div>';
+  return RApopupmsg;
 
 
 
+});
+clusterRA.addLayer(RALayer);
 
+clusterRA.on('add',
+  function(){
+    if (map.getZoom() <=9) map.setZoom(10);  
+    read_catchment.remove();
+  }
+);
+
+lyctrl.addOverlay(clusterRA, "雨量站");
 
 
 
@@ -1325,8 +1340,12 @@ var clusterCCTV = L.markerClusterGroup(
     disableClusteringAtZoom: 17
   });
 
+
+
 clusterCCTV.addLayer(staCCTV);
 // map.addLayer(clusterCCTV);
+
+
 
  clusterCCTV.bindPopup(function (layer) {
 
@@ -1352,6 +1371,8 @@ clusterCCTV.addLayer(staCCTV);
 });
 
 lyctrl.addOverlay(clusterCCTV, "CCTV");
+
+
 //              ---- cluster END
 
 clusterCCTV.on('add',
