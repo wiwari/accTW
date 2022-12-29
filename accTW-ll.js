@@ -798,7 +798,7 @@ waterlevelLayer.on('add',
   }
 );
 
-lyctrl.addOverlay(waterlevelLayer, "水位站");
+lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-level-up text-black-50" aria-hidden="true"></i></span>');
 
 
   // wl_ly.addTo(map);
@@ -1051,7 +1051,7 @@ clusterRA.on('add',
   }
 );
 
-lyctrl.addOverlay(clusterRA, "雨量站");
+lyctrl.addOverlay(clusterRA, '雨量<span class="btn-sm"><i class="fa fa-umbrella text-black-50" aria-hidden="true"></i></span>');
 
 
 
@@ -1103,7 +1103,7 @@ wraRES.on('add',
     read_catchment.remove();
   }
 );
-lyctrl.addOverlay(wraRES, "水庫堤壩");
+lyctrl.addOverlay(wraRES, '堤壩<span class="btn-sm"><i class="fa fa-folder text-black-50" aria-hidden="true"></i></span>');
 
 var wraRESshp = null;
 getwraRESshp();
@@ -1370,7 +1370,7 @@ clusterCCTV.addLayer(staCCTV);
      
 });
 
-lyctrl.addOverlay(clusterCCTV, "CCTV");
+lyctrl.addOverlay(clusterCCTV, '影像<span class="btn-sm"><i class="fa fa-camera text-black-50" aria-hidden="true"></i></span>');
 
 
 //              ---- cluster END
