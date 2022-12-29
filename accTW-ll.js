@@ -724,7 +724,6 @@ const waterlevelLayer = L.geoJSON([], {
   gtag('event', 'click', {
     'event_category': 'waterlevel',
     'event_label': "station: " + layer.feature.properties.name,
-    // 'non_interaction': true  
   });
 
   eDate = new Date();
@@ -908,7 +907,6 @@ const RALayer = L.geoJSON([], {
   gtag('event', 'click', {
     'event_category': 'rainfall',
     'event_label': "station: " + layer.feature.properties.name,
-    // 'non_interaction': true  
   });
   $.ajaxSettings.async = false;
   // $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
@@ -1037,56 +1035,7 @@ async function readRAStatGeoJON() {
 readRAStatGeoJON();
 
 
-// ===============
-// CCTV
-const staCCTV = L.geoJSON([], {
-  pointToLayer: function (geoJsonPoint, latlng) {
-    return L.marker(latlng, { icon: cameraIcon });
-  }
-}).bindPopup(function (layer) {
 
-  gtag('event', 'click', {
-    'event_category': 'cctv',
-    'event_label': "station: " + layer.feature.properties.name 
-    // 'non_interaction': true  
-  });
-  
-  popupinfo = "";
-  popupinfo += '<div class="container-sm">';
-  popupinfo += layer.feature.properties.name  ;
-  popupinfo += '<a href="' +layer.feature.properties.DivSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />'
-  popupinfo += layer.feature.properties.OpenName;
-  popupinfo += '<a href="' +layer.feature.properties.OpenSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />'
-  popupinfo += '</div>'
-
-  return popupinfo;
-     
-});
-
-staCCTV.on('add',
-  function(){
-    if (map.getZoom() <=9) map.setZoom(10);  
-    read_catchment.remove();
-  }
-);
-
-lyctrl.addOverlay(staCCTV, "CCTV");
-
-//----------------
-
-var cctv = null;
-getCCTV();
-function getCCTV() {
-  $.ajaxSettings.async = false;
-  $.getJSON("wrafmg/cctv.geojson", function (data) {
-    // cctv = data;    
-    data.features.forEach(sta => {
-        staCCTV.addData(sta);
-    });
-  });
-  $.ajaxSettings.async = true;  
-}
-// === end of CCTV ================ 
 
 
 
@@ -1113,7 +1062,6 @@ const wraRES = L.geoJSON([], {
   gtag('event', 'click', {
     'event_category': 'reservoir',
     'event_label': "station: " + layer.feature.properties.name,
-    // 'non_interaction': true  
   });
   
   // API filter example
@@ -1349,6 +1297,86 @@ function getwraRESdailyAPI() {
   $.ajaxSettings.async = true;
 }
 
+// ===============
+// CCTV
+const staCCTV = L.geoJSON([], {
+  pointToLayer: function (geoJsonPoint, latlng) {
+    return L.marker(latlng, { icon: cameraIcon });
+  }
+});
+
+//----------------
+getCCTV();
+function getCCTV() {
+  $.ajaxSettings.async = false;
+  $.getJSON("wrafmg/cctv.geojson", function (data) {
+ 
+    data.features.forEach(sta => {
+        staCCTV.addData(sta);
+    });
+  });
+  $.ajaxSettings.async = true;  
+}
+
+//              ---- cluster BEGIN
+var clusterCCTV = L.markerClusterGroup(
+  {
+    // zoomToBoundsOnClick: false,
+    disableClusteringAtZoom: 17
+  });
+
+clusterCCTV.addLayer(staCCTV);
+// map.addLayer(clusterCCTV);
+
+ clusterCCTV.bindPopup(function (layer) {
+
+  gtag('event', 'click', {
+    'event_category': 'cctv',
+    'event_label': "station: " + layer.feature.properties.name 
+  });
+  
+  popupinfo = "";
+  popupinfo += '<div class="container-sm">';
+  popupinfo += layer.feature.properties.name  ;
+  popupinfo += '<a href="' +layer.feature.properties.DivSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> 預覽 <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />' ;
+  popupinfo += layer.feature.properties.OpenName;
+  if (layer.feature.properties.OpenSrc != null)
+    popupinfo += '<a href="' +layer.feature.properties.OpenSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> 完整 <i class="fa fa-camera " aria-hidden="true" ></i> </a>' ;
+
+  popupinfo += '<br />' ;
+  popupinfo += layer.feature.properties.provider ;
+  popupinfo += '</div>' ;
+
+  return popupinfo;
+     
+});
+
+lyctrl.addOverlay(clusterCCTV, "CCTV");
+//              ---- cluster END
+
+clusterCCTV.on('add',
+  function(){
+    if (map.getZoom() <=9) map.setZoom(10);  
+    read_catchment.remove();
+  }
+);
+
+// clusterCCTV.on('click', function (a) {
+// 	console.log('marker ' + a.layer + ' : ' + a.latlng );
+// });
+
+// clusterCCTV.on('clusterclick', function (a) {
+// 	// a.layer is actually a cluster
+// 	console.log('cluster ' + a.layer.getAllChildMarkers().length);
+// });
+
+
+
+// === end of CCTV ================ 
+
+
+
+
 // //GeoPackageTest =========================================================================
 // L.geoPackageFeatureLayer([], {
 //   // geoPackageUrl: 'http://localhost:8080/geopackage-js/docs/leaflet/canyoning_topo.gpkg',
@@ -1543,7 +1571,6 @@ function searched(e) {
   gtag('event', 'searched', {
     'event_category': 'poi',
     'event_label': "search: " + $(".glass").val(),
-    // 'non_interaction': true  
   });
   history.replaceState(null, "", "?q=" + $(".glass").val());
 }
@@ -1602,7 +1629,6 @@ function copyShareURLtoclipboard(e) {
   gtag('event', 'share', {
     'event_category': 'engagement',
     'event_label': 'copy URL',
-    // 'non_interaction': true  
   });
 }
 

@@ -23,21 +23,25 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.6.1/dist/geosearch.css" />
   
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+	<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" /> -->
+  <link rel="stylesheet" href="MarkerCluster.Default.css" />
+
+
   <!-- <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet-src.js"></script> -->
-  <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js" integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=" crossorigin=""></script>
-  <script src="https://unpkg.com/@ngageoint/leaflet-geopackage@3.0.3/dist/leaflet-geopackage.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js" integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=" crossorigin="anonymous"></script>
+  <!-- <script src="https://unpkg.com/@ngageoint/leaflet-geopackage@3.0.3/dist/leaflet-geopackage.min.js" integrity="sha384-dSnQETxyrqHqqjRw3CCanquYWy4izV2mrD5yAyD3jcMvuFQwYaUXhQkW9tfzZJEH" crossorigin="anonymous"></script> -->
   <!-- <script src="https://raw.githubusercontent.com/frogcat/leaflet-tilelayer-colorpicker/master/leaflet-tilelayer-colorpicker.js" type="module"></script> -->
   <script src="https://unpkg.com/regenerator-runtime" type="text/javascript"></script>
   <script src="https://unpkg.com/leaflet-topography" type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
   
-  <script src="https://cdn.jsdelivr.net/gh/frogcat/leaflet-tilelayer-colorpicker@348648f0b13cb57b3b36fedcd43979dcedd89076/leaflet-tilelayer-colorpicker.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/frogcat/leaflet-tilelayer-colorpicker@348648f0b13cb57b3b36fedcd43979dcedd89076/leaflet-tilelayer-colorpicker.js" integrity="sha384-LzdgV7evkyq0tVlm/2f/BdB0HrEPlDRVZFrmGfKS1/umfN9JYknDDi2X8PCafuhF" crossorigin="anonymous"></script>
   <!-- <script src="leaflet-tilelayer-colorpicker.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.min.js"></script>
 
-
-  <script src="https://unpkg.com/leaflet-doubletapdrag"></script>
-  <script src="https://unpkg.com/leaflet-doubletapdragzoom@0.2.0/Leaflet.DoubleTapDragZoom.js"></script>  
+  <script src="https://unpkg.com/leaflet-doubletapdrag@0.1.1/Leaflet.DoubleTapDrag.js" integrity="sha384-PbZH3vBG/uvVBq6DlSYiZNsiSIAouNVDVyrAIE3WoZ/S/66ToYX9CEpSaXaWHQsR" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet-doubletapdragzoom@0.2.0/Leaflet.DoubleTapDragZoom.js" integrity="sha384-IWerq1hGhPNR6sXnEtoNjA7QDxvH2k4D0EdRhA1dC5d8wYUCsraba9QiacfvoQNS" crossorigin="anonymous"></script>
 
 <!-- Make sure you put this AFtER leaflet.js, when using with leaflet -->
 <script src="https://unpkg.com/leaflet-geosearch@3.6.1/dist/geosearch.umd.js"></script>
@@ -57,6 +61,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
 
 <script src='https://unpkg.com/leaflet.tilelayer.gl@latest/src/Leaflet.TileLayer.GL'></script>
+
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72338640-4"></script>
@@ -92,12 +98,14 @@
           <a href="https://github.com/wiwari/accTW"> 台灣區等高線圖磚 github 專案 </a> 
         </p>
         <h1>版本紀錄</h1>
+        <p>2022/12/29 匯入水情影像雲端平台部分即時影像：水利署自建站(298)、縣市政府水情(1244)、水利署河川監管(259)、重點防汛工程影像(23)、淹水感測器影像(84)、水土保持局(78)、第四台業者(15)、移動站影像(1)、保全監視影像(8)、滯洪池(89)、抽水站影像(228)、破堤申請案件(9)、水利建造物監測設備影像(6)、</p>    
         <p>2022/10/19 重整水線顏色呈現，分離划船與登山取水用途著色</p>
         <p>2022/07/08 新增氣象局Codis 雨量資料連結</p>
         <p>2022/04/22 新增水位站週資料按鈕</p>
         <p>2021/11/14 新增河道著色（依集水區面積）</p>
         <p>2021/11/02 新增水庫堤堰流量，觀察定點流量 m³/s (cms)</p>
-        <p>2021/10/26 新增水利署與氣象局的開放資料，取得水位站與雨量站資訊呈現圖上，並連結外部歷史資料。</p>        
+        <p>2021/10/26 新增水利署與氣象局的開放資料，取得水位站與雨量站資訊呈現圖上，並連結外部歷史資料。</p>
+
         <h1>待辦清單</h1>
         <ul><li>澎湖</li><li>金門</li></ul>
       </div>
