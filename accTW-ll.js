@@ -292,7 +292,18 @@ const nlscLiDAR2020 = L.tileLayer(
   });
 // nlscLiDAR2020.addTo(map);
 
-var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020]);
+const nlscLiDAR2021 = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/LiDAR2021/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 17, //native zoom 9-20, set 17 as default 
+    maxZoom: 21,
+    maxNativeZoom: 20,
+    bounds: ([[24.373243432, 25.298465415], [25.298465415, 121.558227538]]),
+  });
+// nlscLiDAR2021.addTo(map);
+
+var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021]);
 nlscLiDAR.addTo(map);
 
 const happymanGPXoverlay = L.tileLayer(
