@@ -62,7 +62,7 @@ const map = L.map('map', {
   }, {
     text: '地圖瀏覽器...',
     // iconCls: 'fa fa-map-o',
-    icon: 'https://map.happyman.idv.tw/twmap/icons/twmap3.jpg',
+    icon: 'https://twmap.happyman.idv.tw/map/icon/twmap3.jpg',
     callback: openTWMap3,
   }, {
     text: '地圖對照器...',
