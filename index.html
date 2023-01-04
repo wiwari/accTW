@@ -62,6 +62,10 @@
 
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js" integrity="sha384-FlFKgUqOEwuywgVc0+0QrDWcRsIzuyedLe+yUpC1jG4WgtdhJGvWf9mKm6GShpJv" crossorigin="anonymous"></script>
+
+<script src="dropLocalItem.js"></script>
+
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72338640-4"></script>
 <script>
@@ -80,7 +84,7 @@
 </head>
 <body>  
     <div class="container">
-      <div id="map" class="map">        
+      <div id="map" class="map" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">    
       </div>
       <div class="d-none">        
         <h1>摘要</h1>
@@ -96,6 +100,7 @@
           <a href="https://github.com/wiwari/accTW"> 台灣區等高線圖磚 github 專案 </a> 
         </p>
         <h1>版本紀錄</h1>
+        <p>2023/01/04 桌面版新增 gpx 匯入功能，直接拖拉 gpx 進入集水區觀察員後開啟。</p>
         <p>2022/12/29 匯入水情影像雲端平台部分即時影像：水利署自建站(298)、縣市政府水情(1244)、水利署河川監管(259)、重點防汛工程影像(23)、淹水感測器影像(84)、水土保持局(78)、第四台業者(15)、移動站影像(1)、保全監視影像(8)、滯洪池(89)、抽水站影像(228)、破堤申請案件(9)、水利建造物監測設備影像(6)、</p>    
         <p>2022/10/19 重整水線顏色呈現，分離划船與登山取水用途著色</p>
         <p>2022/07/08 新增氣象局Codis 雨量資料連結</p>
