@@ -1407,7 +1407,11 @@ clusterCCTV.on('add',
 // === end of CCTV ================ 
 
 
-
+// local_gpxlayers BEGIN -----
+local_gpxlayers = L.featureGroup([]);
+lyctrl.addOverlay(local_gpxlayers,"自有上傳");
+local_gpxlayers.addTo(map);
+// local_gpxlayers  END -----
 
 // //GeoPackageTest =========================================================================
 // L.geoPackageFeatureLayer([], {
