@@ -102,3 +102,13 @@ function dragOverHandler(ev) {
 
     // console.log('File(s) in drop zone');
 }
+
+
+
+map_forlocal = document.querySelector('#map');
+map_forlocal.addEventListener("drop", (ev) => {
+  dropHandler(ev);});
+  map_forlocal.addEventListener("dragover", (ev) => {
+dragOverHandler(ev);
+});
+map_forlocal=null;
