@@ -19,7 +19,50 @@ function dropHandler(ev) {
                     const file = item.getAsFile();
                     // console.log(`… file[${i}].name = ${file.name} ` + file.lastModified);
 
-                    const regxFilename = /^(.*)\.[gG][pP][xX]$/;
+                    loadMyLocalGPX(file);
+                }
+            });
+
+
+        } else {
+            // Use DataTransfer interface to access the file(s)
+            [...ev.dataTransfer.files].forEach((file, i) => {
+                console.log(`… file[${i}].name = ${file.name}  `);
+            });
+        }
+    }    
+
+}
+
+
+function dragOverHandler(ev) {
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+    ev.dataTransfer.effectallowed = 'copy'
+
+    if (ev.shiftKey) {
+        // ev.dataTransfer.dropEffect = 'move';
+        ev.dataTransfer.dropEffect = 'none';
+    } else if (ev.altKey) {
+        // ev.dataTransfer.dropEffect = 'link';     
+        ev.dataTransfer.dropEffect = 'none';   
+    } else {
+        ev.dataTransfer.dropEffect = 'copy';
+    }
+
+    // ev.dataTransfer.dropEffect = 'copy';
+    [...ev.dataTransfer.items].forEach((item, i) => {
+        if (!(item.kind === 'file')) {
+            // console.log(`not support other kind of input other than file: ${item.kind}`);  //eg: string
+            ev.dataTransfer.dropEffect = 'none';
+        }
+    });
+
+    // console.log('File(s) in drop zone');
+}
+
+function loadMyLocalGPX(file){ //load from INPUT file or drop
+    const regxFilename = /^(.*)\.[gG][pP][xX]$/;
                     if (file.name.length > 0) //URL papameter format: ?center=lat,lng
                         if (found = file.name.match(regxFilename)) {
                             // console.log(`GPX supported: ${file.name} , Modified ${file.lastModified}`);
@@ -63,52 +106,66 @@ function dropHandler(ev) {
                             ;
                         }
 
-                }
-            });
-
-
-        } else {
-            // Use DataTransfer interface to access the file(s)
-            [...ev.dataTransfer.files].forEach((file, i) => {
-                console.log(`… file[${i}].name = ${file.name}  `);
-            });
-        }
-    }    
-
 }
-
-function dragOverHandler(ev) {
-    // Prevent default behavior (Prevent file from being opened)
-    ev.preventDefault();
-    ev.dataTransfer.effectallowed = 'copy'
-
-    if (ev.shiftKey) {
-        // ev.dataTransfer.dropEffect = 'move';
-        ev.dataTransfer.dropEffect = 'none';
-    } else if (ev.altKey) {
-        // ev.dataTransfer.dropEffect = 'link';     
-        ev.dataTransfer.dropEffect = 'none';   
-    } else {
-        ev.dataTransfer.dropEffect = 'copy';
-    }
-
-    // ev.dataTransfer.dropEffect = 'copy';
-    [...ev.dataTransfer.items].forEach((item, i) => {
-        if (!(item.kind === 'file')) {
-            // console.log(`not support other kind of input other than file: ${item.kind}`);  //eg: string
-            ev.dataTransfer.dropEffect = 'none';
-        }
-    });
-
-    // console.log('File(s) in drop zone');
-}
-
-
 
 map_forlocal = document.querySelector('#map');
 map_forlocal.addEventListener("drop", (ev) => {
-  dropHandler(ev);});
-  map_forlocal.addEventListener("dragover", (ev) => {
-dragOverHandler(ev);
+    dropHandler(ev);
 });
-map_forlocal=null;
+map_forlocal.addEventListener("dragover", (ev) => {
+    dragOverHandler(ev);
+});
+map_forlocal = null;
+
+
+// test import local gpx button
+
+
+L.Control.LoadGPXButton = L.Control.extend({
+    onAdd: function(map) {
+
+        var container  = L.DomUtil.create('div','leaflet-bar');
+
+        var a = L.DomUtil.create('a', 'leaflet-bar-part leaflet-bar-part-single', container);
+        a.title = '匯入GPX';
+        a.role="button";
+        a.href='#';
+        L.DomEvent.on(a, 'click', function (e) {
+            fileinput.click();
+            e.preventDefault();
+        });
+
+        var icon = L.DomUtil.create('i', 'fa fa-file-code-o', a);
+        icon['aria-hidden'] = "true";
+        
+        var fileinput = L.DomUtil.create('input', ' ', container);
+        fileinput.type = 'file';
+        fileinput.id = 'fileItem';
+        fileinput.innerHTML = '檔案';
+        fileinput.multiple = 'true';
+        fileinput.accept = '.gpx';
+        fileinput.style = 'display:none';
+        fileinput.addEventListener("change", (ev) => {
+            LocalFileOpen(ev);
+        });  
+
+        return container ;
+    },
+
+    onRemove: function(map) {
+        // Nothing to do here
+    }
+});
+
+L.control.loadGPXButton = function(opts) {
+    return new L.Control.LoadGPXButton(opts);
+}
+
+L.control.loadGPXButton({ position: 'topright' }).addTo(map);
+
+function LocalFileOpen(ev) {
+    local_gpxlayers.clearLayers();
+    for (const file of ev.target.files) {
+        loadMyLocalGPX(file);
+    }
+}

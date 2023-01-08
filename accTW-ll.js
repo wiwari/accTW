@@ -1409,7 +1409,7 @@ clusterCCTV.on('add',
 
 // local_gpxlayers BEGIN -----
 local_gpxlayers = L.featureGroup([]);
-lyctrl.addOverlay(local_gpxlayers,"自有上傳");
+lyctrl.addOverlay(local_gpxlayers,'自有上傳'+'<span class="btn-sm"><i class="fa fa-file-code-o  text-black-50" aria-hidden="true"></i></span>');
 local_gpxlayers.addTo(map);
 // local_gpxlayers  END -----
 
