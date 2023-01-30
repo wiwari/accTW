@@ -212,7 +212,7 @@ const happymantile = L.tileLayer(
     maxNativeZoom: 16,
     // zoomOffset: (L.Browser.retina ? -1 : 0),
     // tileSize: (L.Browser.retina ? 512 : 256),
-    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
 happymantile.addTo(map);
 
@@ -224,7 +224,7 @@ const nlscphoto2tile = L.tileLayer(
     minZoom: 17, //native zoom 7~19 
     maxZoom: 20,
     maxNativeZoom: 19,
-    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
 nlscphoto2tile.addTo(map);
 
@@ -239,7 +239,7 @@ const MOEACGS = L.tileLayer(
     maxNativeZoom: 17,
     opacity: 0.3,
     // interactive: true,  
-    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound  
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
 // MOEACGS.addTo(map);
 
@@ -330,7 +330,7 @@ const happymanBNoverlay = L.tileLayer(
     zoomOffset: -1,
     tileSize: 512,
     opacity: 0.6,
-    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
 happymanBNoverlay.addTo(map);
 
@@ -342,7 +342,7 @@ const nlscEMAPoverlay = L.tileLayer(
     minZoom: 16, //native zoom 9-19
     maxZoom: 19,
     maxNativeZoom: 19,
-    bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound  
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
 nlscEMAPoverlay.addTo(map);
 
@@ -368,6 +368,7 @@ const dtmTW = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/t
   minNativeZoom: 6,
   maxNativeZoom: 12,
   bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS TW DEM bound
+  // bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   // bounds: ([[20.72799,122.9312], [26.60305,118.1036]]), //bound provided by osmhacktw
 }).addTo(map);
 
@@ -379,9 +380,9 @@ const dtmTW = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/t
 // const catchment = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/tiles/{z}/{x}/{y}.png", {
 // const catchment = L.tileLayer.colorPicker("wsRGBAtiles/{z}/{x}/{y}.png", { //local
 // const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@tiles/dist/{z}/{x}/{y}.png", { //CDN
-// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png", {  //CDN exact commit
+// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@0a44f58fcec1d0efb62a4285bbcac01ee6d89266/dist/{z}/{x}/{y}.png", {  //CDN exact commit
 // const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/tiles/dist/{z}/{x}/{y}.png", {  //GITHUB
-const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png", {  //GITHUB exact commit
+const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/0a44f58fcec1d0efb62a4285bbcac01ee6d89266/dist/{z}/{x}/{y}.png", {  //GITHUB exact commit
   // attribution: '&copy; BASIN',
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
@@ -394,7 +395,17 @@ const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiw
   // maxZoom: 14,
   minNativeZoom: 7,
   maxNativeZoom: 14,
-  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
+  // bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound 2020TW
+  //
+  // TW:  120d 0'59.64"E - 122d 0'34.74"E , 21d53'37.59"N -  25d18' 5.30"N      // 120.01656667 - 122.00965000 , 21.89377500 - 25.30147222
+  // bounds: ([[21.89377500, 120.01656667], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW
+  // PH:   119d18'26.57"E - 119d44' 5.26"E ,  23d10'19.13"N -  23d47'58.11"N //   119.30738056 - 119.73479444 ,  23.17198056 - 23.79947500
+  // bounds: ([[23.17198056, 119.30738056], [23.79947500, 119.73479444]]), //WGS DEM bound 2022PH
+  // KM:   118d 8'33.46"E - 118d30'43.44"E,  24d22'35.51"N -  24d32' 1.69"N //    118.14262778 - 118.51206667 ,   24.37653056 - 24.53380278
+  // bounds: ([[24.37653056, 118.14262778], [24.53380278, 118.51206667]]), //WGS DEM bound 2022KM
+
+  // TW, PH, KM 
+  bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
 }).addTo(map);
 
 // test show basin size
@@ -1550,7 +1561,7 @@ var glShaderStreams = `
 var streams = L.tileLayer.gl({
   fragmentShader: glShaderStreams,  
   tileLayers: [catchment],
-  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/08bca9f6eb1fb64ba0d83cd7903cd7c20b413217/dist/{z}/{x}/{y}.png'],
+  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/0a44f58fcec1d0efb62a4285bbcac01ee6d89266/dist/{z}/{x}/{y}.png'],
   uniforms: {
 	  uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
@@ -1565,7 +1576,7 @@ var streams = L.tileLayer.gl({
   // maxZoom: 14,
   minNativeZoom: 7,
   maxNativeZoom: 14,
-  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS DEM bound
+  bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
 }).addTo(map);
 lyctrl.addOverlay(streams, "水線著色⁺");
 
