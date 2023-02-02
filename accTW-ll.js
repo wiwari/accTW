@@ -348,14 +348,7 @@ nlscEMAPoverlay.addTo(map);
 
 
 
-
-
-// ------------------
-// DOC https://github.com/OsmHackTW/terrain-rgb
-// ------------------
-
-const dtmTW = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/tiles/{z}/{x}/{y}.png", {  //GITHUB exact commit
-  attribution: '© <strong><a href="https://github.com/OsmHackTW/terrain-rgb/">OsmHackTW</a> </strong> ',
+const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/dem/{z}/{x}/{y}.png", {  //GITHUB exact commit
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
   zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
@@ -365,11 +358,10 @@ const dtmTW = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/t
   opacity: 0,
   minZoom: 7, //min 10
   // maxZoom: 14,
-  minNativeZoom: 6,
-  maxNativeZoom: 12,
-  bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS TW DEM bound
-  // bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
-  // bounds: ([[20.72799,122.9312], [26.60305,118.1036]]), //bound provided by osmhacktw
+  minNativeZoom: 7,
+  maxNativeZoom: 14,
+  // bounds: ([[21.89080851, 122.01364715], [25.30194682, 120.01663670]]), //WGS TW DEM bound
+  bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
 }).addTo(map);
 
 
@@ -377,12 +369,11 @@ const dtmTW = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/t
 // DOC RGBterrain tiles generation https://github.com/syncpoint/terrain-rgb
 // ------------------
 
-// const catchment = L.tileLayer.colorPicker("https://osmhacktw.github.io/terrain-rgb/tiles/{z}/{x}/{y}.png", {
 // const catchment = L.tileLayer.colorPicker("wsRGBAtiles/{z}/{x}/{y}.png", { //local
 // const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@tiles/dist/{z}/{x}/{y}.png", { //CDN
-// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@0a44f58fcec1d0efb62a4285bbcac01ee6d89266/dist/{z}/{x}/{y}.png", {  //CDN exact commit
+// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png", {  //CDN exact commit
 // const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/tiles/dist/{z}/{x}/{y}.png", {  //GITHUB
-const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/0a44f58fcec1d0efb62a4285bbcac01ee6d89266/dist/{z}/{x}/{y}.png", {  //GITHUB exact commit
+const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png", {  //GITHUB exact commit
   // attribution: '&copy; BASIN',
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
@@ -1561,7 +1552,7 @@ var glShaderStreams = `
 var streams = L.tileLayer.gl({
   fragmentShader: glShaderStreams,  
   tileLayers: [catchment],
-  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/0a44f58fcec1d0efb62a4285bbcac01ee6d89266/dist/{z}/{x}/{y}.png'],
+  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
 	  uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
