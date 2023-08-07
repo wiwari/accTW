@@ -762,10 +762,10 @@ const waterlevelLayer = L.geoJSON([], {
   sQDate_str = sQDate.getFullYear() + "/" + (sQDate.getMonth() + 1) + "/" + sQDate.getDate();
   sYDate_str = sYDate.getFullYear() + "/" + (sYDate.getMonth() + 1) + "/" + sYDate.getDate();
 
-  wl_url_w = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sWDate_str + "&edate=" + eDate_str;
-  wl_url_m = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sMDate_str + "&edate=" + eDate_str;
-  wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sQDate_str + "&edate=" + eDate_str;
-  wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&deptID=" + layer.feature.properties.TownIdentifier + "&sdate=" + sYDate_str + "&edate=" + eDate_str;
+  wl_url_w = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sWDate_str + "&edate=" + eDate_str;
+  wl_url_m = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sMDate_str + "&edate=" + eDate_str;
+  wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sQDate_str + "&edate=" + eDate_str;
+  wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sYDate_str + "&edate=" + eDate_str;
 
   
   // ob_item_str=layer.feature.properties.ObervationItems.replace(/0/,ob_items[0]);
@@ -855,7 +855,6 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
           sta_id=ob.BasinIdentifier.replace(/ /g, "");
           sta_name=ob.ObservatoryName.replace(/ /g, "");
           sta_river=ob.RiverName.replace(/ /g, "");
-          sta_TownIdentifier=ob.TownIdentifier.replace(/ /g, "");
           sta_ObervationItems=ob.ObervationItems.replace(/ /g, "");
           sta_ObervationItems=ob.ObervationItems.replace(/,/g, "");
 
@@ -873,8 +872,7 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
               "properties": {
                 "id": sta_id,
                 "name": sta_name,
-                "river": sta_river,      
-                "TownIdentifier" : sta_TownIdentifier,                
+                "river": sta_river,          
                 "ObervationItems" : sta_ObervationItems,
               },
               "geometry": {
