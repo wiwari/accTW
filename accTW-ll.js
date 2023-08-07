@@ -206,7 +206,7 @@ const happymantile = L.tileLayer(
   'https://tile.happyman.idv.tw/map/moi_osm/{z}/{x}/{y}.png',
   {
     attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
-    minZoom: 13, //native zoom 10~17
+    minZoom: 16, //native zoom 10~17
     // maxZoom: 19,
     maxZoom: 16,
     maxNativeZoom: 16,
@@ -215,6 +215,49 @@ const happymantile = L.tileLayer(
     bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
 happymantile.addTo(map);
+
+const nlscB100000 = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/B100000/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 13, //native zoom 10~17
+    // maxZoom: 19,
+    maxZoom: 13,
+    maxNativeZoom: 13,
+    // zoomOffset: (L.Browser.retina ? -1 : 0),
+    // tileSize: (L.Browser.retina ? 512 : 256),
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+  });
+
+
+const nlscB50000 = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/B50000/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 14, //native zoom 10~17
+    // maxZoom: 19,
+    maxZoom: 14,
+    maxNativeZoom: 14,
+    // zoomOffset: (L.Browser.retina ? -1 : 0),
+    // tileSize: (L.Browser.retina ? 512 : 256),
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+  });
+
+
+const nlscB25000 = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/B25000/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 15, //native zoom 10~17
+    // maxZoom: 19,
+    maxZoom: 15,
+    maxNativeZoom: 15,
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+  });
+ 
+  var nlscBtopo = L.layerGroup([nlscB100000,nlscB50000,nlscB25000]);
+  nlscBtopo.addTo(map);
+
 
 
 const nlscphoto2tile = L.tileLayer(
@@ -314,8 +357,26 @@ const nlscLiDAR2022 = L.tileLayer(
   });
 // nlscLiDAR2022.addTo(map);
 23.523252524,121.282920517
-var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiDAR2022]);
-nlscLiDAR.addTo(map);
+var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiDAR2022],
+  {
+      attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+      minZoom: 17, //native zoom 9-20, set 17 as default 
+      maxZoom: 21,
+      maxNativeZoom: 20,
+  });
+// nlscLiDAR.addTo(map);
+
+const happymanATIS = L.tileLayer(
+  'https://tile.happyman.idv.tw/map/atis/{z}/{x}/{y}.png',
+  {
+    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
+    minZoom: 17, //native zoom 5~22
+    maxZoom: 21,
+    maxNativeZoom: 21,
+
+
+  });
+  // happymanATIS.addTo(map);
 
 const happymanGPXoverlay = L.tileLayer(
   'https://tile.happyman.idv.tw/map/gpxtrack/{z}/{x}/{y}.png',
@@ -699,9 +760,9 @@ var parkIcon = L.icon({
 
 
 const lyctrl = L.control.layers({
-  "正射影像": nlscphoto2tile,
+  "正射影像": nlscphoto2tile, "光達影像": nlscLiDAR, "農航空拍": happymanATIS, 
 }, {
-  "光達影像": nlscLiDAR, "地質查詢": MOEACGS, "產生器GPX": happymanGPXoverlay, "產生器BN": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
+  "地質查詢": MOEACGS, "產生器GPX": happymanGPXoverlay, "產生器BN": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
   //"集水區":read_catchment,
 }).addTo(map);
 
