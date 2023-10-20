@@ -272,15 +272,16 @@ const nlscphoto2tile = L.tileLayer(
 nlscphoto2tile.addTo(map);
 
 const MOEACGS = L.tileLayer(
-  'https://gis3.moeacgs.gov.tw/api/Tile/v1/getTile.cfm?layer=CGS_CGS_MAP&z={z}&x={x}&y={y}',
+  'https://geomap.gsmma.gov.tw/api/Tile/v1/getTile.cfm?layer=CGS_CGS_MAP&z={z}&x={x}&y={y}',
   {
-    // source: https://gis3.moeacgs.gov.tw/api/Tile/v1/oas/#/default/get_getTile_cfm
-    attribution: '© <strong><a href="https://gis3.moeacgs.gov.tw">MOEGCGS</a> </strong>',
+    // old source: https://gis3.moeacgs.gov.tw/api/Tile/v1/oas/#/default/get_getTile_cfm
+    // source: https://geomap.gsmma.gov.tw/gwh/gsb97-1/sys8a/t3/index1.cfm
+    attribution: '© <strong><a href="https://geomap.gsmma.gov.tw">GSMMA</a> </strong>',
     minZoom: 7,
     maxZoom: 20,
     minNativeZoom: 1,
     maxNativeZoom: 17,
-    opacity: 0.3,
+    opacity: 0.45,
     // interactive: true,  
     bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
@@ -614,7 +615,11 @@ async function queryMOEACGS(e) {
   var tw97 = proj4(EPSG4326, EPSG3826, [e.latlng.lng, e.latlng.lat]);
   // console.log(tw97[0],  tw97[1]);
   const queryzoom = (map.getZoom() > 17) ? 17 : map.getZoom();
-  await $.getJSON("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
+
+  //  TODO:             https://geomap.gsmma.gov.tw/api/Tile/v2/getTooltip.cfm?layer=TYPE4&srs=3857&scale=25000
+  //  source :　　　https://geomap.gsmma.gov.tw/gwh/gsb97-1/sys8a/t3/index1.cfm
+  // other API:         https://www.geologycloud.tw/geohome/DataService/swagger/api
+  await $.getJSON("https://geomap.gsmma.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
     var cleandata = data['tooltip'];
     cleandata = cleandata.replace(/構造名稱：/g, "");
     cleandata = cleandata.replace(/構造名稱：\s*\n/g, "");
