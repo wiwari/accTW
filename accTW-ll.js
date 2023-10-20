@@ -996,10 +996,10 @@ RALayer.on('add',
   }
 );
 
-// 站位圖示 https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=81AJ1
-// https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=C0UA5 
-// 雨量摘要 https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=%E4%B9%9D%E4%BB%BD%E4%BA%8C%E5%B1%B1&elementName=
-// 雨量站說明 https://e-service.cwb.gov.tw/wdps/obs/state.htm
+// 站位圖示 https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=81AJ1
+// https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=C0UA5 
+// 雨量摘要 https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=%E4%B9%9D%E4%BB%BD%E4%BA%8C%E5%B1%B1&elementName=
+// 雨量站說明 https://e-service.cwa.gov.tw/wdps/obs/state.htm
 
 
 
@@ -1012,13 +1012,13 @@ RALayer.on('add',
 var rainstations={};
 
 //水利署水文資訊網 https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=01U050&category=rtRA&deptID=1&sdate=2021/10/22&edate=2021/10/25&flow_cnt=&searchType=
-//氣象局站位 API https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV
-//氣象局 API https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314
-//氣象局 JSON https://opendata.cwb.gov.tw/fileapi/v1/opendataapi/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON 
+//氣象局站位 API https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV
+//氣象局 API https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314
+//氣象局 JSON https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON 
 async function readRAStatGeoJON() {    
   // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697
    
-  await $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV&parameterName=ATTRIBUTE")
+  await $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV&parameterName=ATTRIBUTE")
     .done(function (data) {      
       rainstations=data;
       // console.log("RA second success");
@@ -1070,8 +1070,8 @@ clusterRA.bindPopup( function (layer) {
     'event_label': "station: " + layer.feature.properties.name,
   });
   // $.ajaxSettings.async = false;
-  // $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-  $.getJSON("https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
+  // $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
+  $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
     RApoi="";
     if(data.success){
       // console.log("OK!");
@@ -1113,7 +1113,7 @@ clusterRA.bindPopup( function (layer) {
   RApopupmsg = "";
   RApopupmsg += '<div class="container-fluid">';
   RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
-  RApopupmsg += '<a href="https://www.cwb.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
+  RApopupmsg += '<a href="https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
   RApopupmsg += cwbCodis.exist(layer.feature.properties.id)? '<a href="'+cwbCodis.url(layer.feature.properties.id)+'" target="_blank" class="btn btn-outline-primary btn-sm">' +'月報' + '</a>' : '';
   RApopupmsg += '<a href="https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' + "歷史" + '</a>' + "<br />";
   // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;

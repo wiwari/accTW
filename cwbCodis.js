@@ -5,7 +5,7 @@ var cwbCodis = {
         if (this.exist(id)) {
             eDate = new Date();
             eDate_str = eDate.getFullYear() + "-" + ('0' + (eDate.getMonth() + 1)).slice(-2);
-            ret += "https://e-service.cwb.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain";
+            ret += "https://e-service.cwa.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain";
             ret += "&station=" + id;
             ret += "&stname=" + encodeURI(encodeURI(this.stList[id][0]));
             ret += "&datepicker=" + eDate_str;
@@ -19,7 +19,7 @@ var cwbCodis = {
     },
 
     // Station List fetch from 
-    // https://e-service.cwb.gov.tw/HistoryDataQuery/QueryDataController.do?command=viewMain&_=1657250135402
+    // https://e-service.cwa.gov.tw/HistoryDataQuery/QueryDataController.do?command=viewMain&_=1657250135402
     // dumping day 2022-07-08
     // ONLY include CWB own stations
 
