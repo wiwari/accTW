@@ -1,4 +1,4 @@
-var cwbCodis = {
+var cwaCodis = {
     // used as dictionary for cwb CODiS URL query
     url: function (id) {
         ret = '';
