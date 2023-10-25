@@ -1195,14 +1195,18 @@ lyctrl.addOverlay(wraRES, '堤壩<span class="btn-sm"><i class="fa fa-folder tex
 
 var wraRESshp = null;
 getwraRESshp();
-function getwraRESshp() {
-  $.ajaxSettings.async = false;
-  $.getJSON("wra/SWRESOIR.json", function (data) {
-    wraRESshp = data;
-    getwraRESdailyAPI();
-  });
-  $.ajaxSettings.async = true;
-  
+function getwraRESshp() {  
+  fetch("wra/SWRESOIR.json")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      wraRESshp = data;
+      getwraRESdailyAPI();
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
 }
 
 
