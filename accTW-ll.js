@@ -906,14 +906,15 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
     // console.log(realtime_waterlevel);
   
     // Get waterlevel station information
-  async function readWLStatGeoJON() {    
-    // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697
-    
-    await $.getJSON("wra/28E06316-FE39-40E2-8C35-7BF070FD8697.json")
-    // await $.getJSON("https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697")  //not supporting CORS
-    // await $.getJSON("https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?")
-      .done(function (data) {        
-        wl_obs=data;
+  function readWLStatGeoJON() {    
+    // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697      //not supporting CORS
+    // https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?
+    fetch("wra/28E06316-FE39-40E2-8C35-7BF070FD8697.json")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      wl_obs=data;
         // console.log("second success");
         // wl_obs = JSON.parse(data.contents); //for allorigins parsing        
         wl_obs.RiverStageObservatoryProfile_OPENDATA.forEach(ob => {
@@ -950,14 +951,13 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
           }
         });
         // lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
-      })
-      .fail(function (data) {
-        console.log("WL Station query error");
-      })
-      .always(function (data) { 
-        1;       
-        // console.log("complete");
-      });
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
+
+    
+      
   }
   // 即時水位 
   // JSON https://gweb.wra.gov.tw/HydroInfoMobile/Chart?containerID=chart-single-rtle&category=rtLE&stno=1140H099&sYear=2021&sMonth=10&sDay=21&eYear=2021&eMonth=10&eDay=24&timeframe=YYMMDD&timeType=hh&mode=0&flow_cnt=&searchType=
