@@ -1400,6 +1400,8 @@ function getwraRESdailyAPI() {
   $.ajaxSettings.async = true;
 }
 
+
+
 // ===============
 // CCTV
 const staCCTV = L.geoJSON([], {
@@ -1409,17 +1411,9 @@ const staCCTV = L.geoJSON([], {
 });
 
 //----------------
-getCCTV();
-function getCCTV() {
-  $.ajaxSettings.async = false;
-  $.getJSON("wrafmg/cctv.geojson", function (data) {
- 
-    data.features.forEach(sta => {
-        staCCTV.addData(sta);
-    });
-  });
-  $.ajaxSettings.async = true;  
-}
+
+
+
 
 //              ---- cluster BEGIN
 var clusterCCTV = L.markerClusterGroup(
@@ -1430,7 +1424,7 @@ var clusterCCTV = L.markerClusterGroup(
 
 
 
-clusterCCTV.addLayer(staCCTV);
+// clusterCCTV.addLayer(staCCTV);
 // map.addLayer(clusterCCTV);
 
 
@@ -1479,6 +1473,25 @@ clusterCCTV.on('add',
 // 	console.log('cluster ' + a.layer.getAllChildMarkers().length);
 // });
 
+getCCTV();
+function getCCTV() {
+  fetch("wrafmg/cctv.geojson")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      // console.log(data);
+      data.features.forEach(sta => {
+        staCCTV.addData(sta);
+      });
+      clusterCCTV.addLayer(staCCTV);
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
+
+
+}
 
 
 // === end of CCTV ================ 
