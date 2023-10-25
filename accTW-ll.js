@@ -1213,12 +1213,16 @@ function getwraRESshp() {
 var wrafhy_activeStationNo= null;
 getwrafhyActiveStationNo();
 function getwrafhyActiveStationNo() {
-  $.ajaxSettings.async = false;
-  $.getJSON("/wra-fhy/data/active_stations.json", function (data) {
-    wrafhy_activeStationNo = data[0].StationNoList;    
-  });
-  $.ajaxSettings.async = true;
-  
+  fetch("/wra-fhy/data/active_stations.json")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      wrafhy_activeStationNo = data[0].StationNoList;
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
 }
 
 
