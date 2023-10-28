@@ -1255,15 +1255,22 @@ var wraRESdailyAPI ={};
 var wraRESstaAPI = {};
 
 function getwraRESstaAPI() {
-  $.ajax({ //GET JSON with header
-    dataType: "json",
-    beforeSend: function (request) {
-      request.setRequestHeader("Accept", "application/json");
+  fetch("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$select=Latitude,Longitude,StationNo,StationName",{
+    "headers": {
+        "Accept": "application/json",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin"
     },
-    // url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station",
-    url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$select=Latitude,Longitude,StationNo,StationName",
-    // data: data,
-    success: async function (data) {
+    // "referrer": "https://fhy.wra.gov.tw/WraApi/",
+    "method": "GET",
+    "mode": "cors"
+})
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+
       wraRESstaAPI = data;
       // CityCode (string):// 縣市代碼 ,
       // EffectiveCapacity (number, optional): 有效容量(萬立方公尺) ,
@@ -1319,17 +1326,17 @@ function getwraRESstaAPI() {
           // s+=sta_shp.properties.RES_NAME + sta_shp.geometry.coordinates[0] + ", " + sta_shp.geometry.coordinates[1] + " not matching";           
         }
         // console.log(s);
-      });     
+      });
 
       //append Daily data into station data
-      wraRESdailyAPI.forEach(rt_sta => { 
+      wraRESdailyAPI.forEach(rt_sta => {
         wraRESstaAPI.forEach(sta => {
-          if (rt_sta.StationNo == sta['StationNo']){
-            sta['date']=rt_sta['Time'];
-            if(rt_sta['InflowTotal'])              
-              sta['InflowTotal']=rt_sta['InflowTotal'];
-            if(rt_sta['OutflowTotal'])
-              sta['OutflowTotal']=rt_sta['OutflowTotal'];
+          if (rt_sta.StationNo == sta['StationNo']) {
+            sta['date'] = rt_sta['Time'];
+            if (rt_sta['InflowTotal'])
+              sta['InflowTotal'] = rt_sta['InflowTotal'];
+            if (rt_sta['OutflowTotal'])
+              sta['OutflowTotal'] = rt_sta['OutflowTotal'];
 
             // StationNo (string):測站代碼 ,
             // Time (string):           // 水情時間(格式:yyyy-MM-dd HH:mm) ,
@@ -1340,9 +1347,9 @@ function getwraRESstaAPI() {
             // InflowTotal (number, optional):             // 本日總進水量(萬立方公尺) ,
             // OutflowTotal (number, optional):            // 本日總出水量(萬立方公尺) 
           }
-        });        
+        });
       });
-  
+
 
       wraRESstaAPI.forEach(sta_api => {
         // s = sta_api['StationNo'] + " "+ sta_api['StationName'] + " ";
@@ -1386,8 +1393,12 @@ function getwraRESstaAPI() {
       //   wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
       //     realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
       //   });
-    }
+    })
+  .catch((err) => {
+    console.log('rejected: ', err);
   });
+
+
 }
 
 
