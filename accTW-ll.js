@@ -1166,9 +1166,8 @@ lyctrl.addOverlay(clusterRA, '雨量<span class="btn-sm"><i class="fa fa-umbrell
 
 
 
-
-
 // 考慮改用 https://fhy.wra.gov.tw/WraApi#!/ReservoirApi/ReservoirApi_Station
+// TODO: https://data.wra.gov.tw/openapi/swagger
 // 104pcs 對照最多，座標有缺 https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station     
 //  68pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/RealTimeInfo
 //  76pcs https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily
@@ -1409,18 +1408,24 @@ function getwraRESstaAPI() {
 
 
 function getwraRESdailyAPI() {
-  $.ajaxSettings.async = false;
-  $.ajax({
-    //GET JSON with header
-    dataType: "json",
-    beforeSend: function (request) {
-      request.setRequestHeader("Accept", "application/json");
-    },
-    url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily",
+  fetch("https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily", {
+    // TODO: https://data.wra.gov.tw/openapi/swagger
     // url: "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily",
     // url: "https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=50C8256D-30C5-4B8D-9B84-2E14D5C6DF71" ,
-    // data: data,
-    success: function (data) {
+    "headers": {
+      "Accept": "application/json",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin"
+    },
+    // "referrer": "https://fhy.wra.gov.tw/WraApi/",
+    "method": "GET",
+    "mode": "cors"
+  })
+  .then((response) => {
+    return response.json();
+  })
+    .then(data => {
       wraRESdailyAPI = data;
       wraRESdailyAPI.forEach(rt_sta => {
         1;
@@ -1436,10 +1441,12 @@ function getwraRESdailyAPI() {
       // "AccumulatedRainfall": 1.1,
       // "InflowTotal": 18.049,
       // "OutflowTotal": 15.264
-
-    }
+    })
+  .catch((err) => {
+    console.log('rejected: ', err);
   });
-  $.ajaxSettings.async = true;
+
+
 }
 
 
