@@ -895,25 +895,36 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
 
   // Get realtime waterlevel data
   // https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=2D09DB8B-6A1B-485E-88B5-923A462F475C 
+  // revised URL             https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A462F475C/Data
   var realtime_waterlevel={};  
-    $.getJSON("https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D2D09DB8B-6A1B-485E-88B5-923A462F475C&callback=?", function (data) {    
-      
-    wlrt_obj=JSON.parse(data.contents);    
-      wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
-        realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
-      });
+
+fetch("https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A462F475C/Data")
+  .then((response) => {
+    return response.json();
+  })
+  .then(data => {
+    wlrt_obj = data;
+    wlrt_obj.responseData.forEach(element => {
+      realtime_waterlevel[element.ST_NO] = { 'RecordTime': element.RecordTime, 'WaterLevel': element.WaterLevel };
     });
+  })
+  .catch((err) => {
+    console.log('rejected: ', err);
+  });
+
+
     // console.log(realtime_waterlevel);
   
     // Get waterlevel station information
-  async function readWLStatGeoJON() {    
-    // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697
-    
-    await $.getJSON("wra/28E06316-FE39-40E2-8C35-7BF070FD8697.json")
-    // await $.getJSON("https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697")  //not supporting CORS
-    // await $.getJSON("https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?")
-      .done(function (data) {        
-        wl_obs=data;
+  function readWLStatGeoJON() {    
+    // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697      //not supporting CORS
+    // https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D28E06316-FE39-40E2-8C35-7BF070FD8697&callback=?
+    fetch("wra/28E06316-FE39-40E2-8C35-7BF070FD8697.json")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      wl_obs=data;
         // console.log("second success");
         // wl_obs = JSON.parse(data.contents); //for allorigins parsing        
         wl_obs.RiverStageObservatoryProfile_OPENDATA.forEach(ob => {
@@ -950,14 +961,13 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
           }
         });
         // lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
-      })
-      .fail(function (data) {
-        console.log("WL Station query error");
-      })
-      .always(function (data) { 
-        1;       
-        // console.log("complete");
-      });
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
+
+    
+      
   }
   // 即時水位 
   // JSON https://gweb.wra.gov.tw/HydroInfoMobile/Chart?containerID=chart-single-rtle&category=rtLE&stno=1140H099&sYear=2021&sMonth=10&sDay=21&eYear=2021&eMonth=10&eDay=24&timeframe=YYMMDD&timeType=hh&mode=0&flow_cnt=&searchType=
@@ -1020,53 +1030,50 @@ var rainstations={};
 //氣象局站位 API https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV
 //氣象局 API https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314
 //氣象局 JSON https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON 
-async function readRAStatGeoJON() {    
+function readRAStatGeoJON() {    
   // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697
-   
-  await $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV&parameterName=ATTRIBUTE")
-    .done(function (data) {      
-      rainstations=data;
-      // console.log("RA second success");
-      if(rainstations.success){
-        // console.log("Read OK!");
-        data.records.location.forEach(element => {
-          // sta_id=element.stationId.replace(/ /g, "");
-          sta_id=element.stationId.replace(/ /g, "");
-          sta_name=element.locationName.replace(/ /g, "");
-          sta_time=element.time;
-          sta_lat=element.lat.replace(/ /g, "");
-          sta_lon=element.lon.replace(/ /g, "");           
-          // console.log(element.locationName, element.stationId,element.lat,element.lon,element.time );
-          pt = {
-            "type": "Feature",
-            "properties": {
-              "id": sta_id,
-              "name": sta_name,    
-              "time" : sta_time,   
-            },
-            "geometry": {
-              "type": "Point",
-              "coordinates": [sta_lon, sta_lat]
-            }
-          };
-          RALayer.addData(pt);
-        });
-      }      
-      data.records.location[0].locationName;
-    })
-    .fail(function (data) {
-      console.log("RA Station query error");
-    })
-    .always(function (data) { 
-      1;
-      // console.log("complete");
-    });
+  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV&parameterName=ATTRIBUTE")
+  .then((response) => {
+    return response.json();
+  })
+  .then(data => {
+         
+    rainstations=data;
+    // console.log("RA second success");
+    if(rainstations.success){
+      // console.log("Read OK!");
+      data.records.location.forEach(element => {
+        // sta_id=element.stationId.replace(/ /g, "");
+        sta_id=element.stationId.replace(/ /g, "");
+        sta_name=element.locationName.replace(/ /g, "");
+        sta_time=element.time;
+        sta_lat=element.lat.replace(/ /g, "");
+        sta_lon=element.lon.replace(/ /g, "");           
+        // console.log(element.locationName, element.stationId,element.lat,element.lon,element.time );
+        pt = {
+          "type": "Feature",
+          "properties": {
+            "id": sta_id,
+            "name": sta_name,    
+            "time" : sta_time,   
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [sta_lon, sta_lat]
+          }
+        };
+        RALayer.addData(pt);
+      });
+      clusterRA.addLayer(RALayer);
+    }      
+    data.records.location[0].locationName;
+  })
+  .catch((err) => {
+    console.log('rejected: ', err);
+  });
 }
 
-
-$.ajaxSettings.async = false;
 readRAStatGeoJON();
-$.ajaxSettings.async = true;
 
 var clusterRA = L.markerClusterGroup();
 clusterRA.bindPopup( function (layer) {
@@ -1076,7 +1083,11 @@ clusterRA.bindPopup( function (layer) {
   });
   // $.ajaxSettings.async = false;
   // $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-  $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
+  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days")
+  .then((response) => {
+    return response.json();
+  })
+  .then(data => {
     RApoi="";
     if(data.success){
       // console.log("OK!");
@@ -1109,9 +1120,11 @@ clusterRA.bindPopup( function (layer) {
       });      
       // data: ELEV, RAIN, MIN_10, HOUR_3, HOUR_6, HOUR_12, HOUR_24, NOW, latest_2days, latest_3days
     }
-  
+  })
+  .catch((err) => {
+    console.log('rejected: ', err);
   });
-  // $.ajaxSettings.async = true;
+
 
   //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
 
@@ -1130,7 +1143,7 @@ clusterRA.bindPopup( function (layer) {
 
 
 });
-clusterRA.addLayer(RALayer);
+
 
 clusterRA.on('add',
   function(){
@@ -1195,26 +1208,34 @@ lyctrl.addOverlay(wraRES, '堤壩<span class="btn-sm"><i class="fa fa-folder tex
 
 var wraRESshp = null;
 getwraRESshp();
-function getwraRESshp() {
-  $.ajaxSettings.async = false;
-  $.getJSON("wra/SWRESOIR.json", function (data) {
-    wraRESshp = data;
-    getwraRESdailyAPI();
-  });
-  $.ajaxSettings.async = true;
-  
+function getwraRESshp() {  
+  fetch("wra/SWRESOIR.json")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      wraRESshp = data;
+      getwraRESdailyAPI();
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
 }
 
 
 var wrafhy_activeStationNo= null;
 getwrafhyActiveStationNo();
 function getwrafhyActiveStationNo() {
-  $.ajaxSettings.async = false;
-  $.getJSON("/wra-fhy/data/active_stations.json", function (data) {
-    wrafhy_activeStationNo = data[0].StationNoList;    
-  });
-  $.ajaxSettings.async = true;
-  
+  fetch("/wra-fhy/data/active_stations.json")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      wrafhy_activeStationNo = data[0].StationNoList;
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
 }
 
 
@@ -1400,6 +1421,8 @@ function getwraRESdailyAPI() {
   $.ajaxSettings.async = true;
 }
 
+
+
 // ===============
 // CCTV
 const staCCTV = L.geoJSON([], {
@@ -1409,17 +1432,9 @@ const staCCTV = L.geoJSON([], {
 });
 
 //----------------
-getCCTV();
-function getCCTV() {
-  $.ajaxSettings.async = false;
-  $.getJSON("wrafmg/cctv.geojson", function (data) {
- 
-    data.features.forEach(sta => {
-        staCCTV.addData(sta);
-    });
-  });
-  $.ajaxSettings.async = true;  
-}
+
+
+
 
 //              ---- cluster BEGIN
 var clusterCCTV = L.markerClusterGroup(
@@ -1430,7 +1445,7 @@ var clusterCCTV = L.markerClusterGroup(
 
 
 
-clusterCCTV.addLayer(staCCTV);
+// clusterCCTV.addLayer(staCCTV);
 // map.addLayer(clusterCCTV);
 
 
@@ -1479,6 +1494,25 @@ clusterCCTV.on('add',
 // 	console.log('cluster ' + a.layer.getAllChildMarkers().length);
 // });
 
+getCCTV();
+function getCCTV() {
+  fetch("wrafmg/cctv.geojson")
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+      // console.log(data);
+      data.features.forEach(sta => {
+        staCCTV.addData(sta);
+      });
+      clusterCCTV.addLayer(staCCTV);
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
+    });
+
+
+}
 
 
 // === end of CCTV ================ 
