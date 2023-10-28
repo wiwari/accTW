@@ -618,8 +618,9 @@ async function queryMOEACGS(e) {
 
   //  TODO:             https://geomap.gsmma.gov.tw/api/Tile/v2/getTooltip.cfm?layer=TYPE4&srs=3857&scale=25000
   //  source :　　　https://geomap.gsmma.gov.tw/gwh/gsb97-1/sys8a/t3/index1.cfm
-  // other API:         https://www.geologycloud.tw/geohome/DataService/swagger/api
-  await $.getJSON("https://geomap.gsmma.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
+  //  other API:         https://www.geologycloud.tw/geohome/DataService/swagger/api
+  //  above new URL have CORS issue , but https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=12&x=309758&y=2730559
+  await $.getJSON("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
     var cleandata = data['tooltip'];
     cleandata = cleandata.replace(/構造名稱：/g, "");
     cleandata = cleandata.replace(/構造名稱：\s*\n/g, "");
