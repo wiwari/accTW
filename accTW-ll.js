@@ -895,14 +895,24 @@ lyctrl.addOverlay(waterlevelLayer, '水位<span class="btn-sm"><i class="fa fa-l
 
   // Get realtime waterlevel data
   // https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=2D09DB8B-6A1B-485E-88B5-923A462F475C 
+  // revised URL             https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A462F475C/Data
   var realtime_waterlevel={};  
-    $.getJSON("https://api.allorigins.win/get?url=https%3A//data.wra.gov.tw/Service/OpenData.aspx%3Fformat%3Djson%26id%3D2D09DB8B-6A1B-485E-88B5-923A462F475C&callback=?", function (data) {    
-      
-    wlrt_obj=JSON.parse(data.contents);    
-      wlrt_obj["RealtimeWaterLevel_OPENDATA"].forEach(element => {
-        realtime_waterlevel[element.StationIdentifier] = {'RecordTime':element.RecordTime,'WaterLevel':element.WaterLevel};
-      });
+
+fetch("https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A462F475C/Data")
+  .then((response) => {
+    return response.json();
+  })
+  .then(data => {
+    wlrt_obj = data;
+    wlrt_obj.responseData.forEach(element => {
+      realtime_waterlevel[element.ST_NO] = { 'RecordTime': element.RecordTime, 'WaterLevel': element.WaterLevel };
     });
+  })
+  .catch((err) => {
+    console.log('rejected: ', err);
+  });
+
+
     // console.log(realtime_waterlevel);
   
     // Get waterlevel station information
