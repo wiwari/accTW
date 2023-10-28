@@ -604,7 +604,7 @@ var EPSG3821 = new proj4.Proj('EPSG:3821');//TWD67 經緯度
 var EPSG3824 = new proj4.Proj('EPSG:3824');//TWD97 經緯度
 
 
-async function queryMOEACGS(e) {
+function queryMOEACGS(e) {
   // Todo 地質查詢 ================================
   // https://gis3.moeacgs.gov.tw/api/Tile/v1/oas/#/default/get_getTooltip_cfm
   // 地質資訊 https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&z=12&x=309758&y=2730559
@@ -620,41 +620,50 @@ async function queryMOEACGS(e) {
   //  source :　　　https://geomap.gsmma.gov.tw/gwh/gsb97-1/sys8a/t3/index1.cfm
   //  other API:         https://www.geologycloud.tw/geohome/DataService/swagger/api
   //  above new URL have CORS issue , but https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=12&x=309758&y=2730559
-  await $.getJSON("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1], function (data) {
-    var cleandata = data['tooltip'];
-    cleandata = cleandata.replace(/構造名稱：/g, "");
-    cleandata = cleandata.replace(/構造名稱：\s*\n/g, "");
-    cleandata = cleandata.replace(/構造描述：/g, "");
-    cleandata = cleandata.replace(/地質年代：/g, "");
-    cleandata = cleandata.replace(/地層名稱：/g, "");
-    cleandata = cleandata.replace(/圖例描述：/g, "");
-    cleandata = cleandata.replace(/斷層名稱：/g, "");
-    cleandata = cleandata.replace(/斷層描述：/g, "");
-    cleandata = cleandata.replace(/地層組成：/g, "");
-    cleandata = cleandata.replace(/(資料來源：\s*一百萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "1M地質圖, $3");
-    cleandata = cleandata.replace(/(資料來源：\s*五十萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "50萬地質圖, $3");
-    cleandata = cleandata.replace(/(資料來源：五十萬分之一臺灣區域地質圖數值檔-臺灣)/g, "50萬地質圖");
-    cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "25萬地質圖, $3");
-    cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔-臺灣)/g, "25萬地質圖");
-    cleandata = cleandata.replace(/(資料來源：\s*五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "5萬地質圖-$2, $3");
-    cleandata = cleandata.replace(/([^\n]+)/g, "<li>$1</li>");
-    // cleandata = cleandata.replace(/([^\n]+)/g,"$1");
-    cleandata = cleandata.replace(/\s+/g, " ");
-    cleandata = cleandata.replace(/(\S)\(/g, "$1 (");
-    cleandata = cleandata.replace(/\(/g, "<br />(");
-    cleandata = cleandata.replace(/\s+\)/g, ")");
-    cleandata = cleandata.replace(/，/g, "、");
-    if (cleandata != "") {
-      L.popup({ className: "moeacgs-div-span", MOEACGS})
-        .setLatLng(e.latlng)
-        .setContent("<ul>" + cleandata + "</ul>")
-        .openOn(map);
-    }
-    gtag('event', 'queryMOEACGS', {
-      'event_category': 'layer',
-      'event_label': 'MOEACGS',
+  fetch("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1])
+    .then((response) => {
+      return response.json();
+    })
+    .then(data => {
+
+      var cleandata = data['tooltip'];
+      cleandata = cleandata.replace(/構造名稱：/g, "");
+      cleandata = cleandata.replace(/構造名稱：\s*\n/g, "");
+      cleandata = cleandata.replace(/構造描述：/g, "");
+      cleandata = cleandata.replace(/地質年代：/g, "");
+      cleandata = cleandata.replace(/地層名稱：/g, "");
+      cleandata = cleandata.replace(/圖例描述：/g, "");
+      cleandata = cleandata.replace(/斷層名稱：/g, "");
+      cleandata = cleandata.replace(/斷層描述：/g, "");
+      cleandata = cleandata.replace(/地層組成：/g, "");
+      cleandata = cleandata.replace(/(資料來源：\s*一百萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "1M地質圖, $3");
+      cleandata = cleandata.replace(/(資料來源：\s*五十萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "50萬地質圖, $3");
+      cleandata = cleandata.replace(/(資料來源：五十萬分之一臺灣區域地質圖數值檔-臺灣)/g, "50萬地質圖");
+      cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "25萬地質圖, $3");
+      cleandata = cleandata.replace(/(資料來源：\s*二十五萬分之一臺灣區域地質圖數值檔-臺灣)/g, "25萬地質圖");
+      cleandata = cleandata.replace(/(資料來源：\s*五萬分之一臺灣區域地質圖數值檔)[,-](\S*)[,-](\d\d\d\d)/g, "5萬地質圖-$2, $3");
+      cleandata = cleandata.replace(/([^\n]+)/g, "<li>$1</li>");
+      // cleandata = cleandata.replace(/([^\n]+)/g,"$1");
+      cleandata = cleandata.replace(/\s+/g, " ");
+      cleandata = cleandata.replace(/(\S)\(/g, "$1 (");
+      cleandata = cleandata.replace(/\(/g, "<br />(");
+      cleandata = cleandata.replace(/\s+\)/g, ")");
+      cleandata = cleandata.replace(/，/g, "、");
+      if (cleandata != "") {
+        L.popup({ className: "moeacgs-div-span", MOEACGS })
+          .setLatLng(e.latlng)
+          .setContent("<ul>" + cleandata + "</ul>")
+          .openOn(map);
+      }
+      gtag('event', 'queryMOEACGS', {
+        'event_category': 'layer',
+        'event_label': 'MOEACGS',
+      });
+    })
+    .catch((err) => {
+      console.log('rejected: ', err);
     });
-  });
+
   // console.log();
   // TEST ====================
 
