@@ -1052,13 +1052,21 @@ function readRAStatGeoJON() {
     // console.log("RA second success");
     if(rainstations.success){
       // console.log("Read OK!");
-      data.records.location.forEach(element => {
+      data.records.Station.forEach(element => {
         // sta_id=element.stationId.replace(/ /g, "");
-        sta_id=element.stationId.replace(/ /g, "");
-        sta_name=element.locationName.replace(/ /g, "");
-        sta_time=element.time;
-        sta_lat=element.lat.replace(/ /g, "");
-        sta_lon=element.lon.replace(/ /g, "");           
+        sta_id=element.StationId.replace(/ /g, "");
+        sta_name=element.StationName.replace(/ /g, "");
+        sta_time=element.ObsTime.DateTime;
+        if (element.GeoInfo.Coordinates[0].CoordinateName === "TWD67"){
+          wgs84 = proj4(EPSG3821, EPSG4326, [parseFloat(element.GeoInfo.Coordinates[0].StationLongitude), parseFloat(element.GeoInfo.Coordinates[0].StationLatitude)]);
+          sta_lat=wgs84[1];
+          sta_lon=wgs84[0];     
+        }else{
+          console.log(element.GeoInfo.Coordinates[0].CoordinateName);
+          sta_lat=element.GeoInfo.Coordinates[0].StationLatitude;
+          sta_lon=element.GeoInfo.Coordinates[0].StationLongitude;   
+        };
+    
         // console.log(element.locationName, element.stationId,element.lat,element.lon,element.time );
         pt = {
           "type": "Feature",
@@ -1076,7 +1084,7 @@ function readRAStatGeoJON() {
       });
       clusterRA.addLayer(RALayer);
     }      
-    data.records.location[0].locationName;
+    
   })
   .catch((err) => {
     console.log('rejected: ', err);
@@ -1103,27 +1111,28 @@ clusterRA.bindPopup( function (layer) {
       // console.log("OK!");
       rra=data;
       // if (rra.records.location[0].locationName == layer.feature.properties.name) {
-        rra.records.location.forEach(loc => {                
-          if (loc.stationId == layer.feature.properties.id) {    
+        rra.records.Station.forEach(loc => {                
+          if (loc.StationId == layer.feature.properties.id) {    
             RApoi+='<table class="table table-sm"><tbody>';
-            loc.weatherElement.forEach(el => {
+
+            for (duration in loc.RainfallElement) {
+
               // console.log(el.elementName,el.elementValue);
-              rainvalue = (el.elementValue > 0) ? parseFloat(el.elementValue).toFixed(1):
-                (el.elementValue = -998) ? "0.0" : "--";
+              rainvalue = (loc.RainfallElement[duration].Precipitation > 0) ? parseFloat(loc.RainfallElement[duration].Precipitation).toFixed(1):
+                (loc.RainfallElement[duration].Precipitation = -998) ? "0.0" : "--";
               //// Table tag
               
-              RApoi += '<tr><th scope="row" >'+str_RA[el.elementName] + '</th><td class="text-right">' + rainvalue + '</td></tr>';
-              
+              RApoi += '<tr><th scope="row" >'+duration + '</th><td class="text-right">' + rainvalue + '</td></tr>';
 
               // Div tag
               
               // RApoi+='<div class="row">';
               // RApoi+='<div class="col-sm text-break">'+str_RA[el.elementName] + '</div><div class="col-sm">' + rainvalue + '</div>';
               // RApoi+='</div>';
-              
-              
+            }
 
-            });
+
+
           RApoi+='</tbody></table>';  
           }
           
