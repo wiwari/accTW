@@ -993,15 +993,15 @@ fetch("https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A
 
 const str_RA = {
   'ELEV':'海拔',
-  'RAIN':'一小時',
-  'MIN_10' : '十分鐘',
-  'HOUR_3':'三小時',
-  'HOUR_6':'六小時',
-  'HOUR_12':'12小時',
-  'HOUR_24':'24小時',
-  'NOW':'今日',
-  'latest_2days':'二日',
-  'latest_3days':'三日'
+  'Past1hr':'一小時',
+  'Past10Min' : '十分鐘',
+  'Past3hr':'三小時',
+  'Past6Hr':'六小時',
+  'Past12hr':'12小時',
+  'Past24hr':'24小時',
+  'Now':'今日',
+  'Past2days':'二日',
+  'Past3days':'三日'
 }
 
 // rain fall
@@ -1094,14 +1094,14 @@ function readRAStatGeoJON() {
 readRAStatGeoJON();
 
 var clusterRA = L.markerClusterGroup();
-clusterRA.bindPopup( function (layer) {
+clusterRA.bindPopup(  function (layer) {
   gtag('event', 'click', {
     'event_category': 'rainfall',
     'event_label': "station: " + layer.feature.properties.name,
   });
   // $.ajaxSettings.async = false;
   // $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&StationId=" + layer.feature.properties.id + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days")
+  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&StationId=" + layer.feature.properties.id + "&elementName=Past6Hr,Past12hr,Past24hr,Now,Past2days,Past3days")
   .then((response) => {
     return response.json();
   })
@@ -1122,7 +1122,7 @@ clusterRA.bindPopup( function (layer) {
                 (loc.RainfallElement[duration].Precipitation = -998) ? "0.0" : "--";
               //// Table tag
               
-              RApoi += '<tr><th scope="row" >'+duration + '</th><td class="text-right">' + rainvalue + '</td></tr>';
+              RApoi += '<tr><th scope="row" >'+str_RA[duration] + '</th><td class="text-right">' + rainvalue + '</td></tr>';
 
               // Div tag
               
