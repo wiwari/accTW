@@ -1101,7 +1101,7 @@ clusterRA.bindPopup( function (layer) {
   });
   // $.ajaxSettings.async = false;
   // $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days")
+  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&StationId=" + layer.feature.properties.id + "&elementName=HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days")
   .then((response) => {
     return response.json();
   })
