@@ -1122,7 +1122,7 @@ clusterRA.bindPopup(  function (layer) {
   RApopupmsg += '<div class="container-fluid">';
   RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
   RApopupmsg += '<a href="https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
-  RApopupmsg += cwaCodis.exist(layer.feature.properties.id)? '<a href="'+cwaCodis.url(layer.feature.properties.id)+'" target="_blank" class="btn btn-outline-primary btn-sm">' +'月報' + '</a>' : '';
+  // RApopupmsg += cwaCodis.exist(layer.feature.properties.id)? '<a href="'+cwaCodis.url(layer.feature.properties.id)+'" target="_blank" class="btn btn-outline-primary btn-sm">' +'月報' + '</a>' : '';
   RApopupmsg += '<a href="https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' + "歷史" + '</a>' + "<br />";
   // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;
   // RApopupmsg+='<br />' + wlrtstr;
