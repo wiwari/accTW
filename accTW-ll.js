@@ -992,7 +992,6 @@ fetch("https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A
 
 
 const str_RA = {
-  'ELEV':'海拔',
   'Past1hr':'一小時',
   'Past10Min' : '十分鐘',
   'Past3hr':'三小時',
@@ -1042,7 +1041,7 @@ var rainstations={};
 //氣象局 JSON https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON 
 function readRAStatGeoJON() {    
   // Query Station of Water Level  //https://data.wra.gov.tw/Service/OpenData.aspx?format=json&id=28E06316-FE39-40E2-8C35-7BF070FD8697
-  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&format=JSON&elementName=ELEV&parameterName=ATTRIBUTE")
+  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314")
   .then((response) => {
     return response.json();
   })
@@ -1061,10 +1060,12 @@ function readRAStatGeoJON() {
           wgs84 = proj4(EPSG3821, EPSG4326, [parseFloat(element.GeoInfo.Coordinates[0].StationLongitude), parseFloat(element.GeoInfo.Coordinates[0].StationLatitude)]);
           sta_lat=wgs84[1];
           sta_lon=wgs84[0];     
-        }else{
-          console.log(element.GeoInfo.Coordinates[0].CoordinateName);
+        }else if(element.GeoInfo.Coordinates[0].CoordinateName === "WGS84"){
           sta_lat=element.GeoInfo.Coordinates[0].StationLatitude;
-          sta_lon=element.GeoInfo.Coordinates[0].StationLongitude;   
+          sta_lon=element.GeoInfo.Coordinates[0].StationLongitude;
+        }else{
+          console.log("unkown CoordinateName in RA query" + element.GeoInfo.Coordinates[0].CoordinateName);
+          throw new Error('unkown CoordinateName in RA query' + element.GeoInfo.Coordinates[0].CoordinateName);
         };
     
         // console.log(element.locationName, element.stationId,element.lat,element.lon,element.time );
@@ -1074,6 +1075,7 @@ function readRAStatGeoJON() {
             "id": sta_id,
             "name": sta_name,    
             "time" : sta_time,   
+            "rain": element.RainfallElement,
           },
           "geometry": {
             "type": "Point",
@@ -1099,51 +1101,20 @@ clusterRA.bindPopup(  function (layer) {
     'event_category': 'rainfall',
     'event_label': "station: " + layer.feature.properties.name,
   });
-  // $.ajaxSettings.async = false;
-  // $.getJSON("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&locationName=" + layer.feature.properties.name + "&elementName=RAIN,HOUR_3,HOUR_6,HOUR_12,HOUR_24,NOW,latest_2days,latest_3days",function (data) {
-  fetch("https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0002-001?Authorization=rdec-key-123-45678-011121314&StationId=" + layer.feature.properties.id + "&elementName=Past6Hr,Past12hr,Past24hr,Now,Past2days,Past3days")
-  .then((response) => {
-    return response.json();
-  })
-  .then(data => {
-    RApoi="";
-    if(data.success){
-      // console.log("OK!");
-      rra=data;
-      // if (rra.records.location[0].locationName == layer.feature.properties.name) {
-        rra.records.Station.forEach(loc => {                
-          if (loc.StationId == layer.feature.properties.id) {    
-            RApoi+='<table class="table table-sm"><tbody>';
-
-            for (duration in loc.RainfallElement) {
-
-              // console.log(el.elementName,el.elementValue);
-              rainvalue = (loc.RainfallElement[duration].Precipitation > 0) ? parseFloat(loc.RainfallElement[duration].Precipitation).toFixed(1):
-                (loc.RainfallElement[duration].Precipitation = -998) ? "0.0" : "--";
-              //// Table tag
-              
-              RApoi += '<tr><th scope="row" >'+str_RA[duration] + '</th><td class="text-right">' + rainvalue + '</td></tr>';
-
-              // Div tag
-              
-              // RApoi+='<div class="row">';
-              // RApoi+='<div class="col-sm text-break">'+str_RA[el.elementName] + '</div><div class="col-sm">' + rainvalue + '</div>';
-              // RApoi+='</div>';
-            }
 
 
+  RApoi ='<table class="table table-sm"><tbody>';
+  for (duration in layer.feature.properties.rain) {
 
-          RApoi+='</tbody></table>';  
-          }
-          
-      });      
-      // data: ELEV, RAIN, MIN_10, HOUR_3, HOUR_6, HOUR_12, HOUR_24, NOW, latest_2days, latest_3days
-    }
-  })
-  .catch((err) => {
-    console.log('rejected: ', err);
-  });
+    // console.log(el.elementName,el.elementValue);
+    rainvalue = (layer.feature.properties.rain[duration].Precipitation > 0) ? parseFloat(layer.feature.properties.rain[duration].Precipitation).toFixed(1) :
+      (layer.feature.properties.rain[duration].Precipitation = -998) ? "0.0" : "--";
+    //// Table tag
 
+    RApoi += '<tr><th scope="row" >' + str_RA[duration] + '</th><td class="text-right">' + rainvalue + '</td></tr>';
+  }
+  RApoi+='</tbody></table>';  
+  RApoi+= (new Date(layer.feature.properties.time)).toLocaleTimeString() + " 更新";
 
   //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
 
