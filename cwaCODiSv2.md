@@ -1,0 +1,56 @@
+
+
+``` bash
+curl 'https://codis.cwa.gov.tw/api/station?' --compressed -X POST  --data-raw 'date=2023-12-06T00%3A00%3A00.000%2B08%3A00&type=table_date&stn_ID=C1D630&stn_type=auto_C1&start=2023-12-06T00%3A00%3A00&end=2023-12-06T23%3A59%3A59'
+```
+
+
+日報表
+
+``` javascript
+fetch("https://codis.cwa.gov.tw/api/station?", {
+    "credentials": "include",
+    "headers": {
+        // "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0",
+        // "Accept": "application/json, text/javascript, */*; q=0.01",
+        // "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        // "X-Requested-With": "XMLHttpRequest",
+        // "Sec-Fetch-Dest": "empty",
+        // "Sec-Fetch-Mode": "cors",
+        // "Sec-Fetch-Site": "same-origin"
+    },
+    "referrer": "https://codis.cwa.gov.tw/StationData?target=weather",
+    "body": "date=2023-12-06T00%3A00%3A00.000%2B08%3A00&type=table_date&stn_ID=C1D630&stn_type=auto_C1&start=2023-12-06T00%3A00%3A00&end=2023-12-06T23%3A59%3A59",
+    // date=2023-12-06T00:00:00.000+08:00&type=table_date&stn_ID=C1D630&stn_type=auto_C1&start=2023-12-06T00:00:00&end=2023-12-06T23:59:59
+    "method": "POST",
+    "mode": "cors"
+}).then((response) => {
+    return response.json();
+}).then((data) => {console.log(data)});
+```
+
+
+月報表
+``` javascript
+await fetch("https://codis.cwa.gov.tw/api/station?", {
+    "credentials": "include",
+    "headers": {
+        // "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0",
+        // "Accept": "application/json, text/javascript, */*; q=0.01",
+        // "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        // "X-Requested-With": "XMLHttpRequest",
+        // "Sec-Fetch-Dest": "empty",
+        // "Sec-Fetch-Mode": "cors",
+        // "Sec-Fetch-Site": "same-origin"
+    },
+    "referrer": "https://codis.cwa.gov.tw/StationData?target=weather",
+    "body": "date=2023-12-01T00%3A00%3A00.000%2B08%3A00&type=table_month&stn_ID=C1D630&stn_type=auto_C1&start=2023-12-01T00%3A00%3A00&end=2023-12-31T00%3A00%3A00",
+    // date=2023-12-01T00:00:00.000+08:00&type=table_month&stn_ID=C1D630&stn_type=auto_C1&start=2023-12-01T00:00:00&end=2023-12-31T00:00:00
+    "method": "POST",
+    "mode": "cors"
+}).then((response) => {
+    return response.json();
+}).then((data) => {console.log(data)});
+```
