@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>累積雨量 | 資料來源： CODiS 氣候資料服務系統</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.1.min.js" integrity="sha384-CfdUumYc8S2dvFy54M+E85yISHkahaJKY7Z8fFtHiyO/mLGSmDaGwiA4VfQufhNR" crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-locale-zh-tw-2.27.1.js" integrity="sha384-seHHZKMZ2CX0x7j620cTLtqM+QBBlYwDsZKkNHiausEkF3j4a1a5RGKZyifxG2ul" crossorigin="anonymous"></script>
+    <script>Plotly.setPlotConfig({locale: 'zh-TW'})</script>
+    <style>
+        @import url(https://fonts.googleapis.com/earlyaccess/notosanstc.css);
+        html{
+            height: calc(100vh - 1em); 
+            /* height: calc(var(--vh, 1vh) - 1em) ;           */
+        }
+        body {
+            width: 96%;   
+            text-align: center;
+            height: 100%;
+            font-family: 'Noto Sans TC' , Tahoma, '微軟正黑體', '黑體' , 'Noto Sans TC', sans-serif;
+        }
+        header {
+            margin: 0 auto;
+            height: 2em;
+        }
+        .container {
+            display: flex;           
+
+            height: calc(100% - 2em);            
+        }
+            
+        #plotly { 
+            width: 100% ;
+            max-width:960px;   
+            margin: 0 auto;   
+            max-height: calc(100%); 
+        }
+        /* @media screen and (max-width: 600px) {           
+            }
+        @media screen and (max-height: 600px) {
+            } */
+        </style>
+</head>
+<body>
+    <header> 日累積降水</header>
+    
+    <script>
+
+        let  codis_day = {
+            getToday : () => {
+                currentTime =  new Date();
+                    // currentTime =  testTime;
+                dtf = new Intl.DateTimeFormat("sv-SE", {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hourCycle: 'h23',
+                });
+
+                return(dtf.format(currentTime).replace(' ','T'));
+            },
+            getTodayStart : (top = 11) =>{       
+                todayStart =  new Date();
+                    // currentTime =  testTime;
+                todayStart.setDate(todayStart.getDate()-top);
+                todayStart.setHours(0);
+                todayStart.setMinutes(0);
+                todayStart.setSeconds(0);
+                todayStart.setMilliseconds(0);
+                dtf = new Intl.DateTimeFormat("sv-SE", {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hourCycle: 'h23',
+                });
+
+                return(dtf.format(todayStart).replace(' ','T'));
+            },
+            get30dayStart : (days = 11) =>{       
+                monthStart =  new Date();
+                    // currentTime =  testTime;
+                monthStart.setDate(monthStart.getDate()-days);
+                monthStart.setHours(0);
+                monthStart.setMinutes(0);
+                monthStart.setSeconds(0);
+                monthStart.setMilliseconds(0);
+                dtf = new Intl.DateTimeFormat("sv-SE", {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hourCycle: 'h23',
+                });
+
+                return(dtf.format(monthStart).replace(' ','T'));
+            },
+            getMonthStart : () =>{       
+                monthStart =  new Date();
+                    // currentTime =  testTime;
+                monthStart.setDate(1);
+                monthStart.setHours(0);
+                monthStart.setMinutes(0);
+                monthStart.setSeconds(0);
+                monthStart.setMilliseconds(0);
+                dtf = new Intl.DateTimeFormat("sv-SE", {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hourCycle: 'h23',
+                });
+
+                return(dtf.format(monthStart).replace(' ','T'));
+            },
+            getMonthEnd : () =>{       
+                MonthEnd =  new Date();
+                    // currentTime =  testTime;
+                MonthEnd.setDate(1);
+                MonthEnd.setHours(0);
+                MonthEnd.setMinutes(0);
+                MonthEnd.setSeconds(0);
+                MonthEnd.setMilliseconds(0);
+                MonthEnd.setMonth(MonthEnd.getMonth()+1);
+                MonthEnd.setDate(MonthEnd.getDate()-1);
+                dtf = new Intl.DateTimeFormat("sv-SE", {
+                    timeZone: 'Asia/Taipei',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hourCycle: 'h23',
+                });
+
+                return(dtf.format(MonthEnd).replace(' ','T'));
+            }
+        };     
+
+        let station_list=[];  //format reference: https://codis.cwa.gov.tw/Pages/StationData/StationData.js
+
+        let rain = [];
+
+        
+
+        // load lastest daily precipitaion on every station
+        const loadStations = async () => {
+
+            await fetch("https://wiwari-engine.onrender.com/api/codis/station_list")
+                .then((res) => { return res.json() })
+                .then((myjson) => {
+                    station_list = myjson.data.flatMap(a => {
+                        return a.item.map( // disolve stationAttribute into elements
+                            (b) => {
+                                c = b;
+                                c.stationAttribute = a.stationAttribute;
+                                return c;
+                            }
+                        )
+                    });
+                    return station_list;
+                });
+            }
+
+
+            const loadStationsAndLatestRain = async (_reqbody) => {
+
+
+            // await fetch("http://127.0.0.1:3000/api/codis/plotly.json",
+            await fetch("https://wiwari-engine.onrender.com/api/codis/station",
+                {
+                    method: 'POST',
+                    // credentials: "include", // to be studied
+                    mode: "cors",
+                    headers: {
+                        // 'Content-Type': 'application/json',  // to be studied, json is not simple cors request
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', // for url-encoded
+                    },
+                    body: _reqbody,
+
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (myJson) {
+
+                    myJson.day.data.forEach((dataEntry) => {
+                        let stationName = station_list.find(o => { return o.stationID == dataEntry.StationID }).stationName;
+                        let stationDataSeries = {
+                            name: stationName, //+ dataEntry.StationID,
+                                
+                            type: "bar",
+                            text: [], // text shown on bar
+                            hovertemplate: '%{y:6.2f} mm' ,
+                            textposition: 'auto',                            
+                            // type: "scatter",
+                            x: [],
+                            y: [],
+
+                        };
+                        dataEntry.dts.sort((a, b) => (a.DataDate > b.DataDate)); // due to CODIS returing unsorted data
+                        dataEntry.dts.forEach((a) => {
+                            stationDataSeries.x.push(a.DataDate);
+                            let rainingValue = a.Precipitation.Accumulation;
+                            if (rainingValue >= 0) {
+                                stationDataSeries.y.push(rainingValue);
+                                // stationDataSeries.text.push(rainingValue); // text shown on bar
+
+                            }
+                            else if (rainingValue == -9.8) {
+                                // stationDataSeries.y.push(0.05); 
+                                stationDataSeries.y.push(0.09); //雨跡 T < 0.5mm or 0.1mm , using 0.09 to represent
+
+                            } else if (rainingValue == -9.5) {
+                                stationDataSeries.y.push(null); //故障 X
+                            } else {
+                                stationDataSeries.y.push(rainingValue); // unkown
+                            }
+
+                        });
+                        rain.push(stationDataSeries);
+                    });
+
+                });
+            }
+       
+        function stn_type_complete(StationID, stationAttribute){
+            if (stationAttribute == "auto"){
+                return (stationAttribute + '_' + StationID.substring(0,2) );
+
+            }else {
+                return stationAttribute;
+            }
+        };
+        
+        const plotQuery = async (StationIDstr, top = 11) => {
+            //查看過去11或過去top天數資料
+
+
+            await loadStations();
+
+            let Stations = StationIDstr.map(id => 
+                {return  (station_list.find(o => 
+                    { return o.stationID == id ;}))  
+            });
+            
+            let queryStepsByStn =[];
+            queryStepsByStn = Object.groupBy(Stations,el => {
+                return stn_type_complete(el.stationID,el.stationAttribute);
+            })
+
+            for (const [stationAttribute, stations] of Object.entries(queryStepsByStn)) {
+                stationIDs = stations.map(el => {return el.stationID});
+                stationIDstr = stationIDs.join(',');
+
+                let requestbody= new URLSearchParams({
+                    // top : top,
+                    stn_type : stationAttribute,
+                    // "cwb", //cwb, auto_C1, auto_C0, agr
+                    stn_ID : stationIDstr,
+                    type : 'one_month', // 單項逐日年報, 'one_date', //單項逐時月報表 
+                    date :  codis_day.getToday(), //'2024-01-01T00:00:00.000+08:00'
+                    // start:  codis_day.getMonthStart(), //'2024-01-01T00:00:00',
+                    start:  codis_day.get30dayStart(days), //'2024-01-01T00:00:00',
+                    end : codis_day.getMonthEnd(), //'2024-01-31T23:59:59',
+                    item : 'Precipitation'
+                });
+            await loadStationsAndLatestRain(requestbody); 
+            // console.log(requestbody);
+            }
+
+            // await loadStationsAndLatestRain(requestbody); 
+       
+
+            // OutFlow = {
+            //     x: getDataSourcesFromResultSet(InFlowData)['Time'],
+            //     y: getDataSourcesFromResultSet(InFlowData)['Outflow'],
+
+            //     type: 'scatter',
+            //     hovertemplate: '%{y:.2f} m³/s' ,
+            //     name: StationName + "出" //"羅好壩流量"
+            // };
+
+            // InFlow = {
+            //     x: getDataSourcesFromResultSet(InFlowData)['Time'],
+            //     y: getDataSourcesFromResultSet(InFlowData)['Inflow'],
+
+            //     type: 'scatter',
+            //     hovertemplate: '%{y:.2f} m³/s' ,
+            //     name: StationName + "入" //"羅好壩流量"
+            // };
+
+            pt_layout = {    
+                font: {  
+                    family: 'Noto Sans TC , Tahoma, 微軟正黑體, 黑體 , Noto Sans TC, sans-serif',
+                },
+                hovermode:'x unified', 
+                // hovermode:'x', 
+                hoverlabel : {
+                    bgcolor : "rgba(255,255,212,0.8)" ,
+                    bordercolor : "rgba(255,255,255,0)"  ,
+                    font :{
+                        size: 16,                        
+                    }
+                } ,
+
+                dragmode : false ,        
+                margin: { t: 30, b: 40 , r: 5 , l: 40},                
+                // title: '南勢溪羅好壩',
+                xaxis: {
+                    // title: {
+                    //     text: '日期',
+                    // },
+                    type: 'date',
+                    tickformat: '%m/%d\n(%a)', ///%Y year
+                },
+                yaxis: {
+                    // range: [0, 30] ,
+                    rangemode: 'tozero',
+                    title: {
+                        text: '累積降水 mm', //日累積雨量
+                    },
+                    type: 'linear'
+                },
+                showlegend: true, 
+                legend: {
+                    orientation:"h",
+                    x: 0,
+                    xanchor: 'left',
+                    y: 1
+
+                    } 
+           
+            };
+            pt_config = {
+                // font: {  
+                //     family: 'Noto Sans TC , Tahoma, 微軟正黑體, 黑體 , Noto Sans TC, sans-serif',
+                // },
+                responsive: true,
+                // scrollZoom: false
+
+                // , scrollZoom: true
+            };
+
+            Plotly.newPlot(document.getElementById('plotly'),
+                rain, 
+                pt_layout,
+                pt_config
+
+            );
+        }
+
+        //parameter
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        let StationIDs=['C0A530','82A750','C0A550','C0A560']; // array of str //default 坪林、泰平、福山、茶改北部分場
+        if (urlParams.has('StationID')) //URL papameter format: ?center=lat,lng
+            if (foundz = urlParams.get('StationID').match(/^([\w]{6})(,[\w]{6})*$/)) {
+                StationIDs=(foundz[0]).toUpperCase().split(',');
+            }
+        
+        ;
+        days=11;
+        if (urlParams.has('days')) //URL papameter format: ?center=lat,lng
+            if (foundz = urlParams.get('days').match(/^(\d*)$/)) {
+                days = parseInt(foundz[1]);
+            }
+
+
+        plotQuery(StationIDs,days);
+
+        
+    </script>
+    <div class="container">
+        <div id="plotly" ></div>
+    </div>
+    <script>
+    
+    </script>
+    
+</body>
+</html>
