@@ -5,11 +5,10 @@ var cwaCodis = {
         if (this.exist(id)) {
             eDate = new Date();
             eDate_str = eDate.getFullYear() + "-" + ('0' + (eDate.getMonth() + 1)).slice(-2);
-            ret += "https://e-service.cwa.gov.tw/HistoryDataQuery/MonthDataController.do?command=viewMain";
-            ret += "&station=" + id;
-            ret += "&stname=" + encodeURI(encodeURI(this.stList[id][0]));
-            ret += "&datepicker=" + eDate_str;
-            ret += "&altitude=" + this.stList[id][4];
+            ret += "https://wiwari.github.io/accTW/cwaCodis.html?";
+            ret += "StationID="+ id;
+            // ret += "&days=" + 15;
+
         }
         return (ret);
     },
