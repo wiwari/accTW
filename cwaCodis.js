@@ -2,7 +2,7 @@ var cwaCodis = {
     // used as dictionary for cwb CODiS URL query
     url: function (id) {
         ret = '';
-        if (this.exist(id)) {
+        if (this.find(id)) {
             eDate = new Date();
             eDate_str = eDate.getFullYear() + "-" + ('0' + (eDate.getMonth() + 1)).slice(-2);
             ret += "https://wiwari.github.io/accTW/cwaCodis.html?";
@@ -13,8 +13,14 @@ var cwaCodis = {
         return (ret);
     },
 
-    exist: function (id) {
-        return (id in this.stList)
+    // exist: function (id) {
+    //     return (id in this.stList)
+    // },
+
+    find: function (id) {
+
+        console.log(cwaCodis.station_list.find(o => { return o.stationID == id }));
+        return cwaCodis.station_list.find(o => { return o.stationID == id });
     },
 
     // Station List fetch from 
@@ -22,6 +28,7 @@ var cwaCodis = {
     // dumping day 2022-07-08
     // ONLY include CWB own stations
 
+    /*
     stList: {
         "466930": [
             "竹子湖",
@@ -6149,6 +6156,34 @@ var cwaCodis = {
             "2.3m"
         ]
     },
+    */
 
-}
+    station_list : [],
+    
+    loadStations : async () => {
 
+        await fetch("https://wiwari-engine.onrender.com/api/codis/station_list")
+            .then((res) => { return res.json() })
+            .then((myjson) => {
+                tt = myjson.data.flatMap(a => {
+                    return a.item.map( // disolve stationAttribute into elements
+                        (b) => {
+                            c = b;
+                            c.stationAttribute = a.stationAttribute;
+                            return c;
+                        }
+                    )
+                });
+                // Object.assign(this.test, tt);
+                console.dir(tt);
+                cwaCodis.station_list = tt;
+                return tt;
+            })
+            .catch((err) => {
+              console.log('rejected: ', err);
+            });
+        }
+
+};
+
+cwaCodis.loadStations();
