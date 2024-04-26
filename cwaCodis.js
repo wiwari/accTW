@@ -19,7 +19,7 @@ var cwaCodis = {
 
     find: function (id) {
 
-        console.log(cwaCodis.station_list.find(o => { return o.stationID == id }));
+        // console.log(cwaCodis.station_list.find(o => { return o.stationID == id }));
         return cwaCodis.station_list.find(o => { return o.stationID == id });
     },
 
