@@ -6186,4 +6186,36 @@ var cwaCodis = {
               }
             });
         },
+    wakeup:  function (msg = "wakeup") {
+        fetch("https://wiwari-engine.onrender.com/api/echo",
+            {
+                signal: AbortSignal.timeout(90000),
+                method: 'POST',
+                // credentials: "include", // to be studied
+                mode: "cors",
+                headers: {
+                    // 'Content-Type': 'application/json',  // to be studied, json is not simple cors request
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', // for url-encoded
+                },
+                body: new URLSearchParams({action: msg}),
+
+            }).then(function (response) {
+                return response.json();
+            }).then(function (myJson) {
+                // console.dir(myJson);
+                if (myJson.action!==msg){
+                    return myJson;
+            }
+            }).catch(function (err){
+                if (err.name === "TimeoutError") {
+                    console.error("Timeout: It took more than 5 seconds to get the result!");
+                }else {
+                    // A network error, or some other problem.
+                    console.error("Error: type: ${err.name}, message: ${err.message}");
+                }
+            });
+        
+    },
+};
+cwaCodis.wakeup("wakeup");
 cwaCodis.loadStations();
