@@ -1127,7 +1127,7 @@ clusterRA.bindPopup(  function (layer) {
   // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;
   // RApopupmsg+='<br />' + wlrtstr;
   RApopupmsg += RApoi;
-  RApopupmsg += (sta)? "<br /><sup>" + sta.stationStartDate + '-' + sta.stationEndDate + "</sup>": null ; 
+  RApopupmsg += (sta)? "<br /><sup>" + sta.stationStartDate + '-' + sta.stationEndDate + "</sup>": '' ; 
   RApopupmsg += '</div>';
   return RApopupmsg;
 

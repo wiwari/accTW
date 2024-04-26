@@ -173,8 +173,8 @@
 
         // load lastest daily precipitaion on every station
         const loadStations = async () => {
-
-            await fetch("https://wiwari-engine.onrender.com/api/codis/station_list")
+            //await fetch("https://wiwari-engine.onrender.com/api/codis/station_list")
+            await fetch("https://wiwari.github.io/cachingCodis/data/codis_station_list.json")
                 .then((res) => { return res.json() })
                 .then((myjson) => {
                     station_list = myjson.data.flatMap(a => {

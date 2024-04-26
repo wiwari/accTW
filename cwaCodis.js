@@ -5,7 +5,7 @@ var cwaCodis = {
         if (this.find(id)) {
             eDate = new Date();
             eDate_str = eDate.getFullYear() + "-" + ('0' + (eDate.getMonth() + 1)).slice(-2);
-            ret += "https://wiwari.github.io/accTW/cwaCodis.html?";
+            ret += "cwaCodis.html?";
             ret += "StationID="+ id;
             // ret += "&days=" + 15;
 
@@ -6161,8 +6161,8 @@ var cwaCodis = {
     station_list : [],
     
     loadStations : async () => {
-
-        await fetch("https://wiwari-engine.onrender.com/api/codis/station_list")
+        await fetch("https://wiwari.github.io/cachingCodis/data/codis_station_list.json")
+        // await fetch("https://wiwari-engine.onrender.com/api/codis/station_list", { signal: AbortSignal.timeout(80000) })
             .then((res) => { return res.json() })
             .then((myjson) => {
                 tt = myjson.data.flatMap(a => {
@@ -6175,15 +6175,15 @@ var cwaCodis = {
                     )
                 });
                 // Object.assign(this.test, tt);
-                console.dir(tt);
+                // console.dir(tt);
                 cwaCodis.station_list = tt;
                 return tt;
             })
             .catch((err) => {
               console.log('rejected: ', err);
+              if (err.name === "TimeoutError") {
+                console.error("Timeout: It took more than 50 seconds to get the result!");
+              }
             });
-        }
-
-};
-
+        },
 cwaCodis.loadStations();
