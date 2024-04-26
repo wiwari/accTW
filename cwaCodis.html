@@ -36,6 +36,19 @@
             margin: 0 auto;   
             max-height: calc(100%); 
         }
+
+        #loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #00000033;
+            /* opacity: 1; */
+        }
         /* @media screen and (max-width: 600px) {           
             }
         @media screen and (max-height: 600px) {
@@ -289,6 +302,8 @@
             // console.log(requestbody);
             }
 
+            document.getElementById("loading").style.display='none';
+
             // await loadStationsAndLatestRain(requestbody); 
        
 
@@ -393,6 +408,9 @@
         
     </script>
     <div class="container">
+        <div id="loading">
+            <img src="https://github.com/n3r4zzurr0/svg-spinners/raw/main/svg-css/6-dots-scale.svg" width="20%" max-height="20%"/>
+        </div>
         <div id="plotly" ></div>
     </div>
     <script>
