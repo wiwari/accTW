@@ -612,15 +612,22 @@ function queryMOEACGS(e) {
   // zoom: 1-17
 
   //4326轉3826 (經緯度轉TWD97)
-  var tw97 = proj4(EPSG4326, EPSG3826, [e.latlng.lng, e.latlng.lat]);
+  // var tw97 = proj4(EPSG4326, EPSG3826, [e.latlng.lng, e.latlng.lat]);
   // console.log(tw97[0],  tw97[1]);
-  const queryzoom = (map.getZoom() > 17) ? 17 : map.getZoom();
 
-  //  TODO:             https://geomap.gsmma.gov.tw/api/Tile/v2/getTooltip.cfm?layer=TYPE4&srs=3857&scale=25000
+  const queryPointIn3857 = L.Projection.SphericalMercator.project(e.latlng)
+  // const queryzoom = (map.getZoom() > 17) ? 17 : map.getZoom();
+
+  const queryscale = 577791.7098721985 * Math.pow(2 , ( 10 - map.getZoom()));   
+  // in gsmma zoom to scale default , z=10 , scale=  577791.7098721985
+
   //  source :　　　https://geomap.gsmma.gov.tw/gwh/gsb97-1/sys8a/t3/index1.cfm
   //  other API:         https://www.geologycloud.tw/geohome/DataService/swagger/api
   //  above new URL have CORS issue , but https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=12&x=309758&y=2730559
-  fetch("https://gis3.moeacgs.gov.tw/api/Tile/v1/getTooltip.cfm?layer=TYPE3&srs=EPSG%3A3826&z=" + queryzoom + "&x=" + tw97[0] + "&y=" + tw97[1])
+  fetch("https://geomap.gsmma.gov.tw/api/Tile/v2/getTooltip.cfm?layer=TYPE4&srs=3857&x=" + queryPointIn3857.x + "&y=" + queryPointIn3857.y + "&scale=" + queryscale ,
+    {
+      signal: AbortSignal.timeout(5000),
+    })
     .then((response) => {
       return response.json();
     })
@@ -661,7 +668,13 @@ function queryMOEACGS(e) {
       });
     })
     .catch((err) => {
-      console.log('rejected: ', err);
+      // console.log('rejected: ', err);
+      if (err.name === "TimeoutError") {
+        console.error("Timeout: It took more than 15 seconds to get the result!");
+      }else {
+          // A network error, or some other problem.
+          console.error("Error: type: ${err.name}, message: ${err.message}");
+      }
     });
 
   // console.log();
