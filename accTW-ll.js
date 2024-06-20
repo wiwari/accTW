@@ -1775,25 +1775,30 @@ if (L.Browser.mobile) {
 //   // alert("已複製到剪貼簿");  
 // }).addTo( map );
 
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    //Firefox and new Chrome
+    navigator.clipboard.writeText(getShareUrl())
+    .then(function() {
+      /* clipboard successfully set */
+    }, function() {
+      /* clipboard write failed */
+      console.log("ERROR while copy share URL to clipboard");
+    });
+  } else {
+    // Fallback for browsers that do not support navigator.clipboard.writeText
+    // for iOS and chrome and better compatibility for newer broser    
+    $(".ios-clipboard").show();
+    $(".ios-clipboard").val(getShareUrl());
+    iosCopyToClipboard(document.getElementsByClassName('ios-clipboard')[0]);
+    document.getElementsByClassName('map')[0].focus();
+    // document.getSelection().removeAllRanges();
+    $(".ios-clipboard").hide();
+  }
+}
 
 function copyShareURLtoclipboard(e) {
-  // // for Firfox only
-  // console.log("not iOS");
-  // navigator.clipboard.writeText(getShareUrl()).then(function() {
-  //   /* clipboard successfully set */
-  //   // console.log("pasted");
-  // }, function() {
-  //   /* clipboard write failed */
-  //   console.log("ERROR while copy share URL to clipboard");
-  // });
-
-  // for iOS and chrome and better compatibility for newer broser    
-  $(".ios-clipboard").show();
-  $(".ios-clipboard").val(getShareUrl());
-  iosCopyToClipboard(document.getElementsByClassName('ios-clipboard')[0]);
-  document.getElementsByClassName('map')[0].focus();
-  // document.getSelection().removeAllRanges();
-  $(".ios-clipboard").hide();
+  copyToClipboard(getShareUrl());
 
   gtag('event', 'share', {
     'event_category': 'engagement',
