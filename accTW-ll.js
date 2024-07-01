@@ -554,14 +554,17 @@ map.on("zoomstart", zoomstart_check);
 
 
 function zoomend_check(e) {
+  // streams.reRender();
+  if (map.getZoom() >= streams.options.maxNativeZoom) {
+    streams.setUniform('uExtraZoom', map.getZoom() - streams.options.maxNativeZoom);
+    streams.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
+  }
+
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
     lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);    
   }  
-    streams.setUniform('uWaterThreshold', (0.1 * Math.pow(3,15-map.getZoom())));
-    // streams.reRender();
-    if (map.getZoom() >= streams.options.maxNativeZoom )
-      streams.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
+
 }
 function zoomstart_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
@@ -1616,7 +1619,8 @@ var glShaderStreams = `
   // varying vec2 vCRSCoords;     // CRS coordinates of this fragment
   // varying vec2 vLatLngCoords;  // Lat-Lng coordinates of this fragment (linearly interpolated)
   // uniform sampler2D uTexture0;  
-  
+
+  float waterThreshold = 0.1 * pow(3., (15.0 - uTileCoords.z - uExtraZoom))  ;
   void main(void) {
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
   
@@ -1634,25 +1638,23 @@ var glShaderStreams = `
     colours[8] = vec4(0.9, 0.0, 0.9, 1.0);
     colours[9] = vec4(0.6, 0.0, 0.7, 1.0);    
     colours[10] = vec4(0.4, 0.0 , 0.5, 1.0);     
-    stepHeight[0] = log(0.01);
-    stepHeight[1] = log(0.1);       
-    stepHeight[2] = log(0.5);
-    stepHeight[3] = log(1.0);
-    stepHeight[4] = log(4.0);
-    stepHeight[5] = log(5.0);
-    stepHeight[6] = log(30.0);
-    stepHeight[7] = log(100.0);
-    stepHeight[8] = log(300.0);
-    stepHeight[9] = log(1500.0);    
-    stepHeight[10] = log(3500.0);  
-      
-    // Height is represented in TENTHS of a meter
-    highp float height = (
-      texelColour.r * 255.0 * 256.0 * 256.0 +
-      texelColour.g * 255.0 * 256.0 +
-      texelColour.b * 255.0 )/10.
-    -10000.0;
-      
+    stepHeight[0] = log2(0.01);
+    stepHeight[1] = log2(0.1);       
+    stepHeight[2] = log2(0.5);
+    stepHeight[3] = log2(1.0);
+    stepHeight[4] = log2(4.0);
+    stepHeight[5] = log2(5.0);
+    stepHeight[6] = log2(30.0);
+    stepHeight[7] = log2(100.0);
+    stepHeight[8] = log2(300.0);
+    stepHeight[9] = log2(1500.0);    
+    stepHeight[10] = log2(3500.0);  
+
+    float height =
+      dot(texelColour.rgb , vec3(65536. , 256. , 1.))
+      * 25.5
+      -10000.0;
+
     vec4 newcolor ;
       
     newcolor = colours[0].rgba;
@@ -1667,12 +1669,13 @@ var glShaderStreams = `
       newcolor = mix(
         newcolor,
         colours[i+1].rgba,
-        smoothstep( stepHeight[i], stepHeight[i+1], log(height) )
+        smoothstep( stepHeight[i], stepHeight[i+1], log2(height) )
       );
     }
-      
-    if (height < uWaterThreshold){
-      gl_FragColor = vec4(0.,0.0,0.0,0.);
+
+    // if (height < uWaterThreshold){
+    if (height < waterThreshold ){
+      gl_FragColor = vec4(0.,0.,0.,0.);
     }else{
       gl_FragColor = vec4(newcolor.rgba);
     }    
@@ -1685,7 +1688,7 @@ var streams = L.tileLayer.gl({
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
-	  uWaterThreshold: 72.9, //0.1,
+	  // uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
     // uWaterAlphaMax: 5.0,
 	},
