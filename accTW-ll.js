@@ -1634,9 +1634,8 @@ var glShaderStreams = `
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
   
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
-    vec4 colours[12];
-    float stepHeight[12];
-    int stepHeightInt[12];
+    vec4 colours[11];
+    float stepHeight[11];
     colours[0] = vec4(0.0, 0.0, 0.2, 0.0);
     colours[1] = vec4(1.0, 0.0, 0.0, 0.3);       
     colours[2] = vec4(1.0, 1.0, 0.0, 0.6);
@@ -1648,7 +1647,6 @@ var glShaderStreams = `
     colours[8] = vec4(0.9, 0.0, 0.9, 1.0);
     colours[9] = vec4(0.6, 0.0, 0.7, 1.0);    
     colours[10] = vec4(0.4, 0.0 , 0.5, 1.0);     
-    colours[11] = vec4(0.4, 0.4 , 0.5, 1.0);   
     stepHeight[0] = log2(0.01);
     stepHeight[1] = log2(0.1);       
     stepHeight[2] = log2(0.5);
@@ -1660,19 +1658,6 @@ var glShaderStreams = `
     stepHeight[8] = log2(300.0);
     stepHeight[9] = log2(1500.0);    
     stepHeight[10]= log2(3500.0);   
-    stepHeight[11]= log2(6553.5); //test purpose
-    stepHeightInt[0] =  (0);
-    stepHeightInt[1] =  (1);       
-    stepHeightInt[2] =  (5);
-    stepHeightInt[3] =  (10);
-    stepHeightInt[4] =  (40);
-    stepHeightInt[5] =  (50);
-    stepHeightInt[6] =  (300);
-    stepHeightInt[7] =  (1000);
-    stepHeightInt[8] =  (3000);
-    stepHeightInt[9] =  (15000);    
-    stepHeightInt[10]=  (35000); 
-    stepHeightInt[11]=  (65535); //test purpose
 
     // // Height is represented in TENTHS of a meter
     // float height = (   
@@ -1687,18 +1672,6 @@ var glShaderStreams = `
       dot(texelColour.rgb , vec3(65536. , 256. , 1.))
       * 25.5
       -10000.0;
-    
-    // testing  by integer
-    // ivec3 texelColourRGBint = ivec3( texelColour.rgb * 255.0);
-    // ivec3 heightOffset = ivec3 (1,134,160);
-    // ivec3 height0 = ivec3(texelColourRGBint - heightOffset); // it will be returned to be signed int
-
-    // Note: height0.r * 65536 lead to overflow in mobile device
-    // highp int heightInt = 65536 * height0.r + 256 * height0.g + height0.b ;
-    // highp int heightInt = 65536 * texelColourRGBint.r + 256 * texelColourRGBint.g + texelColourRGBint.b ;
-   
-    // height = vTextureCoords.s * 2.0;
-    // heightInt = int(vTextureCoords.s * 20.0);
 
     vec4 newcolor ;      
     newcolor = colours[0].rgba;
@@ -1714,13 +1687,11 @@ var glShaderStreams = `
         newcolor,
         colours[i+1].rgba,
         smoothstep( stepHeight[i], stepHeight[i+1],  log2(height))
-        // smoothstep( float(stepHeightInt[i]), float(stepHeightInt[i+1]),  float(heightInt))
       );
     }
 
-    // if (height < uWaterThreshold){
+
     if (height < waterThreshold ){
-      // gl_FragColor = vec4(newcolor.rgba);
       gl_FragColor = vec4(0.,0.,0.,0.);
     }else{
       gl_FragColor = vec4(newcolor.rgba);
