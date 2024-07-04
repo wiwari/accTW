@@ -554,6 +554,8 @@ map.on("zoomstart", zoomstart_check);
 
 
 function zoomend_check(e) {
+  // streams.setUniform('uWaterThreshold', (0.1 * Math.pow(3,15-map.getZoom()))); //best fitting visually
+  // streams.setUniform('uWaterThreshold', (0.1 * Math.pow(4,14-map.getZoom()))); //experimental
   // streams.reRender();
   if (map.getZoom() >= streams.options.maxNativeZoom) {
     streams.setUniform('uExtraZoom', map.getZoom() - streams.options.maxNativeZoom);
@@ -1612,7 +1614,9 @@ local_gpxlayers.addTo(map);
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
 var glShaderStreams = `
-  // precision highp float;       // Use 24-bit floating point numbers for everything
+  precision highp int;
+  // precision highp float;       // Use 24-bit floating point numbers for everything.
+  // uniform float uExtraZoom;    // extraZoom over maxNativeZoom
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
   // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
@@ -1621,12 +1625,18 @@ var glShaderStreams = `
   // uniform sampler2D uTexture0;  
 
   float waterThreshold = 0.1 * pow(3., (15.0 - uTileCoords.z - uExtraZoom))  ;
+  // highp float waterThreshold = 0.1 * pow(4., (14.0 - uTileCoords.z ))  ;
+  // highp float waterThreshold = 0.1 * exp2( 2. * (14.0 - uTileCoords.z ))  ;
+  // highp float waterThreshold = 0.1 * exp2( 2. * (14.0 - uTileCoords.z - uExtraZoom ))  ;
+
   void main(void) {
+    
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
   
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
-    vec4 colours[11];
-    float stepHeight[11];
+    vec4 colours[12];
+    float stepHeight[12];
+    int stepHeightInt[12];
     colours[0] = vec4(0.0, 0.0, 0.2, 0.0);
     colours[1] = vec4(1.0, 0.0, 0.0, 0.3);       
     colours[2] = vec4(1.0, 1.0, 0.0, 0.6);
@@ -1638,6 +1648,7 @@ var glShaderStreams = `
     colours[8] = vec4(0.9, 0.0, 0.9, 1.0);
     colours[9] = vec4(0.6, 0.0, 0.7, 1.0);    
     colours[10] = vec4(0.4, 0.0 , 0.5, 1.0);     
+    colours[11] = vec4(0.4, 0.4 , 0.5, 1.0);   
     stepHeight[0] = log2(0.01);
     stepHeight[1] = log2(0.1);       
     stepHeight[2] = log2(0.5);
@@ -1648,15 +1659,48 @@ var glShaderStreams = `
     stepHeight[7] = log2(100.0);
     stepHeight[8] = log2(300.0);
     stepHeight[9] = log2(1500.0);    
-    stepHeight[10] = log2(3500.0);  
+    stepHeight[10]= log2(3500.0);   
+    stepHeight[11]= log2(6553.5); //test purpose
+    stepHeightInt[0] =  (0);
+    stepHeightInt[1] =  (1);       
+    stepHeightInt[2] =  (5);
+    stepHeightInt[3] =  (10);
+    stepHeightInt[4] =  (40);
+    stepHeightInt[5] =  (50);
+    stepHeightInt[6] =  (300);
+    stepHeightInt[7] =  (1000);
+    stepHeightInt[8] =  (3000);
+    stepHeightInt[9] =  (15000);    
+    stepHeightInt[10]=  (35000); 
+    stepHeightInt[11]=  (65535); //test purpose
 
+    // // Height is represented in TENTHS of a meter
+    // float height = (   
+    //   texelColour.b * 255.0 +
+    //   texelColour.g * 255.0 * 256.0 +
+    //   texelColour.r * 255.0 * 256.0 * 256.0 
+    //    )/10.
+    // -10000.0;
+
+    // rewrite in another way
     float height =
       dot(texelColour.rgb , vec3(65536. , 256. , 1.))
       * 25.5
       -10000.0;
+    
+    // testing  by integer
+    // ivec3 texelColourRGBint = ivec3( texelColour.rgb * 255.0);
+    // ivec3 heightOffset = ivec3 (1,134,160);
+    // ivec3 height0 = ivec3(texelColourRGBint - heightOffset); // it will be returned to be signed int
 
-    vec4 newcolor ;
-      
+    // Note: height0.r * 65536 lead to overflow in mobile device
+    // highp int heightInt = 65536 * height0.r + 256 * height0.g + height0.b ;
+    // highp int heightInt = 65536 * texelColourRGBint.r + 256 * texelColourRGBint.g + texelColourRGBint.b ;
+   
+    // height = vTextureCoords.s * 2.0;
+    // heightInt = int(vTextureCoords.s * 20.0);
+
+    vec4 newcolor ;      
     newcolor = colours[0].rgba;
   
     for (int i=0; i < 10; i++) {
@@ -1669,21 +1713,25 @@ var glShaderStreams = `
       newcolor = mix(
         newcolor,
         colours[i+1].rgba,
-        smoothstep( stepHeight[i], stepHeight[i+1], log2(height) )
+        smoothstep( stepHeight[i], stepHeight[i+1],  log2(height))
+        // smoothstep( float(stepHeightInt[i]), float(stepHeightInt[i+1]),  float(heightInt))
       );
     }
 
     // if (height < uWaterThreshold){
     if (height < waterThreshold ){
+      // gl_FragColor = vec4(newcolor.rgba);
       gl_FragColor = vec4(0.,0.,0.,0.);
     }else{
       gl_FragColor = vec4(newcolor.rgba);
-    }    
+    }  
+
   }
   
 `
 
 var streams = L.tileLayer.gl({
+// var streams = L.tileLayer.gl2({
   fragmentShader: glShaderStreams,  
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
@@ -1691,6 +1739,7 @@ var streams = L.tileLayer.gl({
 	  // uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
     // uWaterAlphaMax: 5.0,
+    uExtraZoom: 0 ,
 	},
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
