@@ -1688,48 +1688,50 @@ var glShaderStreams = `
     {  
       int heightInt = texelColourInt.b -160;
       float heightSmallNumber = float(heightInt) * 0.1;
-      height = heightSmallNumber;
-
-      newcolor = colours[0].rgba;
-
-
-      // for height <= 0.1
-      newcolor = mix(
-          newcolor,
-          colours[1].rgba,
-          smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  heightSmallNumber )
-        );
-
-      // for height >= 0.1
-      for (int i=1 ; i < 5 ; i++){ 
-        newcolor = mix(
-          newcolor,
-          colours[i+1].rgba,
-          smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(heightSmallNumber) )
-        );
-      }
-            
-    } else if(all(equal(texelColourInt.rgb,ivec3(0,0,0)))){
+      height = heightSmallNumber;   
+    }else if(all(equal(texelColourInt.rgb,ivec3(0,0,0)))){
       height = -10000.0;
-      newcolor = vec4(0.,0.,0.,0.);    
-    } else {
+    }else {
       height = 
         dot(texelColour.rgb , vec3(65536. , 256. , 1.))
-        * 25.5 -10000.0;
-      newcolor = colours[5].rgba;
-      for (int i=5; i < 10; i++) {
-        // Do a smoothstep of the heights between steps. If the result is > 0
-        // (meaning "the height is higher than the lower bound of this step"),
-        // then replace the colour with a linear blend of the step.
-        // If the result is 1, this means that the real colour will be applied
-        // in a later loop.
-    
-        newcolor = mix(
-          newcolor,
-          colours[i+1].rgba,
-          smoothstep( stepHeight[i], stepHeight[i+1],  log2(height))
-        );
-      }
+        * 25.5 -10000.0;      
+    }
+   
+    newcolor = vec4(0.,0.,0.,0.);
+    newcolor = mix(
+      newcolor,
+      colours[0].rgba,
+      smoothstep( -10000. , stepHeightLinear[0] ,  height )
+    );
+    // newcolor = colours[0].rgba;  
+    // for height <= 0.1
+    newcolor = mix(
+        newcolor,
+        colours[1].rgba,
+        smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  height )
+      );
+
+    // for height >= 0.1
+    for (int i=1 ; i < 5 ; i++){ 
+      newcolor = mix(
+        newcolor,
+        colours[i+1].rgba,
+        smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(height) )
+      );
+    }
+    // newcolor = colours[5].rgba;
+    for (int i=5; i < 10; i++) {
+      // Do a smoothstep of the heights between steps. If the result is > 0
+      // (meaning "the height is higher than the lower bound of this step"),
+      // then replace the colour with a linear blend of the step.
+      // If the result is 1, this means that the real colour will be applied
+      // in a later loop.
+  
+      newcolor = mix(
+        newcolor,
+        colours[i+1].rgba,
+        smoothstep( stepHeight[i], stepHeight[i+1],  log2(height))
+      );
     }
 
 
@@ -1739,8 +1741,6 @@ var glShaderStreams = `
     }else{
       gl_FragColor = vec4(newcolor.rgba);    
     }  
-
-    
 
   }
   
