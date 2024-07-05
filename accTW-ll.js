@@ -1632,10 +1632,12 @@ var glShaderStreams = `
   void main(void) {
     
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
+    ivec4 texelColourInt = ivec4(texelColour * 256.);
   
     // Color ramp. The alpha value represents the elevation for that RGB colour stop.
     vec4 colours[11];
     float stepHeight[11];
+    float stepHeightLinear[11];
     colours[0] = vec4(0.0, 0.0, 0.2, 0.0);
     colours[1] = vec4(1.0, 0.0, 0.0, 0.3);       
     colours[2] = vec4(1.0, 1.0, 0.0, 0.6);
@@ -1658,6 +1660,13 @@ var glShaderStreams = `
     stepHeight[8] = log2(300.0);
     stepHeight[9] = log2(1500.0);    
     stepHeight[10]= log2(3500.0);   
+    stepHeightLinear[0] = 0.0;
+    stepHeightLinear[1] = 0.1;       
+    stepHeightLinear[2] = 0.5;
+    stepHeightLinear[3] = 1.0;
+    stepHeightLinear[4] = 4.0;
+    stepHeightLinear[5] = 5.0;
+
 
     // // Height is represented in TENTHS of a meter
     // float height = (   
@@ -1668,34 +1677,70 @@ var glShaderStreams = `
     // -10000.0;
 
     // rewrite in another way
-    float height =
-      dot(texelColour.rgb , vec3(65536. , 256. , 1.))
-      * 25.5
-      -10000.0;
+    float height ;
 
     vec4 newcolor ;      
-    newcolor = colours[0].rgba;
-  
-    for (int i=0; i < 10; i++) {
-      // Do a smoothstep of the heights between steps. If the result is > 0
-      // (meaning "the height is higher than the lower bound of this step"),
-      // then replace the colour with a linear blend of the step.
-      // If the result is 1, this means that the real colour will be applied
-      // in a later loop.
-  
+
+    if(texelColourInt.r == 1 && 
+        texelColourInt.g == 134 &&    //height : 0-9.5km2 
+        texelColourInt.b >= 160 &&    //height : >=0.0  
+        texelColourInt.b <= 210    )  // height : <=5.0     
+    {  
+      int heightInt = texelColourInt.b -160;
+      float heightSmallNumber = float(heightInt) * 0.1;
+      height = heightSmallNumber;
+
+      newcolor = colours[0].rgba;
+
+
+      // for height <= 0.1
       newcolor = mix(
-        newcolor,
-        colours[i+1].rgba,
-        smoothstep( stepHeight[i], stepHeight[i+1],  log2(height))
-      );
+          newcolor,
+          colours[1].rgba,
+          smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  heightSmallNumber )
+        );
+
+      // for height >= 0.1
+      for (int i=1 ; i < 5 ; i++){ 
+        newcolor = mix(
+          newcolor,
+          colours[i+1].rgba,
+          smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(heightSmallNumber) )
+        );
+      }
+            
+    } else if(all(equal(texelColourInt.rgb,ivec3(0,0,0)))){
+      height = -10000.0;
+      newcolor = vec4(0.,0.,0.,0.);    
+    } else {
+      height = 
+        dot(texelColour.rgb , vec3(65536. , 256. , 1.))
+        * 25.5 -10000.0;
+      newcolor = colours[5].rgba;
+      for (int i=5; i < 10; i++) {
+        // Do a smoothstep of the heights between steps. If the result is > 0
+        // (meaning "the height is higher than the lower bound of this step"),
+        // then replace the colour with a linear blend of the step.
+        // If the result is 1, this means that the real colour will be applied
+        // in a later loop.
+    
+        newcolor = mix(
+          newcolor,
+          colours[i+1].rgba,
+          smoothstep( stepHeight[i], stepHeight[i+1],  log2(height))
+        );
+      }
     }
 
 
     if (height < waterThreshold ){
       gl_FragColor = vec4(0.,0.,0.,0.);
+      // gl_FragColor = vec4(newcolor.rgba);  
     }else{
-      gl_FragColor = vec4(newcolor.rgba);
+      gl_FragColor = vec4(newcolor.rgba);    
     }  
+
+    
 
   }
   
