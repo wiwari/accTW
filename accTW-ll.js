@@ -1616,6 +1616,8 @@ local_gpxlayers.addTo(map);
 var glShaderStreams = `
   // precision highp float;       // Use 24-bit floating point numbers for everything.
   // uniform float uExtraZoom;    // extraZoom over maxNativeZoom
+  // uniform float uWaterThresholdZoomStep;
+  // uniform float uWaterThresholdZoomAtTenthKmsq;
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
   // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
@@ -1623,8 +1625,10 @@ var glShaderStreams = `
   // varying vec2 vLatLngCoords;  // Lat-Lng coordinates of this fragment (linearly interpolated)
   // uniform sampler2D uTexture0;  
 
-  float waterThreshold = 0.1 * pow(3., (15.0 - uTileCoords.z - uExtraZoom))  ;
-  // highp float waterThreshold = 0.1 * exp2( 2. * (14.0 - uTileCoords.z - uExtraZoom ))  ;
+  float waterThreshold = 0.1 * pow(uWaterThresholdZoomStep, (uWaterThresholdZoomAtTenthKmsq - uTileCoords.z - uExtraZoom)) + 0.001 ; //0.001 is workaround to precision issue
+  // float waterThreshold = 0.1 * pow(3.7371928188465519779000410099209, (14.0 - uTileCoords.z - uExtraZoom)) + 0.001 ; //0.001 is workaround to precision issue
+  // float waterThreshold = 0.1 * pow(3., (15.0 - uTileCoords.z - uExtraZoom)) + 0.01 ;  
+  // float waterThreshold = 0.1 * exp2( 2. * (14.0 - uTileCoords.z - uExtraZoom )) + 0.01 ;
   void main(void) {
     
     highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
@@ -1749,6 +1753,8 @@ var streams = L.tileLayer.gl({
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
+    uWaterThresholdZoomStep: 3.7371928188465519779000410099209, //(3^6)^0.2 
+    uWaterThresholdZoomAtTenthKmsq: 14,
 	  // uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
     // uWaterAlphaMax: 5.0,
