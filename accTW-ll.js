@@ -1753,7 +1753,7 @@ var streams = L.tileLayer.gl({
   tileLayers: [catchment],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
-    uWaterThresholdZoomStep: 3.7371928188465519779000410099209, //(3^6)^0.2 
+    uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
     uWaterThresholdZoomAtTenthKmsq: 14,
 	  // uWaterThreshold: 72.9, //0.1,
     // uWaterAlphaMin: 0.1,
