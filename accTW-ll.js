@@ -1611,6 +1611,9 @@ local_gpxlayers.addTo(map);
 // map.locate({setView: true, maxZoom: 14}); 
 
 
+const glShaderStreamsHighlightDefinition = `
+#define RANGEHIGHLIGHT 1
+`;
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
 var glShaderStreams = `
@@ -1618,6 +1621,8 @@ var glShaderStreams = `
   // uniform float uExtraZoom;    // extraZoom over maxNativeZoom
   // uniform float uWaterThresholdZoomStep;
   // uniform float uWaterThresholdZoomAtTenthKmsq;
+  // uniform float uWaterUserDefinedVisibleRangeMax;
+  // uniform float uWaterUserDefinedVisibleRangeMin;
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
   // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
@@ -1697,6 +1702,7 @@ var glShaderStreams = `
     }
    
     newcolor = vec4(0.,0.,0.,0.);
+#ifndef RANGEHIGHLIGHT
     newcolor = mix(
       newcolor,
       colours[0].rgba,
@@ -1733,16 +1739,34 @@ var glShaderStreams = `
         smoothstep(stepHeight[i], stepHeight[i+1], log2(height))
       );
     }
+#endif
 
-
-
+#ifndef RANGEHIGHLIGHT
     if (height < waterThreshold ){
       gl_FragColor = vec4(0.,0.,0.,0.);
       // gl_FragColor = vec4(newcolor.rgba);  
     }else{
       gl_FragColor = vec4(newcolor.rgba);
     }
+#else
+      if (height >= uWaterUserDefinedVisibleRangeMax || height <= uWaterUserDefinedVisibleRangeMin )
+      {
+        newcolor.rgba = vec4(0., 0., 0., 0.);
+      }else{
 
+        // newcolor.rgba = newcolor.rgba * sin(acos(-1.)*fract(uNow /1000.));
+        // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * fract(uNow /1000.);
+        // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
+        newcolor.a = 1.;
+        // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));
+        newcolor.rgb = vec3(1., 1., 1.)* sin((log2(height)- 0. * fract(uNow /1000.)) *acos(-1.));
+        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(height)-  2. *  fract(uNow /1000.)) *acos(-1.));
+        // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
+        // newcolor.a = fract(uNow /1000.);
+      }
+
+      gl_FragColor = vec4(newcolor.rgba);
+#endif
   }
   
 `
@@ -1774,7 +1798,32 @@ var streams = L.tileLayer.gl({
 lyctrl.addOverlay(streams, "水線著色⁺");
 
 
-
+var streamsRangeHightlight = L.tileLayer.gl({
+    fragmentShader: glShaderStreamsHighlightDefinition + glShaderStreams,  
+    tileLayers: [catchment],
+    // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
+    uniforms: {
+      uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
+      uWaterThresholdZoomAtTenthKmsq: 14,
+      uWaterUserDefinedVisibleRangeMax: 1500,
+      uWaterUserDefinedVisibleRangeMin: 30,
+      // uWaterThreshold: 72.9, //0.1,
+      // uWaterAlphaMin: 0.1,
+      // uWaterAlphaMax: 5.0,
+      uExtraZoom: 0 ,
+    },
+    tms: false, // CLI generation required    
+    crs: L.CRS.EPSG3857,
+    zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
+    tileSize: 256,
+    opacity: 1.0,
+    minZoom: 7, //min 10
+    // maxZoom: 14,
+    minNativeZoom: 7,
+    maxNativeZoom: 14,
+    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+  }).addTo(map);
+  lyctrl.addOverlay(streamsRangeHightlight, "水線著色⁺範圍");
 
 
 // GPS button for mobile devices
