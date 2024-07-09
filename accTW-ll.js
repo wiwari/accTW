@@ -1826,6 +1826,92 @@ var streamsRangeHightlight = L.tileLayer.gl({
   lyctrl.addOverlay(streamsRangeHightlight, "水線著色⁺範圍");
 
 
+L.Control.rangeSlider = L.Control.extend({
+    options: {
+      rangeValue:[150,500],
+    },
+    initialize: function(options) {      
+      L.setOptions(this, options); 
+    },
+    onAdd: function(map) {
+        let slinderContainer = L.DomUtil.create('div','highlighRange_container');  
+        let slider1=L.DomUtil.create('input','',slinderContainer);
+        slider1.type="range";
+        slider1.min="0.1";
+        slider1.max="3500";
+        slider1.id="rangeFromSlider";
+        let slider2=L.DomUtil.create('input','',slinderContainer);
+        slider2.type="range";
+        slider2.min="0.1";
+        slider2.max="3500";
+        slider2.id="rangeToSlider";        
+        this._slider1=slider1;
+        this._slider2=slider2;
+        slider1.value=this.getRange()[0];
+        slider1.value=this.getRange()[1];        
+
+        // let htmlcode=`             
+        // <input type="range" id="rangeFromSlider"></input>
+        // <input type="range" id="rangeToSlider" ></input>          
+        // `;
+        // slinderContainer.innerHTML=htmlcode;
+        // Stop propagation of click events on the control
+        L.DomEvent.disableClickPropagation(slinderContainer);
+        // L.DomEvent.on(slinderContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
+        L.DomEvent.on(slider1, 'change', function(e) {
+          console.log(e.target.value);          
+          this.setValue([this._sl1.value,this._sl2.value]);
+          console.log(this.getRange());
+          this.fire('change', {value: e.target.value});
+        }.bind(this));
+        L.DomEvent.on(slider2, 'change', function(e) {
+          console.log(e.target.value);          
+          this.setValue([this._sl1.value,this._sl2.value]);
+          console.log(this.getRange());
+          this.fire('change', {value: e.target.value});
+        }.bind(this));
+        L.DomEvent.on(slider1, 'input', function(e) {
+          this.fire('input', {value: e.target.value});
+        }.bind(this));
+        L.DomEvent.on(slider2, 'input', function(e) {
+          this.fire('input', {value: e.target.value});
+        }.bind(this));
+
+        // Event listener for the range slider
+        // var slider = container.querySelector('#rangeSlider');
+        // slider.addEventListener('input', function() {
+        //     var value = slider.value;
+        //     document.getElementById('labelText').textContent = value;
+        // });
+        
+        return slinderContainer;
+    },
+    onRemove: function(map) {
+        // Nothing to do here
+    },
+    setValue: function(rangeValue) {
+      let sortedRangeValue = rangeValue[0] < rangeValue[1] ? [rangeValue[0], rangeValue[1]] : [rangeValue[1], rangeValue[0]]  ;
+      this.options.rangeValue = sortedRangeValue;
+      this._slider1.value = sortedRangeValue[0];
+      this._slider1.value = sortedRangeValue[1];
+    },
+    getRange: function(){
+      return (this.options.rangeValue[0] < this.options.rangeValue[1] ? [this.options.rangeValue[0], this.options.rangeValue[1]] : [this.options.rangeValue[1], this.options.rangeValue[0]] );
+    }
+});
+L.Control.rangeSlider.include(L.Evented.prototype);
+
+let highlightrangeCtrl = new L.Control.rangeSlider({ rangeValue:[123,2000], position: 'bottomright' })
+highlightrangeCtrl.addTo(map);
+// console.log(highlightrangeCtrl.getRange());
+
+
+function showshowhighlightrangeCtrl(e){
+  console.log("Change fired " + e.getRange()/*highlightrangeCtrl.getRange()*/);
+}
+
+highlightrangeCtrl.on("change input",showshowhighlightrangeCtrl);
+
 // GPS button for mobile devices
 if (L.Browser.mobile) {
   var locator = L.control.locate({
