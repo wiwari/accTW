@@ -1749,7 +1749,7 @@ var glShaderStreams = `
       gl_FragColor = vec4(newcolor.rgba);
     }
 #else
-      if (height >= uWaterUserDefinedVisibleRangeMax || height <= uWaterUserDefinedVisibleRangeMin )
+      if (height >= uWaterUserDefinedVisibleRangeMax || height < uWaterUserDefinedVisibleRangeMin )
       {
         newcolor.rgba = vec4(0., 0., 0., 0.);
       }else{
@@ -1758,8 +1758,10 @@ var glShaderStreams = `
         // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * fract(uNow /1000.);
         // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
         newcolor.a = 1.;
-        // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));
-        newcolor.rgb = vec3(1., 1., 1.)* sin((log2(height)- 2. * fract(uNow /1000.)) *acos(-1.));
+        // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));        
+        float phi = (log2(height)- 2. * fract(uNow /1000.)) *acos(-1.);
+        newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7);
+        // newcolor.rgb = vec3(sin(phi), sin(phi-2.*acos(-1.)/3.), sin(phi-4.*acos(-1.)/3.));
         // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(height)-  2. *  fract(uNow /1000.)) *acos(-1.));
         // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
         // newcolor.a = fract(uNow /1000.);
@@ -1795,7 +1797,7 @@ var streams = L.tileLayer.gl({
   maxNativeZoom: 14,
   bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
 }).addTo(map);
-lyctrl.addOverlay(streams, "水線著色⁺");
+lyctrl.addOverlay(streams, "水線著色<sup>彩⁺</sup>");
 
 
 var streamsRangeHightlight = L.tileLayer.gl({
@@ -1805,8 +1807,8 @@ var streamsRangeHightlight = L.tileLayer.gl({
     uniforms: {
       uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
       uWaterThresholdZoomAtTenthKmsq: 14,
-      uWaterUserDefinedVisibleRangeMax: 15,
-      uWaterUserDefinedVisibleRangeMin: 5,
+      uWaterUserDefinedVisibleRangeMax: 100,
+      uWaterUserDefinedVisibleRangeMin: 10,
       // uWaterThreshold: 72.9, //0.1,
       // uWaterAlphaMin: 0.1,
       // uWaterAlphaMax: 5.0,
@@ -1826,135 +1828,125 @@ var streamsRangeHightlight = L.tileLayer.gl({
   streamsRangeHightlight.on('add',()=>{  
     highlightRangeCtrl.addTo(map);     
     // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
-    console.log("開啟"); 
   });  
   streamsRangeHightlight.on('remove',()=>{  
     highlightRangeCtrl.remove();     
     // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
-    console.log("關閉"); 
   });  
   // streamsRangeHightlight.addTo(map);
-  lyctrl.addOverlay(streamsRangeHightlight, "水線著色⁺範圍");
+  lyctrl.addOverlay(streamsRangeHightlight, "水線自選<sup>灰</sup>");
 
 
 
 L.Control.rangeSlider = L.Control.extend({
     options: {
       rangeValue:[2,17],
-      min:0,
-      max:18,
+      digitMin: 0,
+      digitMax: 3,
+      segmentsPerDecimal: 6, //segments in a decimal 
     },
-    initialize: function(options) {      
-      L.setOptions(this, options); 
-      this._slinderContainer=L.DomUtil.create('div','highlighRange_container');
-      this._slider1=L.DomUtil.create('input','',this._slinderContainer);
+    initialize: function(options) {            
+      L.setOptions(this, options);      
+
+      let segmentsPerDecimal=this.options.segmentsPerDecimal;
+      let min=segmentsPerDecimal*this.options.digitMin;
+      let max=segmentsPerDecimal*this.options.digitMax;      
+      
+      this._slinderContainer=L.DomUtil.create('div','leaflet-control leaflet-control-layers');
+      this._lable=L.DomUtil.create('label','',this._slinderContainer);
+      this._lable.style="text-align: center;";
+      this._rangestring=L.DomUtil.create('span','',this._lable);
+      this._rangestring.innerHTML='catchment range';
+      this._sliderContainer=L.DomUtil.create('div','highlighRange_container',this._slinderContainer);
+      this._slider1=L.DomUtil.create('input','',this._sliderContainer);
       this._slider1.id="rangeFromSlider";
       this._slider1.type="range";      
-      this._slider2=L.DomUtil.create('input','',this._slinderContainer);
+      this._slider2=L.DomUtil.create('input','',this._sliderContainer);
       this._slider2.id="rangeToSlider";   
       this._slider2.type="range";
       
-      this._slider1.min=this.options.min;
-      this._slider1.max=this.options.max;
-      this._slider2.min=this.options.min;
-      this._slider2.max=this.options.max; 
+      this._slider1.min= min;
+      this._slider1.max= max;
+      this._slider2.min= min;
+      this._slider2.max= max; 
 
-      this._slider1.list="values";
-      let valueList=L.DomUtil.create('datalist','',this._slinderContainer);
-      valueList.id="values";
-
-      for(i=0 ; i<=18 ; i+=6 ){
-        let opt=L.DomUtil.create('option','',valueList);
-        opt.value=Math.pow(10.,(i/6.));
-        opt.label=Math.pow(10.,(i/6.));
-      }
-
-      this._slider1.setAttribute('list', 'values');
-      this._slider2.setAttribute('list', 'values');
-      this.setRangeValue(this.getRange())  ;  
-      
-      
-
+      this.setRangeValue(this.getRange())  ;   
 
     },
-    onAdd: function(map) {       
-  
-        // this._slider1.value=this.getRange()[0];
-        // this._slider2.value=this.getRange()[1];  
-          
-
-        // let htmlcode=`             
-        // <input type="range" id="rangeFromSlider"></input>
-        // <input type="range" id="rangeToSlider" ></input>          
-        // `;
-        // slinderContainer.innerHTML=htmlcode;
+    onAdd: function(map) {   
         // Stop propagation of click events on the control
         L.DomEvent.disableClickPropagation(this._slinderContainer);
         // L.DomEvent.on(this._slinderContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
         L.DomEvent.on(this._slider1, 'change', function(e) {
-          let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
+          let newSliderRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
+          newRange=newSliderRange.map(this.tickDecode);
           this.setRangeValue(newRange);
           this.fire('change', {value: newRange});
         }.bind(this));
         L.DomEvent.on(this._slider2, 'change', function(e) {
-          let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
+          let newSliderRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
+          newRange=newSliderRange.map(this.tickDecode);
           this.setRangeValue(newRange);
           this.fire('change', {value: newRange});
         }.bind(this));
-        // L.DomEvent.on(slider1, 'input', function(e) {
-        //   let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
-        //   this.setRangeValue(newRange);
-        //   this.fire('input', {value: newRange});
-        // }.bind(this));
-        // L.DomEvent.on(slider2, 'input', function(e) {
-        //   let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
-        //   this.setRangeValue(newRange);
-        //   this.fire('input', {value: newRange});
-        // }.bind(this));
-
-
-        // Event listener for the range slider
-        // var slider = container.querySelector('#rangeSlider');
-        // slider.addEventListener('input', function() {
-        //     var value = slider.value;
-        //     document.getElementById('labelText').textContent = value;
-        // });
-        
+        L.DomEvent.on(this._slider1, 'input', function(e) {
+          let newSliderRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
+          newRange=newSliderRange.map(this.tickDecode);
+          // this.setRangeValue(newRange);
+          this.fire('input', {value: newRange});
+        }.bind(this));
+        L.DomEvent.on(this._slider2, 'input', function(e) {
+          let newSliderRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
+          newRange=newSliderRange.map(this.tickDecode);
+          // this.setRangeValue(newRange);
+          this.fire('input', {value: newRange});
+        }.bind(this));
         return this._slinderContainer;
     },
     onRemove: function(map) {
         // Nothing to do here
     },
+    tickEncode : function (x){
+      return Math.round(6 * Math.log10(x / 1.0));      
+    },
+    tickDecode : function (x){
+      return (Math.pow(10,(x/6.)));
+    },
     setRangeValue: function(rangeValue) {
       let sortedRangeValue = rangeValue.sort((a, b) => parseFloat(a) - parseFloat(b));
       this.options.rangeValue = sortedRangeValue;
-      this._slider1.value = sortedRangeValue[0];
-      this._slider2.value = sortedRangeValue[1];
+      this._slider1.value = this.tickEncode(sortedRangeValue[0]);
+      this._slider2.value = this.tickEncode(sortedRangeValue[1]);
+      this._rangestring.innerHTML= this.getSliderLabel(sortedRangeValue);
     },
     getRange: function(){
       return (this.options.rangeValue[0] < this.options.rangeValue[1] ? [this.options.rangeValue[0], this.options.rangeValue[1]] : [this.options.rangeValue[1], this.options.rangeValue[0]] );
+    },
+    simplifyRangeValue: function(x){
+      return x.toFixed(Math.max(0,1-Math.floor(Math.log10(x))));
+    },
+    getSliderLabel: function(value){
+      let sortedRangeValue = value.sort((a, b) => parseFloat(a) - parseFloat(b));
+      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²");
     }
 });
 L.Control.rangeSlider.include(L.Evented.prototype);
 
-let highlightRangeCtrl = new L.Control.rangeSlider({ rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], min: 0, max:18 , position: 'bottomright' })
-// highlightRangeCtrl.addTo(map);
-// console.log(highlightrangeCtrl.getRange());
+let highlightRangeCtrl = new L.Control.rangeSlider({ rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], digitMin: -1, digitMax:(3+4/6) , position: 'bottomright' })
 
-
-function highlightRangeCtrlChanged(e){
-  console.log("Change fired " +  e.value /*highlightrangeCtrl.getRange()*/);
+highlightRangeCtrl.on("change",(e)=>{
+  // console.log("Change fired " +  e.value /*highlightrangeCtrl.getRange()*/);
   streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin=e.value[0];
   streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax=e.value[1];
   streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMin',e.value[0]);
   streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMax',e.value[1]);
-
   streamsRangeHightlight.reRender();
   streamsRangeHightlight.redraw();
-  
-}
-
-highlightRangeCtrl.on("change input",highlightRangeCtrlChanged);
+});
+highlightRangeCtrl.on("input",(e)=>{
+  // console.log("Input fired " +  e.value /*highlightrangeCtrl.getRange()*/);
+    highlightRangeCtrl._rangestring.innerHTML= highlightRangeCtrl.getSliderLabel(e.value);
+});
 
 // GPS button for mobile devices
 if (L.Browser.mobile) {
