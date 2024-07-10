@@ -90,3 +90,15 @@
   height: 0;
   /* z-index: 1; */
 }
+
+datalist {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  writing-mode: vertical-lr;
+  width: 100%;
+}
+
+option {
+  padding: 0;
+}

@@ -1759,7 +1759,7 @@ var glShaderStreams = `
         // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
         newcolor.a = 1.;
         // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));
-        newcolor.rgb = vec3(1., 1., 1.)* sin((log2(height)- 0. * fract(uNow /1000.)) *acos(-1.));
+        newcolor.rgb = vec3(1., 1., 1.)* sin((log2(height)- 2. * fract(uNow /1000.)) *acos(-1.));
         // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(height)-  2. *  fract(uNow /1000.)) *acos(-1.));
         // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
         // newcolor.a = fract(uNow /1000.);
@@ -1805,8 +1805,8 @@ var streamsRangeHightlight = L.tileLayer.gl({
     uniforms: {
       uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
       uWaterThresholdZoomAtTenthKmsq: 14,
-      uWaterUserDefinedVisibleRangeMax: 1500,
-      uWaterUserDefinedVisibleRangeMin: 30,
+      uWaterUserDefinedVisibleRangeMax: 15,
+      uWaterUserDefinedVisibleRangeMin: 5,
       // uWaterThreshold: 72.9, //0.1,
       // uWaterAlphaMin: 0.1,
       // uWaterAlphaMax: 5.0,
@@ -1825,12 +1825,12 @@ var streamsRangeHightlight = L.tileLayer.gl({
   })
   streamsRangeHightlight.on('add',()=>{  
     highlightRangeCtrl.addTo(map);     
-    highlightRangeCtrl.setValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
+    // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
     console.log("開啟"); 
   });  
   streamsRangeHightlight.on('remove',()=>{  
-    highlightRangeCtrl.removeFrom(map);     
-    // highlightRangeCtrl.setValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
+    highlightRangeCtrl.remove();     
+    // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
     console.log("關閉"); 
   });  
   // streamsRangeHightlight.addTo(map);
@@ -1840,27 +1840,48 @@ var streamsRangeHightlight = L.tileLayer.gl({
 
 L.Control.rangeSlider = L.Control.extend({
     options: {
-      rangeValue:[150,500],
+      rangeValue:[2,17],
+      min:0,
+      max:18,
     },
     initialize: function(options) {      
       L.setOptions(this, options); 
+      this._slinderContainer=L.DomUtil.create('div','highlighRange_container');
+      this._slider1=L.DomUtil.create('input','',this._slinderContainer);
+      this._slider1.id="rangeFromSlider";
+      this._slider1.type="range";      
+      this._slider2=L.DomUtil.create('input','',this._slinderContainer);
+      this._slider2.id="rangeToSlider";   
+      this._slider2.type="range";
+      
+      this._slider1.min=this.options.min;
+      this._slider1.max=this.options.max;
+      this._slider2.min=this.options.min;
+      this._slider2.max=this.options.max; 
+
+      this._slider1.list="values";
+      let valueList=L.DomUtil.create('datalist','',this._slinderContainer);
+      valueList.id="values";
+
+      for(i=0 ; i<=18 ; i+=6 ){
+        let opt=L.DomUtil.create('option','',valueList);
+        opt.value=Math.pow(10.,(i/6.));
+        opt.label=Math.pow(10.,(i/6.));
+      }
+
+      this._slider1.setAttribute('list', 'values');
+      this._slider2.setAttribute('list', 'values');
+      this.setRangeValue(this.getRange())  ;  
+      
+      
+
+
     },
-    onAdd: function(map) {
-        let slinderContainer = L.DomUtil.create('div','highlighRange_container');  
-        let slider1=L.DomUtil.create('input','',slinderContainer);
-        slider1.type="range";
-        slider1.min="0.1";
-        slider1.max="3500";
-        slider1.id="rangeFromSlider";
-        let slider2=L.DomUtil.create('input','',slinderContainer);
-        slider2.type="range";
-        slider2.min="0.1";
-        slider2.max="3500";
-        slider2.id="rangeToSlider";        
-        this._slider1=slider1;
-        this._slider2=slider2;
-        slider1.value=this.getRange()[0];
-        slider1.value=this.getRange()[1];        
+    onAdd: function(map) {       
+  
+        // this._slider1.value=this.getRange()[0];
+        // this._slider2.value=this.getRange()[1];  
+          
 
         // let htmlcode=`             
         // <input type="range" id="rangeFromSlider"></input>
@@ -1868,26 +1889,26 @@ L.Control.rangeSlider = L.Control.extend({
         // `;
         // slinderContainer.innerHTML=htmlcode;
         // Stop propagation of click events on the control
-        L.DomEvent.disableClickPropagation(slinderContainer);
-        // L.DomEvent.on(slinderContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
-        L.DomEvent.on(slider1, 'change', function(e) {
+        L.DomEvent.disableClickPropagation(this._slinderContainer);
+        // L.DomEvent.on(this._slinderContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
+        L.DomEvent.on(this._slider1, 'change', function(e) {
           let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
-          this.setValue(newRange);
+          this.setRangeValue(newRange);
           this.fire('change', {value: newRange});
         }.bind(this));
-        L.DomEvent.on(slider2, 'change', function(e) {
+        L.DomEvent.on(this._slider2, 'change', function(e) {
           let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
-          this.setValue(newRange);
+          this.setRangeValue(newRange);
           this.fire('change', {value: newRange});
         }.bind(this));
         // L.DomEvent.on(slider1, 'input', function(e) {
         //   let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
-        //   this.setValue(newRange);
+        //   this.setRangeValue(newRange);
         //   this.fire('input', {value: newRange});
         // }.bind(this));
         // L.DomEvent.on(slider2, 'input', function(e) {
         //   let newRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
-        //   this.setValue(newRange);
+        //   this.setRangeValue(newRange);
         //   this.fire('input', {value: newRange});
         // }.bind(this));
 
@@ -1899,12 +1920,12 @@ L.Control.rangeSlider = L.Control.extend({
         //     document.getElementById('labelText').textContent = value;
         // });
         
-        return slinderContainer;
+        return this._slinderContainer;
     },
     onRemove: function(map) {
         // Nothing to do here
     },
-    setValue: function(rangeValue) {
+    setRangeValue: function(rangeValue) {
       let sortedRangeValue = rangeValue.sort((a, b) => parseFloat(a) - parseFloat(b));
       this.options.rangeValue = sortedRangeValue;
       this._slider1.value = sortedRangeValue[0];
@@ -1916,21 +1937,24 @@ L.Control.rangeSlider = L.Control.extend({
 });
 L.Control.rangeSlider.include(L.Evented.prototype);
 
-let highlightRangeCtrl = new L.Control.rangeSlider({ rangeValue:[123,2000], position: 'bottomright' })
+let highlightRangeCtrl = new L.Control.rangeSlider({ rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], min: 0, max:18 , position: 'bottomright' })
 // highlightRangeCtrl.addTo(map);
 // console.log(highlightrangeCtrl.getRange());
 
 
-function showshowhighlightrangeCtrl(e){
+function highlightRangeCtrlChanged(e){
   console.log("Change fired " +  e.value /*highlightrangeCtrl.getRange()*/);
+  streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin=e.value[0];
+  streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax=e.value[1];
   streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMin',e.value[0]);
   streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMax',e.value[1]);
+
   streamsRangeHightlight.reRender();
   streamsRangeHightlight.redraw();
   
 }
 
-highlightRangeCtrl.on("change input",showshowhighlightrangeCtrl);
+highlightRangeCtrl.on("change input",highlightRangeCtrlChanged);
 
 // GPS button for mobile devices
 if (L.Browser.mobile) {
