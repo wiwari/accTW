@@ -1669,35 +1669,35 @@ var glShaderStreams = `
     return height;
   }
 
-  vec4 renderColor(float height){
+  vec4 renderColor(float renderValue, float filterValue){
     vec4 newcolor = vec4(0.,0.,0.,0.);
   #ifndef RANGEHIGHLIGHT
     newcolor = mix(
       newcolor,
       colours[0].rgba,
-      smoothstep( -10000. , stepHeightLinear[0] ,  height )
+      smoothstep( -10000. , stepHeightLinear[0] ,  renderValue )
     );
     // newcolor = colours[0].rgba;  
-    // for height <= 0.1
+    // for renderValue <= 0.1
     newcolor = mix(
         newcolor,
         colours[1].rgba,
-        smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  height )
+        smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  renderValue )
       );
 
-    // for height >= 0.1
+    // for renderValue >= 0.1
     for (int i=1 ; i < 5 ; i++){ 
       newcolor = mix(
         newcolor,
         colours[i+1].rgba,
-        smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(height) )
+        smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(renderValue) )
       );
     }
     // newcolor = colours[5].rgba;
     for (int i=5; i < 10; i++) {
 
-      // Do a smoothstep of the heights between steps. If the result is > 0
-      // (meaning "the height is higher than the lower bound of this step"),
+      // Do a smoothstep of the catchment between steps. If the result is > 0
+      // (meaning "the catchment is higher than the lower bound of this step"),
       // then replace the colour with a linear blend of the step.
       // If the result is 1, this means that the real colour will be applied
       // in a later loop.
@@ -1705,20 +1705,20 @@ var glShaderStreams = `
       newcolor = mix(
         newcolor,
         colours[i+1].rgba,
-        smoothstep(stepHeight[i], stepHeight[i+1], log2(height))
+        smoothstep(stepHeight[i], stepHeight[i+1], log2(renderValue))
       );
     }
   #endif
 
   #ifndef RANGEHIGHLIGHT
-    if (height < waterThreshold ){
+    if (filterValue < waterThreshold ){
       return( vec4(0.,0.,0.,0.));
       // return(vec4(newcolor.rgba));  
     }else{
        return(vec4(newcolor.rgba));
     }
   #else
-      if (height >= uWaterUserDefinedVisibleRangeMax || height < uWaterUserDefinedVisibleRangeMin )
+      if (filterValue >= uWaterUserDefinedVisibleRangeMax || filterValue < uWaterUserDefinedVisibleRangeMin )
       {
         newcolor.rgba = vec4(0., 0., 0., 0.);
       }else{
@@ -1728,10 +1728,11 @@ var glShaderStreams = `
         // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
         newcolor.a = 1.;
         // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));        
-        float phi = (log2(height)- 2. * fract(uNow /1000.)) *acos(-1.);
-        newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7);
+        float phi = (log2(filterValue)- 2. * fract(uNow /1000.)) *acos(-1.); //log phase , best for catchment
+        // float phi = ((filterValue)/2.- 2. * fract(uNow /1000.)) *acos(-1.); //linear phase , best for altitude
+        newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7); 
         // newcolor.rgb = vec3(sin(phi), sin(phi-2.*acos(-1.)/3.), sin(phi-4.*acos(-1.)/3.));
-        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(height)-  2. *  fract(uNow /1000.)) *acos(-1.));
+        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(filterValue)-  2. *  fract(uNow /1000.)) *acos(-1.));
         // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
         // newcolor.a = fract(uNow /1000.);
       }
@@ -1773,8 +1774,9 @@ var glShaderStreams = `
     stepHeightLinear[4] = 4.0;
     stepHeightLinear[5] = 5.0;
 
-    float height = deRGB(texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t)));
-    gl_FragColor=renderColor(height);
+    float catchment = deRGB(texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t)));
+    float altitude = deRGB(texture2D(uTexture1, vec2(vTextureCoords.s, vTextureCoords.t)));
+    gl_FragColor=renderColor(catchment,catchment);
   
   }
   
