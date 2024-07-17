@@ -565,7 +565,9 @@ function zoomend_check(e) {
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
     lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);    
-  }  
+  } 
+  
+  highlightRangeCtrl._rangestring.innerHTML= highlightRangeCtrl.getSliderLabel(highlightRangeCtrl.getRange());
 
 }
 function zoomstart_check(e) {
@@ -1617,12 +1619,16 @@ const glShaderStreamsHighlightDefinition = `
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
 var glShaderStreams = `
+#define M_2PI 6.2831853071795864769252867665590
+#define M_PI  3.1415926535897932384626433832795
+#define M_PI2 1.5707963267948966192313216916398
   // precision highp float;       // Use 24-bit floating point numbers for everything.
   // uniform float uExtraZoom;    // extraZoom over maxNativeZoom
   // uniform float uWaterThresholdZoomStep;
   // uniform float uWaterThresholdZoomAtTenthKmsq;
   // uniform float uWaterUserDefinedVisibleRangeMax;
   // uniform float uWaterUserDefinedVisibleRangeMin;
+  // uniform float uHighlightWavelengthAtZ14;
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
   // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
@@ -1723,16 +1729,19 @@ var glShaderStreams = `
         newcolor.rgba = vec4(0., 0., 0., 0.);
       }else{
 
-        // newcolor.rgba = newcolor.rgba * sin(acos(-1.)*fract(uNow /1000.));
+        // newcolor.rgba = newcolor.rgba * sin( M_PI * fract(uNow /1000.));
         // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * fract(uNow /1000.);
         // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
         newcolor.a = 1.;
         // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));        
-        float phi = (log2(filterValue)- 2. * fract(uNow /1000.)) *acos(-1.); //log phase , best for catchment
-        // float phi = ((filterValue)/2.- 2. * fract(uNow /1000.)) *acos(-1.); //linear phase , best for altitude
+        // float phi = (log2(renderValue)- 2. * fract(uNow /1000.)) * M_PI; //log phase , best for catchment
+        // float phi = ((renderValue)/2.- 2. * fract(uNow /1000.)) * M_PI; //linear phase , best for altitude
+        float phi = ((renderValue)/(uHighlightWavelengthAtZ14 * pow(2.,14.0 - uTileCoords.z)) + fract(uNow /1000.)) * M_2PI;
+        // float phi = ((renderValue)/(10.* pow(2.,14.0 - uTileCoords.z)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for kayaking
+        // float phi = ((renderValue)/(200.* pow(2.,14.0 - uTileCoords.z)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for canyoning
         newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7); 
-        // newcolor.rgb = vec3(sin(phi), sin(phi-2.*acos(-1.)/3.), sin(phi-4.*acos(-1.)/3.));
-        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(filterValue)-  2. *  fract(uNow /1000.)) *acos(-1.));
+        // newcolor.rgb = vec3(sin(phi), sin(phi- 2.* M_PI/3.), sin(phi-4.* M_PI/3.));
+        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(renderValue)-  2. *  fract(uNow /1000.)) * M_PI);
         // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
         // newcolor.a = fract(uNow /1000.);
       }
@@ -1776,8 +1785,12 @@ var glShaderStreams = `
 
     float catchment = deRGB(texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t)));
     float altitude = deRGB(texture2D(uTexture1, vec2(vTextureCoords.s, vTextureCoords.t)));
-    gl_FragColor=renderColor(catchment,catchment);
   
+  #ifndef RANGEHIGHLIGHT
+    gl_FragColor=renderColor(catchment,catchment); // renderColor(float renderValue, float filterValue)
+  #else
+    gl_FragColor=renderColor(altitude,catchment); // renderColor(float renderValue, float filterValue)
+  #endif
   }
   
 `
@@ -1818,6 +1831,7 @@ var streamsRangeHightlight = L.tileLayer.gl({
       uWaterThresholdZoomAtTenthKmsq: 14,
       uWaterUserDefinedVisibleRangeMax: 100,
       uWaterUserDefinedVisibleRangeMin: 10,
+      uHighlightWavelengthAtZ14: 10,  //10 best for kayaking, 200 best for canyoning
       // uWaterThreshold: 72.9, //0.1,
       // uWaterAlphaMin: 0.1,
       // uWaterAlphaMax: 5.0,
@@ -1934,9 +1948,13 @@ L.Control.rangeSlider = L.Control.extend({
     simplifyRangeValue: function(x){
       return x.toFixed(Math.max(0,1-Math.floor(Math.log10(x))));
     },
+    getWavelength: function(x){
+      let wavelength = streamsRangeHightlight.options.uniforms.uHighlightWavelengthAtZ14 * Math.pow(2,14-map.getZoom()) ;
+      return ( wavelength  );
+    },
     getSliderLabel: function(value){
       let sortedRangeValue = value.sort((a, b) => parseFloat(a) - parseFloat(b));
-      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²");
+      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²  - " + this.getWavelength() + "m");
     }
 });
 L.Control.rangeSlider.include(L.Evented.prototype);
