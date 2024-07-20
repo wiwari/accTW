@@ -560,12 +560,17 @@ function zoomend_check(e) {
   if (map.getZoom() >= streams.options.maxNativeZoom) {
     streams.setUniform('uExtraZoom', map.getZoom() - streams.options.maxNativeZoom);
     streams.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
+    streamsRangeHightlight.setUniform('uExtraZoom', map.getZoom() - streamsRangeHightlight.options.maxNativeZoom);
+    streamsRangeHightlight.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
   }
 
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
     lyctrl.addOverlay(read_catchment, "集水面積");
     read_catchment.addLayer(wscircle);    
-  }  
+  } 
+  
+  highlightRangeCtrl._rangestring.innerHTML= highlightRangeCtrl.getSliderLabel(highlightRangeCtrl.getRange());
+  highlightRangeCtrl.updateWavelengthLabel() ; 
 
 }
 function zoomstart_check(e) {
@@ -1617,12 +1622,16 @@ const glShaderStreamsHighlightDefinition = `
 
 // https://gitlab.com/IvanSanchez/Leaflet.TileLayer.GL
 var glShaderStreams = `
+#define M_2PI 6.2831853071795864769252867665590
+#define M_PI  3.1415926535897932384626433832795
+#define M_PI2 1.5707963267948966192313216916398
   // precision highp float;       // Use 24-bit floating point numbers for everything.
   // uniform float uExtraZoom;    // extraZoom over maxNativeZoom
   // uniform float uWaterThresholdZoomStep;
   // uniform float uWaterThresholdZoomAtTenthKmsq;
   // uniform float uWaterUserDefinedVisibleRangeMax;
   // uniform float uWaterUserDefinedVisibleRangeMin;
+  // uniform float uHighlightWavelengthAtZ14;
   // uniform float uNow;          // Microseconds since page load, as per performance.now()
   // uniform vec3 uTileCoords;    // Tile coordinates, as given to L.TileLayer.getTileUrl()
   // varying vec2 vTextureCoords; // Pixel coordinates of this fragment, to fetch texture color
@@ -1630,19 +1639,124 @@ var glShaderStreams = `
   // varying vec2 vLatLngCoords;  // Lat-Lng coordinates of this fragment (linearly interpolated)
   // uniform sampler2D uTexture0;  
 
+  vec4 colours[11];
+  float stepHeight[11];
+  float stepHeightLinear[11];
+  
   float waterThreshold = 0.1 * pow(uWaterThresholdZoomStep, (uWaterThresholdZoomAtTenthKmsq - uTileCoords.z - uExtraZoom)) + 0.001 ; //0.001 is workaround to precision issue
   // float waterThreshold = 0.1 * pow(3.7371928188465519779000410099209, (14.0 - uTileCoords.z - uExtraZoom)) + 0.001 ; //0.001 is workaround to precision issue
   // float waterThreshold = 0.1 * pow(3., (15.0 - uTileCoords.z - uExtraZoom)) + 0.01 ;  
   // float waterThreshold = 0.1 * exp2( 2. * (14.0 - uTileCoords.z - uExtraZoom )) + 0.01 ;
-  void main(void) {
-    
-    highp vec4 texelColour = texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t));
+
+  float deRGB(vec4 texelColour){
+    // // Height is represented in TENTHS of a meter
+    // float height = (   
+    //   texelColour.b * 255.0 +
+    //   texelColour.g * 255.0 * 256.0 +
+    //   texelColour.r * 255.0 * 256.0 * 256.0 
+    //    )/10.
+    // -10000.0;
+
+    // rewrite in another way
+    float height;
     ivec4 texelColourInt = ivec4(texelColour * 256.);
+     if(texelColourInt.r == 1 && 
+        texelColourInt.g == 134 &&    //height : 0-9.5km2 
+        texelColourInt.b >= 160 &&    //height : >=0.0  
+        texelColourInt.b <= 210    )  // height : <=5.0     
+    {  
+      int heightInt = texelColourInt.b -160;
+      float heightSmallNumber = float(heightInt) * 0.1;
+      height = heightSmallNumber;   
+    }else if(all(equal(texelColourInt.rgb,ivec3(0,0,0)))){
+      height = -10000.0;
+    }else {
+      height = 
+        dot(texelColour.rgb , vec3(65536. , 256. , 1.))
+        * 25.5 -10000.0;      
+    }
+    return height;
+  }
+
+  vec4 renderColor(float renderValue, float filterValue){
+    vec4 newcolor = vec4(0.,0.,0.,0.);
+  #ifndef RANGEHIGHLIGHT
+    newcolor = mix(
+      newcolor,
+      colours[0].rgba,
+      smoothstep( -10000. , stepHeightLinear[0] ,  renderValue )
+    );
+    // newcolor = colours[0].rgba;  
+    // for renderValue <= 0.1
+    newcolor = mix(
+        newcolor,
+        colours[1].rgba,
+        smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  renderValue )
+      );
+
+    // for renderValue >= 0.1
+    for (int i=1 ; i < 5 ; i++){ 
+      newcolor = mix(
+        newcolor,
+        colours[i+1].rgba,
+        smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(renderValue) )
+      );
+    }
+    // newcolor = colours[5].rgba;
+    for (int i=5; i < 10; i++) {
+
+      // Do a smoothstep of the catchment between steps. If the result is > 0
+      // (meaning "the catchment is higher than the lower bound of this step"),
+      // then replace the colour with a linear blend of the step.
+      // If the result is 1, this means that the real colour will be applied
+      // in a later loop.
   
-    // Color ramp. The alpha value represents the elevation for that RGB colour stop.
-    vec4 colours[11];
-    float stepHeight[11];
-    float stepHeightLinear[11];
+      newcolor = mix(
+        newcolor,
+        colours[i+1].rgba,
+        smoothstep(stepHeight[i], stepHeight[i+1], log2(renderValue))
+      );
+    }
+  #endif
+
+  #ifndef RANGEHIGHLIGHT
+    if (filterValue < waterThreshold ){
+      return( vec4(0.,0.,0.,0.));
+      // return(vec4(newcolor.rgba));  
+    }else{
+       return(vec4(newcolor.rgba));
+    }
+  #else
+      if (filterValue >= uWaterUserDefinedVisibleRangeMax || filterValue < uWaterUserDefinedVisibleRangeMin )
+      {
+        newcolor.rgba = vec4(0., 0., 0., 0.);
+      }else{
+
+        // newcolor.rgba = newcolor.rgba * sin( M_PI * fract(uNow /1000.));
+        // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * fract(uNow /1000.);
+        // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
+        newcolor.a = 1.;
+        // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));        
+        // float phi = (log2(renderValue)- 2. * fract(uNow /1000.)) * M_PI; //log phase , best for catchment
+        // float phi = ((renderValue)/2.- 2. * fract(uNow /1000.)) * M_PI; //linear phase , best for altitude
+        float phi = ((renderValue)/(uHighlightWavelengthAtZ14 * pow(2.,14.0 - uTileCoords.z - uExtraZoom)) + fract(uNow /1000.)) * M_2PI;
+        // float phi = ((renderValue)/(10.* pow(2.,14.0 - uTileCoords.z - uExtraZoom)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for kayaking
+        // float phi = ((renderValue)/(200.* pow(2.,14.0 - uTileCoords.z - uExtraZoom)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for canyoning
+        newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7); 
+        // newcolor.rgb = vec3(sin(phi), sin(phi- 2.* M_PI/3.), sin(phi-4.* M_PI/3.));
+        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(renderValue)-  2. *  fract(uNow /1000.)) * M_PI);
+        // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
+        // newcolor.a = fract(uNow /1000.);
+      }
+      return(vec4(newcolor.rgba));
+  #endif
+    return(vec4(0.,1.,0.,1.));
+  }
+
+
+  void main(void) {
+    // Color ramp. The alpha value represents the elevation for that RGB colour stop.   
+
     colours[0] = vec4(0.0, 0.0, 0.2, 0.0);
     colours[1] = vec4(1.0, 0.0, 0.0, 0.3);
     colours[2] = vec4(1.0, 1.0, 0.0, 0.6);
@@ -1653,7 +1767,7 @@ var glShaderStreams = `
     colours[7] = vec4(0.0, 0.1, 0.9, 1.0);
     colours[8] = vec4(0.9, 0.0, 0.9, 1.0);
     colours[9] = vec4(0.6, 0.0, 0.7, 1.0);
-    colours[10] = vec4(0.4, 0.0 , 0.5, 1.0);
+    colours[10] = vec4(0.4, 0.0, 0.5, 1.0);
     stepHeight[0] = log2(0.01);
     stepHeight[1] = log2(0.1);
     stepHeight[2] = log2(0.5);
@@ -1672,103 +1786,14 @@ var glShaderStreams = `
     stepHeightLinear[4] = 4.0;
     stepHeightLinear[5] = 5.0;
 
-    // // Height is represented in TENTHS of a meter
-    // float height = (   
-    //   texelColour.b * 255.0 +
-    //   texelColour.g * 255.0 * 256.0 +
-    //   texelColour.r * 255.0 * 256.0 * 256.0 
-    //    )/10.
-    // -10000.0;
-
-    // rewrite in another way
-    float height ;
-
-    vec4 newcolor ;
-
-    if(texelColourInt.r == 1 && 
-        texelColourInt.g == 134 &&    //height : 0-9.5km2 
-        texelColourInt.b >= 160 &&    //height : >=0.0  
-        texelColourInt.b <= 210    )  // height : <=5.0     
-    {  
-      int heightInt = texelColourInt.b -160;
-      float heightSmallNumber = float(heightInt) * 0.1;
-      height = heightSmallNumber;   
-    }else if(all(equal(texelColourInt.rgb,ivec3(0,0,0)))){
-      height = -10000.0;
-    }else {
-      height = 
-        dot(texelColour.rgb , vec3(65536. , 256. , 1.))
-        * 25.5 -10000.0;      
-    }
-   
-    newcolor = vec4(0.,0.,0.,0.);
-#ifndef RANGEHIGHLIGHT
-    newcolor = mix(
-      newcolor,
-      colours[0].rgba,
-      smoothstep( -10000. , stepHeightLinear[0] ,  height )
-    );
-    // newcolor = colours[0].rgba;  
-    // for height <= 0.1
-    newcolor = mix(
-        newcolor,
-        colours[1].rgba,
-        smoothstep( stepHeightLinear[0] , stepHeightLinear[1] ,  height )
-      );
-
-    // for height >= 0.1
-    for (int i=1 ; i < 5 ; i++){ 
-      newcolor = mix(
-        newcolor,
-        colours[i+1].rgba,
-        smoothstep( stepHeight[i] , stepHeight[i+1] ,  log2(height) )
-      );
-    }
-    // newcolor = colours[5].rgba;
-    for (int i=5; i < 10; i++) {
-
-      // Do a smoothstep of the heights between steps. If the result is > 0
-      // (meaning "the height is higher than the lower bound of this step"),
-      // then replace the colour with a linear blend of the step.
-      // If the result is 1, this means that the real colour will be applied
-      // in a later loop.
+    float catchment = deRGB(texture2D(uTexture0, vec2(vTextureCoords.s, vTextureCoords.t)));
+    float altitude = deRGB(texture2D(uTexture1, vec2(vTextureCoords.s, vTextureCoords.t)));
   
-      newcolor = mix(
-        newcolor,
-        colours[i+1].rgba,
-        smoothstep(stepHeight[i], stepHeight[i+1], log2(height))
-      );
-    }
-#endif
-
-#ifndef RANGEHIGHLIGHT
-    if (height < waterThreshold ){
-      gl_FragColor = vec4(0.,0.,0.,0.);
-      // gl_FragColor = vec4(newcolor.rgba);  
-    }else{
-      gl_FragColor = vec4(newcolor.rgba);
-    }
-#else
-      if (height >= uWaterUserDefinedVisibleRangeMax || height < uWaterUserDefinedVisibleRangeMin )
-      {
-        newcolor.rgba = vec4(0., 0., 0., 0.);
-      }else{
-
-        // newcolor.rgba = newcolor.rgba * sin(acos(-1.)*fract(uNow /1000.));
-        // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * fract(uNow /1000.);
-        // newcolor.rgb = newcolor.rgb + (1.- newcolor.rgb) * step(0.5,fract(uNow /1000.));
-        newcolor.a = 1.;
-        // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));        
-        float phi = (log2(height)- 2. * fract(uNow /1000.)) *acos(-1.);
-        newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7);
-        // newcolor.rgb = vec3(sin(phi), sin(phi-2.*acos(-1.)/3.), sin(phi-4.*acos(-1.)/3.));
-        // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(height)-  2. *  fract(uNow /1000.)) *acos(-1.));
-        // newcolor.rgba = newcolor.rgba * fract(uNow /1000.);
-        // newcolor.a = fract(uNow /1000.);
-      }
-
-      gl_FragColor = vec4(newcolor.rgba);
-#endif
+  #ifndef RANGEHIGHLIGHT
+    gl_FragColor=renderColor(catchment,catchment); // renderColor(float renderValue, float filterValue)
+  #else
+    gl_FragColor=renderColor(altitude,catchment); // renderColor(float renderValue, float filterValue)
+  #endif
   }
   
 `
@@ -1776,7 +1801,7 @@ var glShaderStreams = `
 var streams = L.tileLayer.gl({
 // var streams = L.tileLayer.gl2({
   fragmentShader: glShaderStreams,  
-  tileLayers: [catchment],
+  tileLayers: [catchment,dtmTW],
   // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
     uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
@@ -1802,13 +1827,14 @@ lyctrl.addOverlay(streams, "水線著色<sup>彩⁺</sup>");
 
 var streamsRangeHightlight = L.tileLayer.gl({
     fragmentShader: glShaderStreamsHighlightDefinition + glShaderStreams,  
-    tileLayers: [catchment],
+    tileLayers: [catchment,dtmTW],
     // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
     uniforms: {
       uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
       uWaterThresholdZoomAtTenthKmsq: 14,
-      uWaterUserDefinedVisibleRangeMax: 100,
-      uWaterUserDefinedVisibleRangeMin: 10,
+      uWaterUserDefinedVisibleRangeMax: 1000,
+      uWaterUserDefinedVisibleRangeMin: 15,
+      uHighlightWavelengthAtZ14: 10,  //10 best for kayaking, 200 best for canyoning at Zoom14
       // uWaterThreshold: 72.9, //0.1,
       // uWaterAlphaMin: 0.1,
       // uWaterAlphaMax: 5.0,
@@ -1834,7 +1860,7 @@ var streamsRangeHightlight = L.tileLayer.gl({
     // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
   });  
   // streamsRangeHightlight.addTo(map);
-  lyctrl.addOverlay(streamsRangeHightlight, "水線自選<sup>灰</sup>");
+  lyctrl.addOverlay(streamsRangeHightlight, "水線自選<sup>灰波</sup>");
 
 
 
@@ -1843,7 +1869,8 @@ L.Control.rangeSlider = L.Control.extend({
       rangeValue:[2,17],
       digitMin: 0,
       digitMax: 3,
-      segmentsPerDecimal: 6, //segments in a decimal 
+      segmentsPerDecimal: 6, //segments in a decimal
+      bindingLayer: null,
     },
     initialize: function(options) {            
       L.setOptions(this, options);      
@@ -1852,31 +1879,66 @@ L.Control.rangeSlider = L.Control.extend({
       let min=segmentsPerDecimal*this.options.digitMin;
       let max=segmentsPerDecimal*this.options.digitMax;      
       
-      this._slinderContainer=L.DomUtil.create('div','leaflet-control leaflet-control-layers');
-      this._lable=L.DomUtil.create('label','',this._slinderContainer);
-      this._lable.style="text-align: center;";
-      this._rangestring=L.DomUtil.create('span','',this._lable);
-      this._rangestring.innerHTML='catchment range';
-      this._sliderContainer=L.DomUtil.create('div','highlighRange_container',this._slinderContainer);
-      this._slider1=L.DomUtil.create('input','',this._sliderContainer);
+      this._ControlContainer=L.DomUtil.create('div','leaflet-control leaflet-control-layers  ');    
+
+      this._selectWavelengthContainer=L.DomUtil.create('div','form-floating container',this._ControlContainer);
+      this._selectWavelength=L.DomUtil.create('select','form-select',this._selectWavelengthContainer);
+      this._selectWavelength.id="wavelength";
+      this._selectWavelengthLabel=L.DomUtil.create('label','form-label',this._selectWavelengthContainer);
+      this._selectWavelengthLabel.setAttribute("for","wavelength")
+      // this._selectWavelengthLabel.setAttribute("placeholder","TEST");
+      this._selectWavelengthLabel.innerHTML="波紋高差、每秒下降";
+
+
+      this._opt1=L.DomUtil.create('option','',this._selectWavelength);
+      this._opt1.value="10";
+      // this._opt1.innerHTML="航行";
+      this._opt2=L.DomUtil.create('option','',this._selectWavelength);
+      this._opt2.value="200";
+      // this._opt2.innerHTML="溯行";  
+
+
+      this._sliderContainer=L.DomUtil.create('div','form-floating highlighRange_container container',this._ControlContainer);    
+
+     
+
+      this._slider1=L.DomUtil.create('input','form-range',this._sliderContainer);
       this._slider1.id="rangeFromSlider";
       this._slider1.type="range";      
-      this._slider2=L.DomUtil.create('input','',this._sliderContainer);
+
+      this._lable=L.DomUtil.create('label','form-label',this._sliderContainer);
+
+      this._slider2=L.DomUtil.create('input','form-range',this._sliderContainer);
       this._slider2.id="rangeToSlider";   
       this._slider2.type="range";
+      
+      this._lable.setAttribute("for","rangeFromSlider")
+      // this._lable.setAttribute("placeholder","TEST");
+      // this._lable.style="text-align: center;";
+      this._rangestring=L.DomUtil.create('span','',this._lable);
+      this._rangestring.innerHTML='catchment range';
+
+
+      // this._selectWavelengthLabel=L.DomUtil.create('label','',this._sliderContainer);
+      // this._selectWavelengthLabel.for="rangeFromSlider";
+      // this._selectWavelengthLabel.innerHTML="拉拔";
       
       this._slider1.min= min;
       this._slider1.max= max;
       this._slider2.min= min;
       this._slider2.max= max; 
 
+ 
+      this.updateWavelengthLabel(); 
+      
+
       this.setRangeValue(this.getRange())  ;   
 
     },
     onAdd: function(map) {   
         // Stop propagation of click events on the control
-        L.DomEvent.disableClickPropagation(this._slinderContainer);
-        // L.DomEvent.on(this._slinderContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
+        L.DomEvent.disableClickPropagation(this._ControlContainer);
+        // L.DomEvent.on(this._ControlContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
         L.DomEvent.on(this._slider1, 'change', function(e) {
           let newSliderRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
           newRange=newSliderRange.map(this.tickDecode);
@@ -1901,7 +1963,25 @@ L.Control.rangeSlider = L.Control.extend({
           // this.setRangeValue(newRange);
           this.fire('input', {value: newRange});
         }.bind(this));
-        return this._slinderContainer;
+        L.DomEvent.on(this._selectWavelength, 'change', function(e) {
+          if (e.target.value == this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14){
+            ;
+          }else{
+            if(e.target.value > this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14){
+              this.setRangeValue(this.getRange().map((x) =>{ return (x / Math.pow(10,1+2/6.))}));
+            }else{
+              this.setRangeValue(this.getRange().map((x) =>{ return (x * Math.pow(10,1+2/6.))}));
+            }
+          }
+          this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14=e.target.value;
+          this.options.bindingLayer.setUniform('uHighlightWavelengthAtZ14',e.target.value);
+          this._rangestring.innerHTML= this.getSliderLabel(this.options.rangeValue);
+          this.updateWavelengthLabel();
+
+          this.fire('changeWavelength', e.target.value);
+        }.bind(this));
+        
+        return this._ControlContainer;
     },
     onRemove: function(map) {
         // Nothing to do here
@@ -1922,17 +2002,43 @@ L.Control.rangeSlider = L.Control.extend({
     getRange: function(){
       return (this.options.rangeValue[0] < this.options.rangeValue[1] ? [this.options.rangeValue[0], this.options.rangeValue[1]] : [this.options.rangeValue[1], this.options.rangeValue[0]] );
     },
-    simplifyRangeValue: function(x){
+    simplifyRangeValue: function(x){ //as readible number
       return x.toFixed(Math.max(0,1-Math.floor(Math.log10(x))));
     },
-    getSliderLabel: function(value){
+    getWavelength: function(x){
+      // let wavelength = streamsRangeHightlight.options.uniforms.uHighlightWavelengthAtZ14 * Math.pow(2,14-map.getZoom()) ;
+      // let wavelength = this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14 * Math.pow(2,14-map.getZoom()) ;
+      let wavelength = x * Math.pow(2,14-map.getZoom()) ;
+      return ( wavelength  );
+    },
+    getSliderLabel: function(value){ //input range
       let sortedRangeValue = value.sort((a, b) => parseFloat(a) - parseFloat(b));
-      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²");
+      // return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²" + this.getWavelengthLabel());
+      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²" );
+    },
+    getWavelengthLabel: function(x){
+      if (x){
+        return("" + this.getWavelength(x) + "m");
+      } else{
+        return("" + this.getWavelength(this._selectWavelength.value) + "m");
+      }
+      
+
+    },
+    updateWavelengthLabel(){
+      this._opt1.innerHTML= this.getWavelengthLabel(this._opt1.value) +" (適航行檢視)";
+      this._opt2.innerHTML= this.getWavelengthLabel(this._opt2.value) +" (適溯行檢視)"; 
     }
 });
 L.Control.rangeSlider.include(L.Evented.prototype);
 
-let highlightRangeCtrl = new L.Control.rangeSlider({ rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], digitMin: -1, digitMax:(3+4/6) , position: 'bottomright' })
+let highlightRangeCtrl = new L.Control.rangeSlider({ 
+  bindingLayer: streamsRangeHightlight,
+  rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], 
+  digitMin: -1, 
+  digitMax:(3+4/6) , 
+  position: 'bottomleft' ,  
+})
 
 highlightRangeCtrl.on("change",(e)=>{
   // console.log("Change fired " +  e.value /*highlightrangeCtrl.getRange()*/);
@@ -1946,6 +2052,14 @@ highlightRangeCtrl.on("change",(e)=>{
 highlightRangeCtrl.on("input",(e)=>{
   // console.log("Input fired " +  e.value /*highlightrangeCtrl.getRange()*/);
     highlightRangeCtrl._rangestring.innerHTML= highlightRangeCtrl.getSliderLabel(e.value);
+});
+highlightRangeCtrl.on("changeWavelength",(e)=>{
+  streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin=highlightRangeCtrl.getRange()[0];
+  streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax=highlightRangeCtrl.getRange()[1];
+  streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMin',highlightRangeCtrl.getRange()[0]);
+  streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMax',highlightRangeCtrl.getRange()[1]);
+  streamsRangeHightlight.reRender();
+  streamsRangeHightlight.redraw();
 });
 
 // GPS button for mobile devices
