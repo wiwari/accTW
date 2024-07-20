@@ -560,6 +560,8 @@ function zoomend_check(e) {
   if (map.getZoom() >= streams.options.maxNativeZoom) {
     streams.setUniform('uExtraZoom', map.getZoom() - streams.options.maxNativeZoom);
     streams.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
+    streamsRangeHightlight.setUniform('uExtraZoom', map.getZoom() - streamsRangeHightlight.options.maxNativeZoom);
+    streamsRangeHightlight.redraw(); //workaround alpha issue in tilelayer.gl while over zoomed
   }
 
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
@@ -568,6 +570,7 @@ function zoomend_check(e) {
   } 
   
   highlightRangeCtrl._rangestring.innerHTML= highlightRangeCtrl.getSliderLabel(highlightRangeCtrl.getRange());
+  highlightRangeCtrl.updateWavelengthLabel() ; 
 
 }
 function zoomstart_check(e) {
@@ -1736,9 +1739,9 @@ var glShaderStreams = `
         // newcolor.rgb = vec3(1., 1., 1.)* step(0.5,fract(uNow /1000.));        
         // float phi = (log2(renderValue)- 2. * fract(uNow /1000.)) * M_PI; //log phase , best for catchment
         // float phi = ((renderValue)/2.- 2. * fract(uNow /1000.)) * M_PI; //linear phase , best for altitude
-        float phi = ((renderValue)/(uHighlightWavelengthAtZ14 * pow(2.,14.0 - uTileCoords.z)) + fract(uNow /1000.)) * M_2PI;
-        // float phi = ((renderValue)/(10.* pow(2.,14.0 - uTileCoords.z)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for kayaking
-        // float phi = ((renderValue)/(200.* pow(2.,14.0 - uTileCoords.z)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for canyoning
+        float phi = ((renderValue)/(uHighlightWavelengthAtZ14 * pow(2.,14.0 - uTileCoords.z - uExtraZoom)) + fract(uNow /1000.)) * M_2PI;
+        // float phi = ((renderValue)/(10.* pow(2.,14.0 - uTileCoords.z - uExtraZoom)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for kayaking
+        // float phi = ((renderValue)/(200.* pow(2.,14.0 - uTileCoords.z - uExtraZoom)) + fract(uNow /1000.)) * M_2PI; //linear phase , best for altitude tweak , wavelength best for canyoning
         newcolor.rgb = vec3(0.3, 0.3, 0.3)* sin(phi) + vec3(0.7, 0.7, 0.7); 
         // newcolor.rgb = vec3(sin(phi), sin(phi- 2.* M_PI/3.), sin(phi-4.* M_PI/3.));
         // newcolor.rgb = vec3(1., 1., 1.)* sin((0.01*(renderValue)-  2. *  fract(uNow /1000.)) * M_PI);
@@ -1829,9 +1832,9 @@ var streamsRangeHightlight = L.tileLayer.gl({
     uniforms: {
       uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
       uWaterThresholdZoomAtTenthKmsq: 14,
-      uWaterUserDefinedVisibleRangeMax: 100,
-      uWaterUserDefinedVisibleRangeMin: 10,
-      uHighlightWavelengthAtZ14: 10,  //10 best for kayaking, 200 best for canyoning
+      uWaterUserDefinedVisibleRangeMax: 1000,
+      uWaterUserDefinedVisibleRangeMin: 15,
+      uHighlightWavelengthAtZ14: 10,  //10 best for kayaking, 200 best for canyoning at Zoom14
       // uWaterThreshold: 72.9, //0.1,
       // uWaterAlphaMin: 0.1,
       // uWaterAlphaMax: 5.0,
@@ -1857,7 +1860,7 @@ var streamsRangeHightlight = L.tileLayer.gl({
     // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
   });  
   // streamsRangeHightlight.addTo(map);
-  lyctrl.addOverlay(streamsRangeHightlight, "水線自選<sup>灰</sup>");
+  lyctrl.addOverlay(streamsRangeHightlight, "水線自選<sup>灰波</sup>");
 
 
 
@@ -1866,7 +1869,8 @@ L.Control.rangeSlider = L.Control.extend({
       rangeValue:[2,17],
       digitMin: 0,
       digitMax: 3,
-      segmentsPerDecimal: 6, //segments in a decimal 
+      segmentsPerDecimal: 6, //segments in a decimal
+      bindingLayer: null,
     },
     initialize: function(options) {            
       L.setOptions(this, options);      
@@ -1875,31 +1879,66 @@ L.Control.rangeSlider = L.Control.extend({
       let min=segmentsPerDecimal*this.options.digitMin;
       let max=segmentsPerDecimal*this.options.digitMax;      
       
-      this._slinderContainer=L.DomUtil.create('div','leaflet-control leaflet-control-layers');
-      this._lable=L.DomUtil.create('label','',this._slinderContainer);
-      this._lable.style="text-align: center;";
-      this._rangestring=L.DomUtil.create('span','',this._lable);
-      this._rangestring.innerHTML='catchment range';
-      this._sliderContainer=L.DomUtil.create('div','highlighRange_container',this._slinderContainer);
-      this._slider1=L.DomUtil.create('input','',this._sliderContainer);
+      this._ControlContainer=L.DomUtil.create('div','leaflet-control leaflet-control-layers  ');    
+
+      this._selectWavelengthContainer=L.DomUtil.create('div','form-floating container',this._ControlContainer);
+      this._selectWavelength=L.DomUtil.create('select','form-select',this._selectWavelengthContainer);
+      this._selectWavelength.id="wavelength";
+      this._selectWavelengthLabel=L.DomUtil.create('label','form-label',this._selectWavelengthContainer);
+      this._selectWavelengthLabel.setAttribute("for","wavelength")
+      // this._selectWavelengthLabel.setAttribute("placeholder","TEST");
+      this._selectWavelengthLabel.innerHTML="波紋高差、每秒下降";
+
+
+      this._opt1=L.DomUtil.create('option','',this._selectWavelength);
+      this._opt1.value="10";
+      // this._opt1.innerHTML="航行";
+      this._opt2=L.DomUtil.create('option','',this._selectWavelength);
+      this._opt2.value="200";
+      // this._opt2.innerHTML="溯行";  
+
+
+      this._sliderContainer=L.DomUtil.create('div','form-floating highlighRange_container container',this._ControlContainer);    
+
+     
+
+      this._slider1=L.DomUtil.create('input','form-range',this._sliderContainer);
       this._slider1.id="rangeFromSlider";
       this._slider1.type="range";      
-      this._slider2=L.DomUtil.create('input','',this._sliderContainer);
+
+      this._lable=L.DomUtil.create('label','form-label',this._sliderContainer);
+
+      this._slider2=L.DomUtil.create('input','form-range',this._sliderContainer);
       this._slider2.id="rangeToSlider";   
       this._slider2.type="range";
+      
+      this._lable.setAttribute("for","rangeFromSlider")
+      // this._lable.setAttribute("placeholder","TEST");
+      // this._lable.style="text-align: center;";
+      this._rangestring=L.DomUtil.create('span','',this._lable);
+      this._rangestring.innerHTML='catchment range';
+
+
+      // this._selectWavelengthLabel=L.DomUtil.create('label','',this._sliderContainer);
+      // this._selectWavelengthLabel.for="rangeFromSlider";
+      // this._selectWavelengthLabel.innerHTML="拉拔";
       
       this._slider1.min= min;
       this._slider1.max= max;
       this._slider2.min= min;
       this._slider2.max= max; 
 
+ 
+      this.updateWavelengthLabel(); 
+      
+
       this.setRangeValue(this.getRange())  ;   
 
     },
     onAdd: function(map) {   
         // Stop propagation of click events on the control
-        L.DomEvent.disableClickPropagation(this._slinderContainer);
-        // L.DomEvent.on(this._slinderContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
+        L.DomEvent.disableClickPropagation(this._ControlContainer);
+        // L.DomEvent.on(this._ControlContainer, 'mousedown mouseup click touchstart', L.DomEvent.stopPropagation);
         L.DomEvent.on(this._slider1, 'change', function(e) {
           let newSliderRange=[this._slider1.value,this._slider2.value].sort((a, b) => parseFloat(a) - parseFloat(b));
           newRange=newSliderRange.map(this.tickDecode);
@@ -1924,7 +1963,25 @@ L.Control.rangeSlider = L.Control.extend({
           // this.setRangeValue(newRange);
           this.fire('input', {value: newRange});
         }.bind(this));
-        return this._slinderContainer;
+        L.DomEvent.on(this._selectWavelength, 'change', function(e) {
+          if (e.target.value == this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14){
+            ;
+          }else{
+            if(e.target.value > this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14){
+              this.setRangeValue(this.getRange().map((x) =>{ return (x / Math.pow(10,1+2/6.))}));
+            }else{
+              this.setRangeValue(this.getRange().map((x) =>{ return (x * Math.pow(10,1+2/6.))}));
+            }
+          }
+          this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14=e.target.value;
+          this.options.bindingLayer.setUniform('uHighlightWavelengthAtZ14',e.target.value);
+          this._rangestring.innerHTML= this.getSliderLabel(this.options.rangeValue);
+          this.updateWavelengthLabel();
+
+          this.fire('changeWavelength', e.target.value);
+        }.bind(this));
+        
+        return this._ControlContainer;
     },
     onRemove: function(map) {
         // Nothing to do here
@@ -1945,21 +2002,43 @@ L.Control.rangeSlider = L.Control.extend({
     getRange: function(){
       return (this.options.rangeValue[0] < this.options.rangeValue[1] ? [this.options.rangeValue[0], this.options.rangeValue[1]] : [this.options.rangeValue[1], this.options.rangeValue[0]] );
     },
-    simplifyRangeValue: function(x){
+    simplifyRangeValue: function(x){ //as readible number
       return x.toFixed(Math.max(0,1-Math.floor(Math.log10(x))));
     },
     getWavelength: function(x){
-      let wavelength = streamsRangeHightlight.options.uniforms.uHighlightWavelengthAtZ14 * Math.pow(2,14-map.getZoom()) ;
+      // let wavelength = streamsRangeHightlight.options.uniforms.uHighlightWavelengthAtZ14 * Math.pow(2,14-map.getZoom()) ;
+      // let wavelength = this.options.bindingLayer.options.uniforms.uHighlightWavelengthAtZ14 * Math.pow(2,14-map.getZoom()) ;
+      let wavelength = x * Math.pow(2,14-map.getZoom()) ;
       return ( wavelength  );
     },
-    getSliderLabel: function(value){
+    getSliderLabel: function(value){ //input range
       let sortedRangeValue = value.sort((a, b) => parseFloat(a) - parseFloat(b));
-      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²  - " + this.getWavelength() + "m");
+      // return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²" + this.getWavelengthLabel());
+      return ("💧" + this.simplifyRangeValue(sortedRangeValue[0]) + " - " + this.simplifyRangeValue(sortedRangeValue[1]) + " km²" );
+    },
+    getWavelengthLabel: function(x){
+      if (x){
+        return("" + this.getWavelength(x) + "m");
+      } else{
+        return("" + this.getWavelength(this._selectWavelength.value) + "m");
+      }
+      
+
+    },
+    updateWavelengthLabel(){
+      this._opt1.innerHTML= this.getWavelengthLabel(this._opt1.value) +" (適航行檢視)";
+      this._opt2.innerHTML= this.getWavelengthLabel(this._opt2.value) +" (適溯行檢視)"; 
     }
 });
 L.Control.rangeSlider.include(L.Evented.prototype);
 
-let highlightRangeCtrl = new L.Control.rangeSlider({ rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], digitMin: -1, digitMax:(3+4/6) , position: 'bottomright' })
+let highlightRangeCtrl = new L.Control.rangeSlider({ 
+  bindingLayer: streamsRangeHightlight,
+  rangeValue:[streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax], 
+  digitMin: -1, 
+  digitMax:(3+4/6) , 
+  position: 'bottomleft' ,  
+})
 
 highlightRangeCtrl.on("change",(e)=>{
   // console.log("Change fired " +  e.value /*highlightrangeCtrl.getRange()*/);
@@ -1973,6 +2052,14 @@ highlightRangeCtrl.on("change",(e)=>{
 highlightRangeCtrl.on("input",(e)=>{
   // console.log("Input fired " +  e.value /*highlightrangeCtrl.getRange()*/);
     highlightRangeCtrl._rangestring.innerHTML= highlightRangeCtrl.getSliderLabel(e.value);
+});
+highlightRangeCtrl.on("changeWavelength",(e)=>{
+  streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin=highlightRangeCtrl.getRange()[0];
+  streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax=highlightRangeCtrl.getRange()[1];
+  streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMin',highlightRangeCtrl.getRange()[0]);
+  streamsRangeHightlight.setUniform('uWaterUserDefinedVisibleRangeMax',highlightRangeCtrl.getRange()[1]);
+  streamsRangeHightlight.reRender();
+  streamsRangeHightlight.redraw();
 });
 
 // GPS button for mobile devices
