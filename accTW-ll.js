@@ -2062,6 +2062,26 @@ highlightRangeCtrl.on("changeWavelength",(e)=>{
   streamsRangeHightlight.redraw();
 });
 
+
+cwa_dlong=0.0;
+cwa_dlat=-0.015;
+// cwa accumilated precipitation daily. ref: O-A0040-002. "119.188-123.588", "21.523-25.938"
+// https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.json
+// https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-003.json
+// O-A0040-003: 21.51 - 25.92,  119.18 - 123.58
+// https://www.cwa.gov.tw/Data/rainfall/2024-07-21_1730.QZJ8.jpg
+const cwaDaily = L.imageOverlay(
+  "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.jpg", 
+  L.latLngBounds([[25.92  , 123.58], [21.51 , 119.18]]), 
+  // L.latLngBounds([[25.938 + cwa_dlat , 123.588], [21.523 + cwa_dlat, 119.188]]),  
+  {
+  opacity: 0.5,
+  errorOverlayUrl: 'https://cdn-icons-png.flaticon.com/512/110/110686.png',
+  // alt: altText,
+  interactive: true
+}).addTo(map);
+
+
 // GPS button for mobile devices
 if (L.Browser.mobile) {
   var locator = L.control.locate({
