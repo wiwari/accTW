@@ -528,12 +528,12 @@ function lookupvalue(event) {
 
   accinfo = (isNaN(accVal) ? "" : //no raster data
     (accVal < 0) ? "" : //nodata in raster
-      (accVal < 10) ? "💧" + accVal.toFixed(1) + "km²" : //nodata in raster    
-        "💧" + accVal.toFixed(0) + "km²");
+      (accVal < 10) ? "💧" + accVal.toFixed(1) + "<sub>km²</sub>" : //nodata in raster    
+        "💧" + accVal.toFixed(0) + "<sub>km²</sub>");
   accinfo = "<div>" + accinfo + "</div>";
 
   dtminfo = (isNaN(dtmVal) ? "" : //no raster data
-    "h " + dtmVal.toFixed(0) + "m");
+    "↕️" + dtmVal.toFixed(0) + "<sub>m</sub>");
   dtminfo = "<div>" + dtminfo + "</div>";
 
   promptinfo = accinfo + dtminfo;
@@ -565,7 +565,7 @@ function zoomend_check(e) {
   }
 
   if (map.getZoom() >= 8 && map.getZoom() <= 18) {
-    lyctrl.addOverlay(read_catchment, "集水面積");
+    lyctrl.addOverlay(read_catchment, "集水面積🔎");
     read_catchment.addLayer(wscircle);    
   } 
   
@@ -800,7 +800,7 @@ var parkIcon = L.icon({
 const lyctrl = L.control.layers({
   "正射影像": nlscphoto2tile, "光達影像": nlscLiDAR, "農航空拍": happymanATIS, 
 }, {
-  "地質查詢": MOEACGS, "產生器GPX": happymanGPXoverlay, "產生器BN": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
+  "地質查詢🪨": MOEACGS, "產生器<sub>gpx</sub>🚶": happymanGPXoverlay, "產生器<sub>BN</sub>": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
   //"集水區":read_catchment,
 }).addTo(map);
 
@@ -1822,7 +1822,7 @@ var streams = L.tileLayer.gl({
   maxNativeZoom: 14,
   bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
 }).addTo(map);
-lyctrl.addOverlay(streams, "水線著色<sup>彩⁺</sup>");
+lyctrl.addOverlay(streams, "水線著色🏳️‍🌈"); //<sup>彩⁺</sup>
 
 
 var streamsRangeHightlight = L.tileLayer.gl({
@@ -1860,7 +1860,7 @@ var streamsRangeHightlight = L.tileLayer.gl({
     // highlightRangeCtrl.setRangeValue([streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMin,streamsRangeHightlight.options.uniforms.uWaterUserDefinedVisibleRangeMax]);
   });  
   // streamsRangeHightlight.addTo(map);
-  lyctrl.addOverlay(streamsRangeHightlight, "水線自選<sup>灰波</sup>");
+  lyctrl.addOverlay(streamsRangeHightlight, "水線自選〰️"); //<sup>灰波</sup>
 
 
 
@@ -2026,8 +2026,8 @@ L.Control.rangeSlider = L.Control.extend({
 
     },
     updateWavelengthLabel(){
-      this._opt1.innerHTML= this.getWavelengthLabel(this._opt1.value) +" (適航行檢視)";
-      this._opt2.innerHTML= this.getWavelengthLabel(this._opt2.value) +" (適溯行檢視)"; 
+      this._opt1.innerHTML= "🛶" + this.getWavelengthLabel(this._opt1.value) +" (適航行)";
+      this._opt2.innerHTML= "🧗"+ this.getWavelengthLabel(this._opt2.value) +" (適溯行)"; 
     }
 });
 L.Control.rangeSlider.include(L.Evented.prototype);
@@ -2150,7 +2150,7 @@ cwaDaily.on('remove', ()=>{
   clearInterval(cwaDaily._interval);
 });
 // cwaDaily.addTo(map);
-lyctrl.addOverlay(cwaDaily,"累積雨量");
+lyctrl.addOverlay(cwaDaily,"累積雨量🌧️");
 
 const cwaPrecipitationFCST = L.imageOverlay(
   // "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.jpg", 
@@ -2177,7 +2177,7 @@ cwaPrecipitationFCST.on('remove',()=>{
 });
 // cwaPrecipitationFCST.addTo(map);
 
-lyctrl.addOverlay(cwaPrecipitationFCST,"定量降水");
+lyctrl.addOverlay(cwaPrecipitationFCST,"定量降水🌧️");
 
 // var kmz = L.kmzLayer().addTo(map);
 // kmz.on('load', function(e) {
