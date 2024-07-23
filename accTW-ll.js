@@ -2063,24 +2063,130 @@ highlightRangeCtrl.on("changeWavelength",(e)=>{
 });
 
 
-cwa_dlong=0.0;
-cwa_dlat=-0.015;
+
 // cwa accumilated precipitation daily. ref: O-A0040-002. "119.188-123.588", "21.523-25.938"
 // https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.json
 // https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-003.json
 // O-A0040-003: 21.51 - 25.92,  119.18 - 123.58
 // https://www.cwa.gov.tw/Data/rainfall/2024-07-21_1730.QZJ8.jpg
-const cwaDaily = L.imageOverlay(
-  "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.jpg", 
-  L.latLngBounds([[25.92  , 123.58], [21.51 , 119.18]]), 
-  // L.latLngBounds([[25.938 + cwa_dlat , 123.588], [21.523 + cwa_dlat, 119.188]]),  
-  {
-  opacity: 0.5,
-  errorOverlayUrl: 'https://cdn-icons-png.flaticon.com/512/110/110686.png',
-  // alt: altText,
-  interactive: true
-}).addTo(map);
 
+
+const CWA ={
+   getRainMapUrl : function (offset, date) { // expect offset 0(now), -1(the day before), -2(the day before)
+    const strTemp="https://www.cwa.gov.tw/Data/rainfall/2024-07-22_0000.QZJ8.jpg";
+    const now = date? date: new Date() ; 
+    const delayedMinutes = 15; // get image numbers of minutes later
+    let adjustedTime;
+    let filename ;
+    let year, month, day, hours, minutes ;
+
+    if (offset == 0){
+
+      return ('https://www.cwa.gov.tw/Data/rainfall/QZJ.jpg');
+      // Subtract 15 minutes from current time
+      adjustedTime = new Date(now.getTime() - delayedMinutes * 60000); // 15 minutes in milliseconds
+    
+      // Round adjusted time to nearest half-hour
+      let flooredMinutes = Math.floor(adjustedTime.getMinutes() / 30) * 30;
+      let flooredHours = adjustedTime.getHours();
+      
+      // Format the rounded time components
+      hours = String(flooredHours).padStart(2, '0');
+      minutes = String(flooredMinutes).padStart(2, '0');
+    }else{
+      // Subtract 15 minutes from current time
+      adjustedTime = new Date(now.getTime() - delayedMinutes * 60000 + ( offset + 1 ) * 24 * 60 * 60000); // 15 minutes in milliseconds
+      hours = '00';
+      minutes = '00';
+    }    
+    year = adjustedTime.getFullYear();
+    month = String(adjustedTime.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+    day = String(adjustedTime.getDate()).padStart(2, '0');
+    filename =`https://www.cwa.gov.tw/Data/rainfall/${year}-${month}-${day}_${hours}${minutes}.QZJ8.jpg`;
+    return filename;
+  },
+  getFCSTMapUrls06hr : [
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_06.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_12.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_18.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_24.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_30.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_36.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_42.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_6_48.png',
+  ],
+  getFCSTMapUrls12hr : [
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_12_12.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_12_24.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_12_36.png',
+    'https://www.cwa.gov.tw/Data/fcst_img/QPF_ChFcstPrecip_12_48.png',
+  ],
+}
+
+const cwa_dlong = -0.003;
+const cwa_dlat  = -0.022;
+
+const cwaDaily = L.imageOverlay(
+  // "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.jpg", 
+  // "https://www.cwa.gov.tw/Data/rainfall/2024-07-22_0000.QZJ8.jpg",
+  [CWA.getRainMapUrl(-1)], 
+  // L.latLngBounds([[25.92  , 123.58], [21.51 , 119.18]]), 
+  L.latLngBounds([[25.938 + cwa_dlat , 123.588 + cwa_dlong ], [21.523 + cwa_dlat, 119.188+ cwa_dlong]]),  
+  {
+  opacity: 0.4,
+  // errorOverlayUrl: 'https://cdn-icons-png.flaticon.com/512/110/110686.png',
+  // alt: altText,
+  // interactive: true,
+  attribution: '© <strong><a href="https://www.cwa.gov.tw/">CWA</a> </strong>',
+});
+cwaDaily.on('add', ()=>{
+  cwaDaily._index=0;
+  cwaDaily._interval = setInterval(() => {
+    cwaDaily.setUrl(CWA.getRainMapUrl(-cwaDaily._index));
+    cwaDaily._index = (cwaDaily._index +1) % 3;
+  }, 2000);
+});
+cwaDaily.on('remove', ()=>{
+  clearInterval(cwaDaily._interval);
+});
+// cwaDaily.addTo(map);
+lyctrl.addOverlay(cwaDaily,"累積雨量");
+
+const cwaPrecipitationFCST = L.imageOverlay(
+  // "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-002.jpg", 
+  // "https://www.cwa.gov.tw/Data/rainfall/2024-07-22_0000.QZJ8.jpg",
+  [CWA.getFCSTMapUrls06hr[0]], 
+  L.latLngBounds([[25.800  , 122.445 ], [21.805, 118.940]]),   //肉眼對準
+  {
+  opacity: 0.4,
+  // errorOverlayUrl: 'https://cdn-icons-png.flaticon.com/512/110/110686.png',
+  // alt: altText,
+  // interactive: true,
+  attribution: '© <strong><a href="https://www.cwa.gov.tw/">CWA</a> </strong>',
+});
+
+cwaPrecipitationFCST.on('add',()=>{
+  cwaPrecipitationFCST._index=0;
+  cwaPrecipitationFCST._interval=setInterval(() => {
+    cwaPrecipitationFCST.setUrl(CWA.getFCSTMapUrls06hr[(cwaPrecipitationFCST._index)]);
+    cwaPrecipitationFCST._index = (cwaPrecipitationFCST._index +1) % 8;
+  }, 1000);
+});
+cwaPrecipitationFCST.on('remove',()=>{
+  clearInterval(cwaPrecipitationFCST._interval);
+});
+// cwaPrecipitationFCST.addTo(map);
+
+lyctrl.addOverlay(cwaPrecipitationFCST,"定量降水");
+
+// var kmz = L.kmzLayer().addTo(map);
+// kmz.on('load', function(e) {
+//   lyctrl.addOverlay(e.layer, e.name);
+//   // e.layer.addTo(map);
+// });
+
+// // kmz.load('https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-003.kmz');
+// kmz.load('/O-A0040-003.kmz');
 
 // GPS button for mobile devices
 if (L.Browser.mobile) {
