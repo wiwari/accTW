@@ -2214,7 +2214,7 @@ cwaDailyGroup.on('remove', (e)=>{
   e.target.getLayers()[e.target._index].setOpacity(0);
 });
 // cwaDailyGroup.addTo(map);
-lyctrl2.addBaseLayer(cwaDailyGroup,"累積雨量🌧️");
+lyctrl2.addBaseLayer(cwaDailyGroup,"🌧️日累積");
 
 
 const cwaPrecipitationForcast6HR = L.featureGroup();
@@ -2242,7 +2242,7 @@ cwaPrecipitationForcast6HR.on('remove',(e)=>{
 });
 // cwaPrecipitationFCST.addTo(map);
 
-lyctrl2.addBaseLayer(cwaPrecipitationForcast6HR,"定量06hr🌧️");
+lyctrl2.addBaseLayer(cwaPrecipitationForcast6HR,"🌧️預報06<sub>hr</sub>");
 
 
 const cwaPrecipitationForcast12HR = L.featureGroup();
@@ -2270,7 +2270,7 @@ cwaPrecipitationForcast12HR.on('remove',(e)=>{
 });
 // cwaPrecipitationFCST.addTo(map);
 
-lyctrl2.addBaseLayer(cwaPrecipitationForcast12HR,"定量12hr🌧️");
+lyctrl2.addBaseLayer(cwaPrecipitationForcast12HR,"🌧️預報12<sub>hr</sub>");
 
 // const cwaRadar = L.imageOverlay(
 //   // "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-001.png", // larget
@@ -2329,7 +2329,7 @@ cwaRadarGroup.on('remove', (e)=>{
   clearInterval(e.target._interval);
   e.target.getLayers()[e.target._index].setOpacity(0);
 });
-lyctrl2.addBaseLayer(cwaRadarGroup,"雷達回波01hr");
+lyctrl2.addBaseLayer(cwaRadarGroup,"🌧️雷達");
 // CWA images ---------------------------------- end
 
 
