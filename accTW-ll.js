@@ -890,6 +890,13 @@ const waterlevelLayer = L.geoJSON([], {
   wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sQDate_str + "&edate=" + eDate_str;
   wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sYDate_str + "&edate=" + eDate_str;
 
+  const btmUriList = {
+    "週" : wl_url_w, 
+    "月" : wl_url_m,
+    "季" : wl_url_q,
+    "年" : wl_url_y,
+  
+  };
   
   // ob_item_str=layer.feature.properties.ObervationItems.replace(/0/,ob_items[0]);
   // ob_item_str=ob_item_str.replace(/1/,ob_items[1]);
@@ -906,35 +913,49 @@ const waterlevelLayer = L.geoJSON([], {
   //   "<sub>"+realtime_waterlevel[layer.feature.properties.id].RecordTime +"</sub><br />"
   //   + realtime_waterlevel[layer.feature.properties.id].WaterLevel + "m<br />"
   //   ;
+  const popupStationContainer = L.DomUtil.create('div',"container-sm");
 
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  popupStationContainer.appendChild(document.createTextNode(" : "));
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.river));
+  L.DomUtil.create('br','',popupStationContainer);
 
-  wlpopupmsg=
-    '<div class="container-sm">' +
-    layer.feature.properties.name + " : "
-    /* + layer.feature.properties.id*/
-    + layer.feature.properties.river + "<br/>"
-    + '即時：'
-    + ' <a href="' + wl_url_w + '" target="_blank" class="btn btn-outline-primary btn-sm" >週</a>'
-    + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
-    + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
-    + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a><br />'
-    ;
-  his_str="";
+  popupStationContainer.appendChild(document.createTextNode("即時："));
+
+  for (const key of Object.keys(btmUriList)){ 
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text=key;
+    linkElement.href=btmUriList[key];
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
+
+  L.DomUtil.create('br','',popupStationContainer);
+
+  let his_str="";
   if (layer.feature.properties.ObervationItems.match("0"))
     his_str += "水位";    
   if (layer.feature.properties.ObervationItems.match("1"))
     his_str += "流量";    
-  if (his_str)
-    wlpopupmsg += '歷史： <a href="' + wl_url_le + '" target="_blank" class="btn btn-outline-primary btn-sm" >' + his_str + '</a>';
-  // if (layer.feature.properties.ObervationItems.match("2"))
-  //   wlpopupmsg += '含沙量';
-  // if (layer.feature.properties.ObervationItems.match("4"))
-  // wlpopupmsg += '流速';
 
-    // + '<br />' + wlrtstr
-  wlpopupmsg += '</div>';
+  if (his_str){
+    popupStationContainer.appendChild(document.createTextNode("歷史："));
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text=his_str;
+    linkElement.href=wl_url_le;
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
 
-  return wlpopupmsg; 
+  return popupStationContainer; 
 
 });
 
