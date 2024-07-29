@@ -1186,6 +1186,84 @@ clusterRA.bindPopup(  function (layer) {
 
   //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
 
+
+  const popupStationContainer = L.DomUtil.create('div',"container-sm"); //container-fluid maybe? 
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  popupStationContainer.appendChild(document.createTextNode(` (${layer.feature.properties.id})`));
+  L.DomUtil.create('br','',popupStationContainer);
+
+  {
+  const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text='即時';
+    linkElement.href='https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1");
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
+
+  if (staCodis = cwaCodis.find(layer.feature.properties.id)){
+    //cwaCodis.url(layer.feature.properties.id)
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text='二週';
+    linkElement.href=cwaCodis.url(layer.feature.properties.id);
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+
+  }
+
+  {
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text='歷史';
+    linkElement.href='https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1");
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
+  L.DomUtil.create('br','',popupStationContainer);
+    
+  {
+    //RApoi
+    const tableElement = L.DomUtil.create('table','table table-sm',popupStationContainer);
+    const tbodyElement = L.DomUtil.create('tbody','',tableElement);
+    
+    for (duration in layer.feature.properties.rain) {
+
+      // console.log(el.elementName,el.elementValue);
+      rainvalue = (layer.feature.properties.rain[duration].Precipitation > 0) ? parseFloat(layer.feature.properties.rain[duration].Precipitation).toFixed(1) :
+        (layer.feature.properties.rain[duration].Precipitation = -998) ? "0.0" : "--";
+      //// Table tag
+  
+      const rowElement = L.DomUtil.create('tr','',tbodyElement);
+      const rowHeader = L.DomUtil.create('th','',rowElement); // scope="row" 未處理
+      rowHeader.innerHTML=str_RA[duration];
+      const rowData = L.DomUtil.create('td','text-right',rowElement); 
+      rowData.innerHTML=rainvalue;     
+    }
+   
+    popupStationContainer.appendChild(document.createTextNode( (new Date(layer.feature.properties.time)).toLocaleTimeString() + " 更新"));
+    L.DomUtil.create('br','',popupStationContainer);
+  }
+  
+
+  
+
+  if(staCodis){
+    const subElement=L.DomUtil.create('sub','',popupStationContainer);
+    subElement.appendChild(document.createTextNode(staCodis.stationStartDate + ' - ' + staCodis.stationEndDate));
+  }
+
+
+
   RApopupmsg = "";
   RApopupmsg += '<div class="container-fluid">';
   RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
@@ -1197,7 +1275,7 @@ clusterRA.bindPopup(  function (layer) {
   RApopupmsg += RApoi;
   RApopupmsg += (sta)? "<br /><sup>" + sta.stationStartDate + '-' + sta.stationEndDate + "</sup>": '' ; 
   RApopupmsg += '</div>';
-  return RApopupmsg;
+  return popupStationContainer;
 
 
 
