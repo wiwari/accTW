@@ -1244,7 +1244,8 @@ clusterRA.bindPopup(  function (layer) {
       //// Table tag
   
       const rowElement = L.DomUtil.create('tr','',tbodyElement);
-      const rowHeader = L.DomUtil.create('th','',rowElement); // scope="row" 未處理
+      const rowHeader = L.DomUtil.create('th','',rowElement); 
+      rowElement.setAttribute("scope","row");
       rowHeader.innerHTML=str_RA[duration];
       const rowData = L.DomUtil.create('td','text-right',rowElement); 
       rowData.innerHTML=rainvalue;     
