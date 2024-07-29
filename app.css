@@ -117,7 +117,7 @@ https://css-tricks.com/a-css-approach-to-trap-focus-inside-of-an-element/
 #dialog .iframe-container {
 	height: 90%;
 	border-radius: 5px;
-	padding: 10px 0px;
+	padding: 10px 10px; 
 	background: #fff;
 	margin-bottom: 10px;
 	position: relative;
