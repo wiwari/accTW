@@ -103,6 +103,11 @@ const map = L.map('map', {
     iconCls: 'fa fa-share-alt',
     // icon: 'images/zoom-out.png',
     callback: copyShareURLtoclipboard
+  }, '-', {
+    text: '關於',
+    iconCls: 'fa fa-info',
+    // icon: 'images/zoom-out.png',
+    callback: openAbout
   }],
   zoomControl: false,
   // boxZoom: true,
@@ -2683,6 +2688,9 @@ function getShareUrl() {
   return (window.location.origin + window.location.pathname + "?center=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6) + "&zoom=" + map.getZoom());
 }
 
+function openAbout(){
+  openDialog('about.html');
+}
 
 map.setView(customcenter, customzoom);
 
