@@ -1622,19 +1622,39 @@ var clusterCCTV = L.markerClusterGroup(
     'event_label': "station: " + layer.feature.properties.name 
   });
   
-  popupinfo = "";
-  popupinfo += '<div class="container-sm">';
-  popupinfo += layer.feature.properties.name  ;
-  popupinfo += '<a href="' +layer.feature.properties.DivSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> 預覽 <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />' ;
-  popupinfo += layer.feature.properties.OpenName;
-  if (layer.feature.properties.OpenSrc != null)
-    popupinfo += '<a href="' +layer.feature.properties.OpenSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> 完整 <i class="fa fa-camera " aria-hidden="true" ></i> </a>' ;
+  const popupStationContainer = L.DomUtil.create('div',"container-sm"); //container-fluid maybe? 
+  
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  {
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+      linkElement.innerHTML ='預覽 <i class="fa fa-camera " aria-hidden="true" ></i>';
+      linkElement.href=layer.feature.properties.DivSrc;
+      linkElement.target='_blank';
+      L.DomEvent.disableClickPropagation(linkElement);
+      // L.DomEvent.on(linkElement, 'click', function(e) {  
+      //   e.preventDefault();
+      //   openDialog(linkElement.href);
+      // });
+  }
+  L.DomUtil.create('br','',popupStationContainer);
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.OpenName));
+  if (layer.feature.properties.OpenSrc != null){
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+      linkElement.innerHTML ='完整 <i class="fa fa-camera " aria-hidden="true" ></i>';
+      linkElement.href=layer.feature.properties.OpenSrc;
+      linkElement.target='_blank';
+      L.DomEvent.disableClickPropagation(linkElement);
+      // L.DomEvent.on(linkElement, 'click', function(e) {  
+      //   e.preventDefault();
+      //   openDialog(linkElement.href);
+      // });
+  }
+  L.DomUtil.create('br','',popupStationContainer);
 
-  popupinfo += '<br />' ;
-  popupinfo += layer.feature.properties.provider ;
-  popupinfo += '</div>' ;
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.provider));  
+  L.DomUtil.create('br','',popupStationContainer);
 
-  return popupinfo;
+  return popupStationContainer;
      
 });
 
