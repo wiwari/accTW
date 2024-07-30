@@ -271,8 +271,8 @@
             });
             
             let queryStepsByStn =[];
-            console.log(Stations.length);
-            console.dir(Stations);
+            // console.log(Stations.length);
+            // console.dir(Stations);
             queryStepsByStn = Object.groupBy(Stations,el => {
                 if (el) {
                     return stn_type_complete(el.stationID,el.stationAttribute);

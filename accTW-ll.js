@@ -103,6 +103,11 @@ const map = L.map('map', {
     iconCls: 'fa fa-share-alt',
     // icon: 'images/zoom-out.png',
     callback: copyShareURLtoclipboard
+  }, '-', {
+    text: '關於',
+    iconCls: 'fa fa-info',
+    // icon: 'images/zoom-out.png',
+    callback: openAbout
   }],
   zoomControl: false,
   // boxZoom: true,
@@ -890,6 +895,13 @@ const waterlevelLayer = L.geoJSON([], {
   wl_url_q = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sQDate_str + "&edate=" + eDate_str;
   wl_url_y = "https://gweb.wra.gov.tw/HydroInfoMobile/hichart?stno=" + layer.feature.properties.id + "&category=rtLE&sdate=" + sYDate_str + "&edate=" + eDate_str;
 
+  const btmUriList = {
+    "週" : wl_url_w, 
+    "月" : wl_url_m,
+    "季" : wl_url_q,
+    "年" : wl_url_y,
+  
+  };
   
   // ob_item_str=layer.feature.properties.ObervationItems.replace(/0/,ob_items[0]);
   // ob_item_str=ob_item_str.replace(/1/,ob_items[1]);
@@ -906,35 +918,49 @@ const waterlevelLayer = L.geoJSON([], {
   //   "<sub>"+realtime_waterlevel[layer.feature.properties.id].RecordTime +"</sub><br />"
   //   + realtime_waterlevel[layer.feature.properties.id].WaterLevel + "m<br />"
   //   ;
+  const popupStationContainer = L.DomUtil.create('div',"container-sm");
 
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  popupStationContainer.appendChild(document.createTextNode(" : "));
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.river));
+  L.DomUtil.create('br','',popupStationContainer);
 
-  wlpopupmsg=
-    '<div class="container-sm">' +
-    layer.feature.properties.name + " : "
-    /* + layer.feature.properties.id*/
-    + layer.feature.properties.river + "<br/>"
-    + '即時：'
-    + ' <a href="' + wl_url_w + '" target="_blank" class="btn btn-outline-primary btn-sm" >週</a>'
-    + ' <a href="' + wl_url_m + '" target="_blank" class="btn btn-outline-primary btn-sm" >月</a>'
-    + ' <a href="' + wl_url_q + '" target="_blank" class="btn btn-outline-primary btn-sm" >季</a>'
-    + ' <a href="' + wl_url_y + '" target="_blank" class="btn btn-outline-primary btn-sm" >年</a><br />'
-    ;
-  his_str="";
-  if (layer.feature.properties.ObervationItems.match("0"))
-    his_str += "水位";    
-  if (layer.feature.properties.ObervationItems.match("1"))
-    his_str += "流量";    
-  if (his_str)
-    wlpopupmsg += '歷史： <a href="' + wl_url_le + '" target="_blank" class="btn btn-outline-primary btn-sm" >' + his_str + '</a>';
-  // if (layer.feature.properties.ObervationItems.match("2"))
-  //   wlpopupmsg += '含沙量';
-  // if (layer.feature.properties.ObervationItems.match("4"))
-  // wlpopupmsg += '流速';
+  popupStationContainer.appendChild(document.createTextNode("即時："));
 
-    // + '<br />' + wlrtstr
-  wlpopupmsg += '</div>';
+  for (const key of Object.keys(btmUriList)){ 
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text=key;
+    linkElement.href=btmUriList[key];
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
 
-  return wlpopupmsg; 
+  L.DomUtil.create('br','',popupStationContainer);
+
+  // let his_str="";
+  // if (layer.feature.properties.ObervationItems.match("0"))
+  //   his_str += "水位";    
+  // if (layer.feature.properties.ObervationItems.match("1"))
+  //   his_str += "流量";    
+
+  // if (his_str){
+  //   popupStationContainer.appendChild(document.createTextNode("歷史："));
+  //   const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+  //   linkElement.text=his_str;
+  //   linkElement.href=wl_url_le;
+  //   linkElement.target='_blank';
+  //   L.DomEvent.disableClickPropagation(linkElement);
+  //   L.DomEvent.on(linkElement, 'click', function(e) {  
+  //     e.preventDefault();
+  //     openDialog(linkElement.href);
+  //   });
+  // }
+
+  return popupStationContainer; 
 
 });
 
@@ -1165,21 +1191,84 @@ clusterRA.bindPopup(  function (layer) {
 
   //水利署所有站位 https://gweb.wra.gov.tw/Hydroinfo/WraSTList/
 
-  RApopupmsg = "";
-  RApopupmsg += '<div class="container-fluid">';
-  RApopupmsg += layer.feature.properties.name + " (" +layer.feature.properties.id+") <br />" ;  
-  RApopupmsg += '<a href="https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' +'即時' + '</a>';
-  RApopupmsg += (sta = cwaCodis.find(layer.feature.properties.id))? '<a href="'+cwaCodis.url(layer.feature.properties.id)+'" target="_blank" class="btn btn-outline-primary btn-sm">' +'二週' + '</a>' : '';
-  RApopupmsg += '<a href="https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1") + '" target="_blank" class="btn btn-outline-primary btn-sm">' + "歷史" + '</a>' + "<br />";
-  // RApopupmsg+= layer.feature.properties.river + "<br/>"    ;
-  // RApopupmsg+='<br />' + wlrtstr;
-  RApopupmsg += RApoi;
-  RApopupmsg += (sta)? "<br /><sup>" + sta.stationStartDate + '-' + sta.stationEndDate + "</sup>": '' ; 
-  RApopupmsg += '</div>';
-  return RApopupmsg;
 
+  const popupStationContainer = L.DomUtil.create('div',"container-sm"); //container-fluid maybe? 
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  popupStationContainer.appendChild(document.createTextNode(` (${layer.feature.properties.id})`));
+  L.DomUtil.create('br','',popupStationContainer);
 
+  {
+  const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text='即時';
+    linkElement.href='https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_PlotImg.html?ID=' + layer.feature.properties.id.replace(/(.....)./, "$1");
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
 
+  if (staCodis = cwaCodis.find(layer.feature.properties.id)){
+    //cwaCodis.url(layer.feature.properties.id)
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text='二週';
+    linkElement.href=cwaCodis.url(layer.feature.properties.id);
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+
+  }
+
+  // {
+  //   const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+  //   linkElement.text='歷史';
+  //   linkElement.href='https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1");
+  //   linkElement.target='_blank';
+  //   L.DomEvent.disableClickPropagation(linkElement);
+  //   L.DomEvent.on(linkElement, 'click', function(e) {  
+  //     e.preventDefault();
+  //     openDialog(linkElement.href);
+  //   });
+  // }
+  L.DomUtil.create('br','',popupStationContainer);
+    
+  {
+    //RApoi
+    const tableElement = L.DomUtil.create('table','table table-sm',popupStationContainer);
+    const tbodyElement = L.DomUtil.create('tbody','',tableElement);
+    
+    for (duration in layer.feature.properties.rain) {
+
+      // console.log(el.elementName,el.elementValue);
+      rainvalue = (layer.feature.properties.rain[duration].Precipitation > 0) ? parseFloat(layer.feature.properties.rain[duration].Precipitation).toFixed(1) :
+        (layer.feature.properties.rain[duration].Precipitation = -998) ? "0.0" : "--";
+      //// Table tag
+  
+      const rowElement = L.DomUtil.create('tr','',tbodyElement);
+      const rowHeader = L.DomUtil.create('th','',rowElement); 
+      rowElement.setAttribute("scope","row");
+      rowHeader.innerHTML=str_RA[duration];
+      const rowData = L.DomUtil.create('td','text-right',rowElement); 
+      rowData.innerHTML=rainvalue;     
+    }
+   
+    popupStationContainer.appendChild(document.createTextNode( (new Date(layer.feature.properties.time)).toLocaleTimeString() + " 更新"));
+    L.DomUtil.create('br','',popupStationContainer);
+  }
+  
+
+  
+
+  if(staCodis){
+    const subElement=L.DomUtil.create('sub','',popupStationContainer);
+    subElement.appendChild(document.createTextNode(staCodis.stationStartDate + ' - ' + staCodis.stationEndDate));
+  }
+
+  return popupStationContainer;
 });
 
 
@@ -1220,18 +1309,43 @@ const wraRES = L.geoJSON([], {
   // API filter example
   // "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station?$filter=StationName eq '羅好壩'"
   // "https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Daily?$filter=StationNo eq '10213'&$select=InflowTotal,OutflowTotal,Time"
-  popupinfo = "";
-  popupinfo += '<div class="container-sm">';
-  popupinfo += layer.feature.properties.name ;
-  popupinfo += (layer.feature.properties.id) ? "(" + layer.feature.properties.id + ")" :'';
-  popupinfo += "<br/>";  
-  popupinfo += (layer.feature.properties.date) ? layer.feature.properties.date.replace(/(....-..-..)T.*/, "$1") + "<br/>" : '';
-  popupinfo += (layer.feature.properties.InflowTotal) ? "流入" + (layer.feature.properties.InflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>m³/s</sub><br/>" : '';
-  popupinfo += (layer.feature.properties.OutflowTotal) ? "流出" + (layer.feature.properties.OutflowTotal * 10000 / 24 / 60 / 60).toFixed(2) + "<sub>m³/s</sub><br/>" : '';
-  popupinfo += (wrafhy_activeStationNo.includes(parseInt(layer.feature.properties.id)))? '<a href="https://wiwari.github.io/wra-fhy/?StationNo='+ layer.feature.properties.id +' " target="_blank" class="btn btn-outline-primary btn-sm">近日平均流量</a>' : '';
-  popupinfo += '</div>';
 
-  return popupinfo;
+  const popupStationContainer = L.DomUtil.create('div',"container-sm");
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  if (layer.feature.properties.id ) 
+    {
+    popupStationContainer.appendChild(document.createTextNode(`(${layer.feature.properties.id})`));
+    L.DomUtil.create('br','',popupStationContainer);
+    }    
+  if (layer.feature.properties.date){
+    popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.date.replace(/(....-..-..)T.*/, "$1")));
+    L.DomUtil.create('br','',popupStationContainer);
+
+  }
+  if (layer.feature.properties.InflowTotal){
+    popupStationContainer.appendChild(document.createTextNode("流入" + (layer.feature.properties.InflowTotal * 10000 / 24 / 60 / 60).toFixed(2)));
+    const subElement=L.DomUtil.create('sub','',popupStationContainer);
+    subElement.appendChild(document.createTextNode("m³/s"));
+    L.DomUtil.create('br','',popupStationContainer);
+  }
+  if (layer.feature.properties.OutflowTotal){
+    popupStationContainer.appendChild(document.createTextNode("流出" + (layer.feature.properties.OutflowTotal * 10000 / 24 / 60 / 60).toFixed(2)));
+    const subElement=L.DomUtil.create('sub','',popupStationContainer);
+    subElement.appendChild(document.createTextNode("m³/s"));
+    L.DomUtil.create('br','',popupStationContainer);
+  }
+  if ((wrafhy_activeStationNo.includes(parseInt(layer.feature.properties.id)))){
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+    linkElement.text='近日平均流量';
+    linkElement.href=`https://wiwari.github.io/wra-fhy/?StationNo=${layer.feature.properties.id}`;
+    linkElement.target='_blank';
+    L.DomEvent.disableClickPropagation(linkElement);
+    L.DomEvent.on(linkElement, 'click', function(e) {  
+      e.preventDefault();
+      openDialog(linkElement.href);
+    });
+  }
+  return popupStationContainer;
      
 });
 
@@ -1513,19 +1627,39 @@ var clusterCCTV = L.markerClusterGroup(
     'event_label': "station: " + layer.feature.properties.name 
   });
   
-  popupinfo = "";
-  popupinfo += '<div class="container-sm">';
-  popupinfo += layer.feature.properties.name  ;
-  popupinfo += '<a href="' +layer.feature.properties.DivSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> 預覽 <i class="fa fa-camera " aria-hidden="true" ></i> </a>' +'<br />' ;
-  popupinfo += layer.feature.properties.OpenName;
-  if (layer.feature.properties.OpenSrc != null)
-    popupinfo += '<a href="' +layer.feature.properties.OpenSrc +' " target="_blank" class="btn btn-outline-primary btn-sm"> 完整 <i class="fa fa-camera " aria-hidden="true" ></i> </a>' ;
+  const popupStationContainer = L.DomUtil.create('div',"container-sm"); //container-fluid maybe? 
+  
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.name));
+  {
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+      linkElement.innerHTML ='預覽 <i class="fa fa-camera " aria-hidden="true" ></i>';
+      linkElement.href=layer.feature.properties.DivSrc;
+      linkElement.target='_blank';
+      L.DomEvent.disableClickPropagation(linkElement);
+      // L.DomEvent.on(linkElement, 'click', function(e) {  
+      //   e.preventDefault();
+      //   openDialog(linkElement.href);
+      // });
+  }
+  L.DomUtil.create('br','',popupStationContainer);
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.OpenName));
+  if (layer.feature.properties.OpenSrc != null){
+    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+      linkElement.innerHTML ='完整 <i class="fa fa-camera " aria-hidden="true" ></i>';
+      linkElement.href=layer.feature.properties.OpenSrc;
+      linkElement.target='_blank';
+      L.DomEvent.disableClickPropagation(linkElement);
+      // L.DomEvent.on(linkElement, 'click', function(e) {  
+      //   e.preventDefault();
+      //   openDialog(linkElement.href);
+      // });
+  }
+  L.DomUtil.create('br','',popupStationContainer);
 
-  popupinfo += '<br />' ;
-  popupinfo += layer.feature.properties.provider ;
-  popupinfo += '</div>' ;
+  popupStationContainer.appendChild(document.createTextNode(layer.feature.properties.provider));  
+  L.DomUtil.create('br','',popupStationContainer);
 
-  return popupinfo;
+  return popupStationContainer;
      
 });
 
@@ -2214,7 +2348,7 @@ cwaDailyGroup.on('remove', (e)=>{
   e.target.getLayers()[e.target._index].setOpacity(0);
 });
 // cwaDailyGroup.addTo(map);
-lyctrl2.addBaseLayer(cwaDailyGroup,"累積雨量🌧️");
+lyctrl2.addBaseLayer(cwaDailyGroup,"🌧️日累積");
 
 
 const cwaPrecipitationForcast6HR = L.featureGroup();
@@ -2242,7 +2376,7 @@ cwaPrecipitationForcast6HR.on('remove',(e)=>{
 });
 // cwaPrecipitationFCST.addTo(map);
 
-lyctrl2.addBaseLayer(cwaPrecipitationForcast6HR,"定量06hr🌧️");
+lyctrl2.addBaseLayer(cwaPrecipitationForcast6HR,"🌧️預報06<sub>hr</sub>");
 
 
 const cwaPrecipitationForcast12HR = L.featureGroup();
@@ -2270,7 +2404,7 @@ cwaPrecipitationForcast12HR.on('remove',(e)=>{
 });
 // cwaPrecipitationFCST.addTo(map);
 
-lyctrl2.addBaseLayer(cwaPrecipitationForcast12HR,"定量12hr🌧️");
+lyctrl2.addBaseLayer(cwaPrecipitationForcast12HR,"🌧️預報12<sub>hr</sub>");
 
 // const cwaRadar = L.imageOverlay(
 //   // "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-001.png", // larget
@@ -2329,7 +2463,7 @@ cwaRadarGroup.on('remove', (e)=>{
   clearInterval(e.target._interval);
   e.target.getLayers()[e.target._index].setOpacity(0);
 });
-lyctrl2.addBaseLayer(cwaRadarGroup,"雷達回波01hr");
+lyctrl2.addBaseLayer(cwaRadarGroup,"🌧️雷達");
 // CWA images ---------------------------------- end
 
 
@@ -2554,6 +2688,9 @@ function getShareUrl() {
   return (window.location.origin + window.location.pathname + "?center=" + map.getCenter().lat.toFixed(6) + "," + map.getCenter().lng.toFixed(6) + "&zoom=" + map.getZoom());
 }
 
+function openAbout(){
+  openDialog('about.html');
+}
 
 map.setView(customcenter, customzoom);
 
