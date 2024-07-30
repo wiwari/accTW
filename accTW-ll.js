@@ -936,24 +936,24 @@ const waterlevelLayer = L.geoJSON([], {
 
   L.DomUtil.create('br','',popupStationContainer);
 
-  let his_str="";
-  if (layer.feature.properties.ObervationItems.match("0"))
-    his_str += "水位";    
-  if (layer.feature.properties.ObervationItems.match("1"))
-    his_str += "流量";    
+  // let his_str="";
+  // if (layer.feature.properties.ObervationItems.match("0"))
+  //   his_str += "水位";    
+  // if (layer.feature.properties.ObervationItems.match("1"))
+  //   his_str += "流量";    
 
-  if (his_str){
-    popupStationContainer.appendChild(document.createTextNode("歷史："));
-    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
-    linkElement.text=his_str;
-    linkElement.href=wl_url_le;
-    linkElement.target='_blank';
-    L.DomEvent.disableClickPropagation(linkElement);
-    L.DomEvent.on(linkElement, 'click', function(e) {  
-      e.preventDefault();
-      openDialog(linkElement.href);
-    });
-  }
+  // if (his_str){
+  //   popupStationContainer.appendChild(document.createTextNode("歷史："));
+  //   const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+  //   linkElement.text=his_str;
+  //   linkElement.href=wl_url_le;
+  //   linkElement.target='_blank';
+  //   L.DomEvent.disableClickPropagation(linkElement);
+  //   L.DomEvent.on(linkElement, 'click', function(e) {  
+  //     e.preventDefault();
+  //     openDialog(linkElement.href);
+  //   });
+  // }
 
   return popupStationContainer; 
 
@@ -1218,17 +1218,17 @@ clusterRA.bindPopup(  function (layer) {
 
   }
 
-  {
-    const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
-    linkElement.text='歷史';
-    linkElement.href='https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1");
-    linkElement.target='_blank';
-    L.DomEvent.disableClickPropagation(linkElement);
-    L.DomEvent.on(linkElement, 'click', function(e) {  
-      e.preventDefault();
-      openDialog(linkElement.href);
-    });
-  }
+  // {
+  //   const linkElement=L.DomUtil.create('a','btn btn-outline-primary btn-sm',popupStationContainer);
+  //   linkElement.text='歷史';
+  //   linkElement.href='https://gweb.wra.gov.tw/HydroInfo/StDataInfo/StDataInfo?RA&' + layer.feature.properties.id.replace(/(......)/, "$1");
+  //   linkElement.target='_blank';
+  //   L.DomEvent.disableClickPropagation(linkElement);
+  //   L.DomEvent.on(linkElement, 'click', function(e) {  
+  //     e.preventDefault();
+  //     openDialog(linkElement.href);
+  //   });
+  // }
   L.DomUtil.create('br','',popupStationContainer);
     
   {
