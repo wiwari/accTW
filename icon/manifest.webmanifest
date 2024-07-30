@@ -1,6 +1,13 @@
 {
     "short_name": "集水區",
-    "name": "集水區觀察員",
+    "name": "集水區觀察員",    
+    "description": "溪流活動的好幫手，計算溪流集水面積。同時查詢鄰近的水位、流量、雨量、地質。",
+    "start_url": "../",
+    "scope": "/",
+    "display": "standalone",
+    "lang": "zh-Hant-TW",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
     "icons": [
         {
             "src": "wwr-acc-192.png",                    
