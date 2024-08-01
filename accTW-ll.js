@@ -384,6 +384,22 @@ const happymanATIS = L.tileLayer(
   });
   // happymanATIS.addTo(map);
 
+const asrsATIS_MNC = L.tileLayer.wms('https://gis.asrs.gov.tw/map/viewMap/wms', {
+
+  layers: 'airgmap:world,ATIS_MNC',
+  // layers: 'airgmap:world', //模糊
+  // layers: 'ATIS_MNC', //全台鑲嵌航照  
+  minZoom: 17,
+  maxZoom: 19,
+  maxNativeZoom: 18,
+  format: 'image/png',
+  transparent: true,
+  version: '1.3.0',
+  crs: L.CRS.EPSG3857, // Leaflet default is EPSG3857 which is equivalent to EPSG:900913
+  attribution: '© <strong><a href="https://gis.asrs.gov.tw/">ASRS',
+});
+// asrsATIS_MNC.addTo(map);
+
 const happymanGPXoverlay = L.tileLayer(
   'https://tile.happyman.idv.tw/map/gpxtrack/{z}/{x}/{y}.png',
   {
@@ -824,7 +840,7 @@ var parkIcon = L.icon({
 
 
 const lyctrl = L.control.layers({
-  "正射影像": nlscphoto2tile, "光達影像": nlscLiDAR, "農航空拍": happymanATIS, 
+  "正射影像": nlscphoto2tile, "光達影像": nlscLiDAR, "農航空拍<sub>舊</sub>": happymanATIS, "農航空拍<sub>新</sub>" : asrsATIS_MNC,
 }, {
   "地質查詢🪨": MOEACGS, "產生器<sub>gpx</sub>🚶": happymanGPXoverlay, "產生器<sub>BN</sub>": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
   //"集水區":read_catchment,
