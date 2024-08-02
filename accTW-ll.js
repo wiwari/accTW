@@ -2060,7 +2060,7 @@ L.Control.rangeSlider = L.Control.extend({
       this._selectWavelengthLabel=L.DomUtil.create('label','form-label',this._selectWavelengthContainer);
       this._selectWavelengthLabel.setAttribute("for","wavelength")
       // this._selectWavelengthLabel.setAttribute("placeholder","TEST");
-      this._selectWavelengthLabel.innerHTML="波紋高差、每秒下降";
+      this._selectWavelengthLabel.innerHTML="等高線下樓梯";
 
 
       this._opt1=L.DomUtil.create('option','',this._selectWavelength);
