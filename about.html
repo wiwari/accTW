@@ -21,13 +21,13 @@
         <p>一般戶外活動，無論溪降、溯溪、獨木舟、登山、攀岩，只要過程中必須接觸溪流或溪溝，不清楚水域水流多少時，了解此水道上游供給水份的集水面積大小，作為初步潛在水量的參照。但如何不數格子就能得知集水區大小呢？</p>        
         <p>
           集水區觀察員 (Flow Catchment Observer) 讓你快速查詢流域集水面積； 使用內政部 
-          <a href="https://data.gov.tw/dataset/160361">2022 </a><a href="https://www.nlsc.gov.tw/cp.aspx?n=1853">（更新區域）</a> 、 
-          <a href="https://data.gov.tw/dataset/35430">2016</a>
+          <a href="https://data.gov.tw/dataset/160361" target="_blank">2022 </a><a href="https://www.nlsc.gov.tw/cp.aspx?n=1853" target="_blank">（更新區域）</a> 、 
+          <a href="https://data.gov.tw/dataset/35430" target="_blank">2016</a>
           20m 數值地形高程原始資料資料，利用開放工具
-          <a href="https://grass.osgeo.org/">Grass GIS</a>
-          ，推估逕流累積集水面積後，以 <a href="https://www.osgeo.org/projects/gdal/">GDAL/OGR</a> 轉換為圖磚，提供有網路環境下快速查詢集水區的方式，對於手邊缺乏實體紙本地圖者能省略繁瑣的查詢步驟，
+          <a href="https://grass.osgeo.org/" target="_blank">Grass GIS</a>
+          ，推估逕流累積集水面積後，以 <a href="https://www.osgeo.org/projects/gdal/" target="_blank">GDAL/OGR</a> 轉換為圖磚，提供有網路環境下快速查詢集水區的方式，對於手邊缺乏實體紙本地圖者能省略繁瑣的查詢步驟，
           此外，亦介接經濟部地質調查及礦業管理中心（原中央地質調查所）提供的 API 供查閱岩質。               
-          <a href="https://github.com/wiwari/accTW"> 台灣區集水區圖磚 github 專案 - accTW </a> 
+          <a href="https://github.com/wiwari/accTW" target="_blank"> 台灣區集水區圖磚 github 專案 - accTW </a> 
         </p>
 
         <p class="lead">圖台依縮放倍率切換常用底圖</p>
@@ -44,8 +44,9 @@
           <li><a href="https://wiwari.github.io/accTW-howto-find-water.html">尋覓潛在水源</a></li>
         </ul>
         <h2>版本紀錄</h2>
-        <dl class="row">
-        <dt class="col-sm-3">2024/08/01</dt><dd class="col-sm-9">加入最新 ASRA ATIS 農航空拍影像</dd>
+        <dl class="row">          
+        <dt class="col-sm-3">2024/08/15</dt><dd class="col-sm-9">加入海圖，參照<a href="https://navy.mnd.gov.tw/Files/Policy/%E6%B5%B7%E8%BB%8D_%E6%B5%B7%E5%9C%96%E5%9C%96%E4%BE%8B.pdf" target="_blank">海圖圖例</a> </dd>
+        <dt class="col-sm-3">2024/08/01</dt><dd class="col-sm-9">加入最新 ASRS ATIS 農航空拍影像</dd>
         <dt class="col-sm-3">2024/07/30</dt><dd class="col-sm-9">支援嵌入iframe之外部網站改以對話方塊開啟，簡化 WPA 應用程式安裝後的操作。</dd>
         <dt class="col-sm-3">2024/07/26</dt><dd class="col-sm-9">加入氣象署雨量相關圖層。</dd>
         <dt class="col-sm-3">2024/07/20</dt><dd class="col-sm-9">灰色突現動態波浪，設定為每秒鐘一個週期，並可選擇適合的週期高差，便於航行或溯行坡度觀察。</dd>
