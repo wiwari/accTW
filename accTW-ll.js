@@ -210,7 +210,7 @@ nlscEMAP.addTo(map);
 const happymantile = L.tileLayer(
   'https://tile.happyman.idv.tw/map/moi_osm/{z}/{x}/{y}.png',
   {
-    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
+    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong>',
     minZoom: 16, //native zoom 10~17
     // maxZoom: 19,
     maxZoom: 16,
@@ -328,6 +328,7 @@ const nlscLiDAR2019 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[23.923255, 120.482868], [24.498475, 121.508168]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2019.addTo(map);
 const nlscLiDAR2020 = L.tileLayer(
@@ -338,6 +339,7 @@ const nlscLiDAR2020 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[22.723201, 120.857965], [23.94844, 121.133177]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2020.addTo(map);
 
@@ -349,6 +351,7 @@ const nlscLiDAR2021 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[24.373243432, 120.557946056], [25.298465415, 121.558227538]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2021.addTo(map);
 
@@ -360,10 +363,22 @@ const nlscLiDAR2022 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[23.523252524, 121.282920517], [25.323528948, 122.008377377]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2022.addTo(map);
-23.523252524,121.282920517
-var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiDAR2022],
+const nlscLiDAR2023 = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/LiDAR2023/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 17, //native zoom 9-20, set 17 as default 
+    maxZoom: 21,
+    maxNativeZoom: 20,
+    bounds: ([[21.873210207, 120.607866863], [23.94844475, 121.63316409]]),
+    crossOrigin: 'anonymous',
+  });
+// nlscLiDAR2023.addTo(map);
+
+var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiDAR2022,nlscLiDAR2023],
   {
       attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
       minZoom: 17, //native zoom 9-20, set 17 as default 
@@ -375,7 +390,7 @@ var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiD
 const happymanATIS = L.tileLayer(
   'https://tile.happyman.idv.tw/map/atis/{z}/{x}/{y}.png',
   {
-    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
+    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong>',
     minZoom: 17, //native zoom 5~22
     maxZoom: 21,
     maxNativeZoom: 21,
@@ -396,14 +411,44 @@ const asrsATIS_MNC = L.tileLayer.wms('https://gis.asrs.gov.tw/map/viewMap/wms', 
   transparent: true,
   version: '1.3.0',
   crs: L.CRS.EPSG3857, // Leaflet default is EPSG3857 which is equivalent to EPSG:900913
-  attribution: '© <strong><a href="https://gis.asrs.gov.tw/">ASRS',
+  attribution: '© <strong><a href="https://gis.asrs.gov.tw/">ASRS</a></strong>',
 });
 // asrsATIS_MNC.addTo(map);
+
+const oceanDepth = L.tileLayer.wms('https://ocean.moi.gov.tw/Map/proxy/proxy.ashx?https://oceanmaps.moi.gov.tw/arcgis/rest/services/SampleWorldCities/MapServer/exts/MaritimeChartService/MapServer/export?', {
+  layers: 'show:2,3,4,5,6,7,10,11,12,13', 
+  // ==== layers information ====
+  // 0: Information about the chart display
+  // 1: Natural and man-made features, port features
+  // 2: Depths, currents, etc
+  // 3: Seabed, obstructions, pipelines
+  // 4: Traffic routes
+  // 5: Special areas
+  // 6: Buoys, beacons, lights, fog signals, radar
+  // 7: Services and small craft facilities
+  // 8: water deeps
+  // 9: Depth Contour
+  // 10: wreck
+  // 11: obstrn
+  // 12: channel
+  // 13: nature of seabed
+  // 14: objects not to show
+  // ====
+  minZoom: 9, //11 will be better in visualization
+  maxZoom: 18,
+  // maxNativeZoom: 18,
+  format: 'image/png', //png32 by default of ocean.moi.gov.tw
+  transparent: true,
+  version: '1.3.0',
+  crs: L.CRS.EPSG3857, // Leaflet default is EPSG3857 which is equivalent to EPSG:900913
+  attribution: '© <strong><a href="https://ocean.moi.gov.tw/Map/MainMap/">Ocean</a></strong>',
+  opacity: 1,
+});
 
 const happymanGPXoverlay = L.tileLayer(
   'https://tile.happyman.idv.tw/map/gpxtrack/{z}/{x}/{y}.png',
   {
-    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
+    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong>',
     minZoom: 14, //native zoom 10~19
     maxZoom: 18,
     maxNativeZoom: 19,
@@ -417,7 +462,7 @@ happymanGPXoverlay.addTo(map);
 const happymanBNoverlay = L.tileLayer(
   'https://tile.happyman.idv.tw/map/rudy_bn/{z}/{x}/{y}.png',
   {
-    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong> ',
+    attribution: '© <strong><a href="https://map.happyman.idv.tw/~mountain/twmap3/">地圖瀏覽器</a> </strong>',
     minZoom: 17, //native zoom 8-22
     maxZoom: 18,
     maxNativeZoom: 22,
@@ -843,6 +888,7 @@ const lyctrl = L.control.layers({
   "正射影像": nlscphoto2tile, "光達影像": nlscLiDAR, "農航空拍<sub>舊</sub>": happymanATIS, "農航空拍<sub>新</sub>" : asrsATIS_MNC,
 }, {
   "地質查詢🪨": MOEACGS, "產生器<sub>gpx</sub>🚶": happymanGPXoverlay, "產生器<sub>BN</sub>": happymanBNoverlay, "nlsc透明": nlscEMAPoverlay,
+  "海圖": oceanDepth,
   //"集水區":read_catchment,
 }).addTo(map);
 
