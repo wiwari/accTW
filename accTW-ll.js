@@ -328,6 +328,7 @@ const nlscLiDAR2019 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[23.923255, 120.482868], [24.498475, 121.508168]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2019.addTo(map);
 const nlscLiDAR2020 = L.tileLayer(
@@ -338,6 +339,7 @@ const nlscLiDAR2020 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[22.723201, 120.857965], [23.94844, 121.133177]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2020.addTo(map);
 
@@ -349,6 +351,7 @@ const nlscLiDAR2021 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[24.373243432, 120.557946056], [25.298465415, 121.558227538]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2021.addTo(map);
 
@@ -360,6 +363,7 @@ const nlscLiDAR2022 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[23.523252524, 121.282920517], [25.323528948, 122.008377377]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2022.addTo(map);
 const nlscLiDAR2023 = L.tileLayer(
@@ -370,6 +374,7 @@ const nlscLiDAR2023 = L.tileLayer(
     maxZoom: 21,
     maxNativeZoom: 20,
     bounds: ([[21.873210207, 120.607866863], [23.94844475, 121.63316409]]),
+    crossOrigin: 'anonymous',
   });
 // nlscLiDAR2023.addTo(map);
 
