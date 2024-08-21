@@ -21,9 +21,11 @@
         <p>一般戶外活動，無論溪降、溯溪、獨木舟、登山、攀岩，只要過程中必須接觸溪流或溪溝，不清楚水域水流多少時，了解此水道上游供給水份的集水面積大小，作為初步潛在水量的參照。但如何不數格子就能得知集水區大小呢？</p>        
         <p>
           集水區觀察員 (Flow Catchment Observer) 讓你快速查詢流域集水面積； 使用內政部 
-          <a href="https://data.gov.tw/dataset/160361" target="_blank">2022 </a><a href="https://www.nlsc.gov.tw/cp.aspx?n=1853" target="_blank">（更新區域）</a> 、 
+          <a href="https://data.gov.tw/dataset/169807" target="_blank">2024</a>、
+          <a href="https://data.gov.tw/dataset/160361" target="_blank">2022</a><a href="https://www.nlsc.gov.tw/cp.aspx?n=1853" target="_blank">（更新區域）</a> 、 
+          <a href="https://data.gov.tw/dataset/138563" target="_blank">2020</a>、
           <a href="https://data.gov.tw/dataset/35430" target="_blank">2016</a>
-          20m 數值地形高程原始資料資料，利用開放工具
+          20m 數值地形高程原始資料，以
           <a href="https://grass.osgeo.org/" target="_blank">Grass GIS</a>
           ，推估逕流累積集水面積後，以 <a href="https://www.osgeo.org/projects/gdal/" target="_blank">GDAL/OGR</a> 轉換為圖磚，提供有網路環境下快速查詢集水區的方式，對於手邊缺乏實體紙本地圖者能省略繁瑣的查詢步驟，
           此外，亦介接經濟部地質調查及礦業管理中心（原中央地質調查所）提供的 API 供查閱岩質。               
@@ -39,12 +41,20 @@
           <dt class="col-sm-3">zoom = 16</dt><dd class="col-sm-9">Happyman版魯地圖白底</dd>
           <dt class="col-sm-3">zoom = 17-20</dt><dd class="col-sm-9">正射影像、光達影像、農航航拍</dd>
         </dl>
+        <p class="lead">20公尺網格數值地形模型DTM資料來源</p>
+        <dl class="row">
+          <dt class="col-sm-3"><a href="https://data.gov.tw/dataset/169807" target="_blank">MOI 2024</a></dt><dd class="col-sm-9">台灣本島、蘭嶼</dd>
+          <dt class="col-sm-3"><a href="https://data.gov.tw/dataset/160361" target="_blank">MOI 2022</a></dt><dd class="col-sm-9">澎湖、金門（同2019版）</dd>
+          <dt class="col-sm-3"><a href="https://data.gov.tw/dataset/138563" target="_blank">MOI 2020</a></dt><dd class="col-sm-9">綠島、小琉球、龜山島</dd>
+          <dt class="col-sm-3"><a href="https://data.gov.tw/dataset/35430" target="_blank">MOI 2016</a></dt><dd class="col-sm-9">樂山（補）</dd>
+        </dl>
         <h2>使用案例</h2>
         <ul>
           <li><a href="https://wiwari.github.io/accTW-howto-find-water.html">尋覓潛在水源</a></li>
         </ul>
         <h2>版本紀錄</h2>
         <dl class="row">          
+        <dt class="col-sm-3">2024/08/21</dt><dd class="col-sm-9">更新高程、集水區資訊 (MOI2024) </dd>
         <dt class="col-sm-3">2024/08/15</dt><dd class="col-sm-9">加入海圖，參照<a href="https://navy.mnd.gov.tw/Files/Policy/%E6%B5%B7%E8%BB%8D_%E6%B5%B7%E5%9C%96%E5%9C%96%E4%BE%8B.pdf" target="_blank">海圖圖例</a> </dd>
         <dt class="col-sm-3">2024/08/14</dt><dd class="col-sm-9">更新加入 NLSC 光達 2023 圖層</dd>
         <dt class="col-sm-3">2024/08/01</dt><dd class="col-sm-9">加入最新 ASRS ATIS 農航空拍影像</dd>
@@ -60,7 +70,7 @@
         <dt class="col-sm-3">2023/10/20</dt><dd class="col-sm-9">配合氣象局 cwb 轉移至氣象署 cwa 外連 URL 更新。修正地質圖層來源，配合服務網址變更。</dd>
         <dt class="col-sm-3">2023/08/07</dt><dd class="col-sm-9">加入 農航圖層， NLSC 最新兩萬五、五萬、十萬基本地形圖層(Z=15,14,13)，更新水位站點。</dd>
         <dt class="col-sm-3">2023/07/05</dt><dd class="col-sm-9">更新加入 NLSC 光達 2022 圖層。</dd>
-        <dt class="col-sm-3">2023/02/02</dt><dd class="col-sm-9">更新高程資訊 (MOI2022)。</dd>
+        <dt class="col-sm-3">2023/02/02</dt><dd class="col-sm-9">更新高程資訊 (MOI2022)</dd>
         <dt class="col-sm-3">2023/01/30</dt><dd class="col-sm-9">新增澎湖金門集水區資訊、更新台灣本島集水區資訊 (MOI2022)。</dd>
         <dt class="col-sm-3">2023/01/04</dt><dd class="col-sm-9">桌面版新增 gpx 匯入功能，直接拖拉 gpx 進入集水區觀察員後開啟。</dd>
         <dt class="col-sm-3">2022/12/29</dt><dd class="col-sm-9">匯入水情影像雲端平台部分即時影像：水利署自建站(298)、縣市政府水情(1244)、水利署河川監管(259)、重點防汛工程影像(23)、淹水感測器影像(84)、水土保持局(78)、第四台業者(15)、移動站影像(1)、保全監視影像(8)、滯洪池(89)、抽水站影像(228)、破堤申請案件(9)、水利建造物監測設備影像(6)、</dd>    

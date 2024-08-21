@@ -487,7 +487,7 @@ nlscEMAPoverlay.addTo(map);
 
 
 
-const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/dem/{z}/{x}/{y}.png", {  //GITHUB exact commit
+const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/d78166133618c0fd5494f55aee5277f0fd7016c9/dist/dem/{z}/{x}/{y}.png", {  //GITHUB exact commit
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
   zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
@@ -508,11 +508,10 @@ const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/
 // DOC RGBterrain tiles generation https://github.com/syncpoint/terrain-rgb
 // ------------------
 
-// const catchment = L.tileLayer.colorPicker("wsRGBAtiles/{z}/{x}/{y}.png", { //local
 // const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@tiles/dist/{z}/{x}/{y}.png", { //CDN
-// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png", {  //CDN exact commit
+// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@d78166133618c0fd5494f55aee5277f0fd7016c9/dist/acc/{z}/{x}/{y}.png", {  //CDN exact commit
 // const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/tiles/dist/{z}/{x}/{y}.png", {  //GITHUB
-const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png", {  //GITHUB exact commit
+const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/d78166133618c0fd5494f55aee5277f0fd7016c9/dist/acc/{z}/{x}/{y}.png", {  //GITHUB exact commit
   // attribution: '&copy; BASIN',
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
@@ -2022,7 +2021,7 @@ var streams = L.tileLayer.gl({
 // var streams = L.tileLayer.gl2({
   fragmentShader: glShaderStreams,  
   tileLayers: [catchment,dtmTW],
-  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
+  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/d78166133618c0fd5494f55aee5277f0fd7016c9/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
     uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
     uWaterThresholdZoomAtTenthKmsq: 14,
@@ -2048,7 +2047,7 @@ lyctrl.addOverlay(streams, "水線著色🏳️‍🌈"); //<sup>彩⁺</sup>
 var streamsRangeHightlight = L.tileLayer.gl({
     fragmentShader: glShaderStreamsHighlightDefinition + glShaderStreams,  
     tileLayers: [catchment,dtmTW],
-    // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/3c09f5b8746b56c037ac78cf7b8d53e33c93460e/dist/acc/{z}/{x}/{y}.png'],
+    // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/d78166133618c0fd5494f55aee5277f0fd7016c9/dist/acc/{z}/{x}/{y}.png'],
     uniforms: {
       uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
       uWaterThresholdZoomAtTenthKmsq: 14,
