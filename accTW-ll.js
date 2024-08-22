@@ -695,7 +695,8 @@ proj4.defs([
   ]
 ]);
 var EPSG4326 = new proj4.Proj('EPSG:4326');//WGS84
-var EPSG3826 = new proj4.Proj('EPSG:3826');//TWD97 121分帶  
+var EPSG3826 = new proj4.Proj('EPSG:3826');//TWD97 121分帶
+var EPSG3828 = new proj4.Proj('EPSG:3828');//TWD67 121分帶
 var EPSG3821 = new proj4.Proj('EPSG:3821');//TWD67 經緯度
 var EPSG3824 = new proj4.Proj('EPSG:3824');//TWD97 經緯度
 
@@ -1081,27 +1082,40 @@ fetch("https://data.wra.gov.tw/OpenAPI/api/OpenData/2D09DB8B-6A1B-485E-88B5-923A
 
           if (ob.ObservationStatus == "現存") {
             obs97loc = ob.LocationByTWD97_XY.match(/(\S+)\s(\S+)/);
-            wgs84 = proj4(EPSG3826, EPSG4326, [parseFloat(obs97loc[1]), parseFloat(obs97loc[2])]);
+            obs67loc = ob.LocationByTWD67_XY.match(/(\S+)\s(\S+)/);
+            if (obs97loc){
+              wgs84 = proj4(EPSG3826, EPSG4326, [parseFloat(obs97loc[1]), parseFloat(obs97loc[2])]);
+            }else if(obs67loc){
+              wgs84 = proj4(EPSG3828, EPSG4326, [parseFloat(obs67loc[1]), parseFloat(obs67loc[2])]);
+            }else{
+              wgs84 = null;
+            }            
             
             // rtvalue="";
             // if (wlrt2.hasOwnProperty(sta_id)){            
             //   rtvalue=wlrt2[sta_id];
             // }
             // console.log(ob.BasinIdentifier, ob.ObservatoryName, wgs84[0], wgs84[1],rtvalue);
-            pt = {
-              "type": "Feature",
-              "properties": {
-                "id": sta_id,
-                "name": sta_name,
-                "river": sta_river,          
-                "ObervationItems" : sta_ObervationItems,
-              },
-              "geometry": {
-                "type": "Point",
-                "coordinates": [wgs84[0], wgs84[1]]
-              }              
-            };
-            waterlevelLayer.addData(pt);
+
+            if (wgs84){
+              pt = {
+                "type": "Feature",
+                "properties": {
+                  "id": sta_id,
+                  "name": sta_name,
+                  "river": sta_river,          
+                  "ObervationItems" : sta_ObervationItems,
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [wgs84[0], wgs84[1]]
+                }              
+              };
+              waterlevelLayer.addData(pt);
+            }else{
+              console.log(sta_id + " " +sta_name + " have no location data");
+            }
+
           }
         });
         // lyctrl.addOverlay(waterlevelLayer, "水利署水位站");
