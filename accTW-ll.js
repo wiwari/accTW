@@ -2634,12 +2634,12 @@ function copyToClipboard(text) {
   } else {
     // Fallback for browsers that do not support navigator.clipboard.writeText
     // for iOS and chrome and better compatibility for newer broser    
-    $(".ios-clipboard").show();
-    $(".ios-clipboard").val(getShareUrl());
-    iosCopyToClipboard(document.getElementsByClassName('ios-clipboard')[0]);
+    clipboard4iOS._input.style.display='block';
+    clipboard4iOS._input.value = getShareUrl();
+    iosCopyToClipboard(clipboard4iOS._input);
     document.getElementsByClassName('map')[0].focus();
     // document.getSelection().removeAllRanges();
-    $(".ios-clipboard").hide();
+    clipboard4iOS._input.style.display='none';
   }
 }
 
@@ -2774,18 +2774,19 @@ map.setView(customcenter, customzoom);
 
 L.Control.urlCtrl4iOS = L.Control.extend({
   onAdd: function (map) {
-    var text = L.DomUtil.create('input', "ios-clipboard");
-    text.style.width = '100px';
-    text.style.display = 'none';
-    text.value = "Clipboard";
-    return text;
+    this._input = L.DomUtil.create('input', "ios-clipboard");
+    this._input.style.width = '100px';
+    this._input.style.display = 'none';
+    this._input.value = "Clipboard";
+    return this._input;
   },
   onRemove: function (map) {
     // Nothing to do here
   }
 });
-new L.Control.urlCtrl4iOS({ position: 'topright' }).addTo(map);
-$(".ios-clipboard").hide();
+
+const clipboard4iOS = new L.Control.urlCtrl4iOS({ position: 'topright' }).addTo(map);
+clipboard4iOS._input.style.display='none';
 
 function iosCopyToClipboard(el) {
   var oldContentEditable = el.contentEditable,
