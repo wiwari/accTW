@@ -2582,11 +2582,12 @@ map.addControl(searchControl);
 
 map.on('geosearch/showlocation', searched);
 function searched(e) {
+  searchtext = searchControl.searchElement.input.value;
   gtag('event', 'searched', {
     'event_category': 'poi',
-    'event_label': "search: " + $(".glass").val(),
+    'event_label': "search: " + searchtext,
   });
-  history.replaceState(null, "", "?q=" + $(".glass").val());
+  history.replaceState(null, "", "?q=" + searchtext);
 }
 
 // Gross hair for mobile device
@@ -2811,7 +2812,7 @@ function iosCopyToClipboard(el) {
 
 if (urlParams.has('q')) { //URL papameter format: ?center=lat,lng
   if (querypoi = urlParams.get('q').match(/^(\S*)$/)) {
-    $(".glass").val(querypoi[1]);
+    searchControl.searchElement.input.value = querypoi[1];
   }
 }
 
