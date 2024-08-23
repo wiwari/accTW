@@ -217,7 +217,8 @@ const happymantile = L.tileLayer(
     maxNativeZoom: 16,
     // zoomOffset: (L.Browser.retina ? -1 : 0),
     // tileSize: (L.Browser.retina ? 512 : 256),
-    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+    // bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+    bounds: ([[21.89377500, 118.14262778], [25.65, 122.11]]), //WGS DEM bound 2022TW,PH,KM + northern 3 islands
   });
 happymantile.addTo(map);
 
@@ -233,6 +234,18 @@ const nlscB100000 = L.tileLayer(
     // tileSize: (L.Browser.retina ? 512 : 256),
     bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
+const nlscB100000_N3island = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/B100000/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 13, //native zoom 10~17
+    // maxZoom: 19,
+    maxZoom: 13,
+    maxNativeZoom: 13,
+    // zoomOffset: (L.Browser.retina ? -1 : 0),
+    // tileSize: (L.Browser.retina ? 512 : 256),
+    bounds: ([[25.414, 121.94], [25.65, 122.11]]), //bound northern 3 islands
+  });
 
 
 const nlscB50000 = L.tileLayer(
@@ -247,6 +260,18 @@ const nlscB50000 = L.tileLayer(
     // tileSize: (L.Browser.retina ? 512 : 256),
     bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
+const nlscB50000_N3island = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/B50000/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 14, //native zoom 10~17
+    // maxZoom: 19,
+    maxZoom: 15, //workaround while nlscB25000 offset issue on northern 3 island
+    maxNativeZoom: 15, //workaround while nlscB25000 offset issue on northern 3 island
+    // zoomOffset: (L.Browser.retina ? -1 : 0),
+    // tileSize: (L.Browser.retina ? 512 : 256),
+    bounds: ([[25.414, 121.94], [25.65, 122.11]]), //bound northern 3 islands
+  });
 
 
 const nlscB25000 = L.tileLayer(
@@ -260,9 +285,8 @@ const nlscB25000 = L.tileLayer(
     bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
   });
  
-  var nlscBtopo = L.layerGroup([nlscB100000,nlscB50000,nlscB25000]);
+  var nlscBtopo = L.layerGroup([nlscB100000,nlscB100000_N3island,nlscB50000,nlscB50000_N3island,nlscB25000]);
   nlscBtopo.addTo(map);
-
 
 
 const nlscphoto2tile = L.tileLayer(
@@ -272,7 +296,9 @@ const nlscphoto2tile = L.tileLayer(
     minZoom: 17, //native zoom 7~19 
     maxZoom: 20,
     maxNativeZoom: 19,
-    bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+    // bounds: ([[21.89377500, 118.14262778], [25.30147222, 122.00965000]]), //WGS DEM bound 2022TW,PH,KM
+    bounds: ([[21.89377500, 118.14262778], [25.65, 122.11]]), //WGS DEM bound 2022TW,PH,KM + northern 3 islands
+
   });
 nlscphoto2tile.addTo(map);
 
