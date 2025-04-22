@@ -403,8 +403,19 @@ const nlscLiDAR2023 = L.tileLayer(
     crossOrigin: 'anonymous',
   });
 // nlscLiDAR2023.addTo(map);
+const nlscLiDAR2024 = L.tileLayer(
+  'https://wmts.nlsc.gov.tw/wmts/LiDAR2024/default/EPSG:3857/{z}/{y}/{x}',
+  {
+    attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
+    minZoom: 17, //native zoom 9-20, set 17 as default 
+    maxZoom: 21,
+    maxNativeZoom: 20,
+    bounds: ([[22.298150, 120.082789197], [23.399420713, 120.859300]]),
+    crossOrigin: 'anonymous',
+  });
+// nlscLiDAR2024.addTo(map);
 
-var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiDAR2022,nlscLiDAR2023],
+var nlscLiDAR = L.layerGroup([nlscLiDAR2019, nlscLiDAR2020,nlscLiDAR2021,nlscLiDAR2022,nlscLiDAR2023,nlscLiDAR2024],
   {
       attribution: '© <strong><a href="https://maps.nlsc.gov.tw/">NLSC</a> </strong>',
       minZoom: 17, //native zoom 9-20, set 17 as default 
