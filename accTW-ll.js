@@ -2467,7 +2467,7 @@ const cwaPrecipitationForcast6HR = L.featureGroup();
 for (i = 0 ; i< CWA.getFCSTMapUrls06hr.length  ; i ++){
   L.imageOverlay(  
     [CWA.getFCSTMapUrls06hr[i]], 
-    L.latLngBounds([[25.800  , 122.445 ], [21.805, 118.940]]),   //肉眼對準
+    L.latLngBounds([[25.855  , 122.405 ], [21.675, 118.940]]),   //肉眼對準
     {
     opacity: 0,
     attribution: '© <strong><a href="https://www.cwa.gov.tw/">CWA</a></strong>',
@@ -2495,7 +2495,7 @@ const cwaPrecipitationForcast12HR = L.featureGroup();
 for (i = 0 ; i< CWA.getFCSTMapUrls12hr.length  ; i ++){
   L.imageOverlay(  
     [CWA.getFCSTMapUrls12hr[i]], 
-    L.latLngBounds([[25.800  , 122.445 ], [21.805, 118.940]]),   //肉眼對準
+    L.latLngBounds([[25.855  , 122.405 ], [21.675, 118.940]]),   //肉眼對準
     {
     opacity: 0,
     attribution: '© <strong><a href="https://www.cwa.gov.tw/">CWA</a></strong>',
