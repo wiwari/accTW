@@ -1515,9 +1515,9 @@ function getwraRESstaAPI() {
         found = 0;
         if (found != 1) { //append  SWRESOIR.shp only station
           newsta = {};
-          if (sta_shp.properties.COMPARE_ID !== null && sta_shp.properties.COMPARE_ID) {
-            s += sta_shp.properties.COMPARE_ID + " ";
-            newsta["StationNo"] = sta_shp.properties.COMPARE_ID;
+          if (sta_shp.properties.RES_ID !== null && sta_shp.properties.RES_ID) {
+            s += sta_shp.properties.RES_ID + " ";
+            newsta["StationNo"] = sta_shp.properties.RES_ID;
           }
           newsta["StationName"] = sta_shp.properties.RES_NAME;
           newsta["Latitude"] = sta_shp.geometry.coordinates[1];
