@@ -57,12 +57,12 @@ const map = L.map('map', {
   }, '-', {
     text: 'NLSC...',
     // iconCls: 'fa fa-map-o',
-    icon: 'https://maps.nlsc.gov.tw/pics/icon-60x60-ios.png',
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABuElEQVR4AWJwL/ChCA9SAwCMUkNgGEAQ3PJTfer2U9u2bdu2bdt2Y9u2bdu2sclc7DzmsJglM7Wx1u08/YnsmZPf5W+8wY0/5M0SlBxoM4QvU+//yhu/rP+mnDHpsyb3fW/FuPGHnH2pWwOCkqO0qeRwWy8+Tk80/y5zhxO9cm8AyB9L31CsnQkp/tt4M1q5f6LC8fnrrIzHzF3yTSWPnrsKh6q7CvgjGw/dEauqCZwfzzmf/rGHxsKv1BH10nNLfmUVy9MkAvm2TYJw2q4SzKuVQ6vxQvaYBY+nzoIANRcdIVOUcV7isxY9dmen+FyW8k0VN/6n9CIEvrkmiv9tmbMBvJt2w6eiB4dpInqge29nEjJA5CqHJfJBAleMowSQ2ZnfV32RQfGRtr+qulmdSfjpsfzqznWe80yHe3/yrAa9KccHHwEtzZWvS/e0mQn7OmNMcKOBYP975QK7npnPyuem8e/LO/nzjUf8/M5fAZAXXyEbZAySBkvkpDtnPzqN5iGLO/d+CwKQ2tybk8/n6Svqx87AvtEtxDjR6clftVPGfHDIwi0aZ0fzWr3KAEqCE7tS2bRplpkAeNm5m6m+SFkAAAAASUVORK5CYII=",
     callback: openNLSC,
   }, {
     text: '地圖瀏覽器...',
     // iconCls: 'fa fa-map-o',
-    icon: 'https://twmap.happyman.idv.tw/map/icon/twmap3.jpg',
+    icon: 'https://twmap.happyman.idv.tw/map/icons/twmap_icon.png',
     callback: openTWMap3,
   }, {
     text: '地圖對照器...',
@@ -524,7 +524,7 @@ nlscEMAPoverlay.addTo(map);
 
 
 
-const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/2ebf55488dd2e445d495df02e5fbf746b742e77a/dist/dem/{z}/{x}/{y}.png", {  //GITHUB exact commit
+const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/6ca5d0d4fdec59bea246aaa1b7cfab9dbfa1c161/dist/dem/{z}/{x}/{y}.png", {  //GITHUB exact commit
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
   zoomOffset: 0, //DO NOT set zoom offset avoiding RGB smmothing issue.
@@ -546,9 +546,9 @@ const dtmTW = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/
 // ------------------
 
 // const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@tiles/dist/{z}/{x}/{y}.png", { //CDN
-// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@2ebf55488dd2e445d495df02e5fbf746b742e77a/dist/acc/{z}/{x}/{y}.png", {  //CDN exact commit
+// const catchment = L.tileLayer.colorPicker("https://cdn.jsdelivr.net/gh/wiwari/accTW@6ca5d0d4fdec59bea246aaa1b7cfab9dbfa1c161/dist/acc/{z}/{x}/{y}.png", {  //CDN exact commit
 // const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/tiles/dist/{z}/{x}/{y}.png", {  //GITHUB
-const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/2ebf55488dd2e445d495df02e5fbf746b742e77a/dist/acc/{z}/{x}/{y}.png", {  //GITHUB exact commit
+const catchment = L.tileLayer.colorPicker("https://raw.githubusercontent.com/wiwari/accTW/6ca5d0d4fdec59bea246aaa1b7cfab9dbfa1c161/dist/acc/{z}/{x}/{y}.png", {  //GITHUB exact commit
   // attribution: '&copy; BASIN',
   tms: false, // CLI generation required    
   crs: L.CRS.EPSG3857,
@@ -2016,7 +2016,7 @@ var streams = L.tileLayer.gl({
 // var streams = L.tileLayer.gl2({
   fragmentShader: glShaderStreams,  
   tileLayers: [catchment,dtmTW],
-  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/2ebf55488dd2e445d495df02e5fbf746b742e77a/dist/acc/{z}/{x}/{y}.png'],
+  // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/6ca5d0d4fdec59bea246aaa1b7cfab9dbfa1c161/dist/acc/{z}/{x}/{y}.png'],
   uniforms: {
     uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
     uWaterThresholdZoomAtTenthKmsq: 14,
@@ -2042,7 +2042,7 @@ lyctrl.addOverlay(streams, "水線著色🏳️‍🌈"); //<sup>彩⁺</sup>
 var streamsRangeHightlight = L.tileLayer.gl({
     fragmentShader: glShaderStreamsHighlightDefinition + glShaderStreams,  
     tileLayers: [catchment,dtmTW],
-    // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/2ebf55488dd2e445d495df02e5fbf746b742e77a/dist/acc/{z}/{x}/{y}.png'],
+    // tileUrls: ['https://raw.githubusercontent.com/wiwari/accTW/6ca5d0d4fdec59bea246aaa1b7cfab9dbfa1c161/dist/acc/{z}/{x}/{y}.png'],
     uniforms: {
       uWaterThresholdZoomStep: (Math.pow(Math.pow(3, 6), 1/5)), //(3^6)^0.2 
       uWaterThresholdZoomAtTenthKmsq: 14,
@@ -2658,7 +2658,7 @@ function openNavigate(e) {
 
 function openTWMap3(e) {
   const lookupLatLng = map.getCenter();
-  shareUrl = "https://map.happyman.idv.tw/~mountain/twmap3/?goto=" + lookupLatLng.lat.toFixed(6) + "," + lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom();
+  shareUrl = "https://twmap.happyman.idv.tw/map/?goto=" + lookupLatLng.lat.toFixed(6) + "," + lookupLatLng.lng.toFixed(6) + "&zoom=" + map.getZoom();
   window.open(shareUrl);
   gtag('event', 'openMap', {
     'event_category': 'context',
