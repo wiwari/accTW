@@ -2802,3 +2802,10 @@ if (urlParams.has('q')) { //URL papameter format: ?center=lat,lng
 // history.pushState({page: 1}, "", "?");
 history.replaceState(null, "", "?");
 // console.log(window.location.search);
+
+
+if (window.self !== window.top) {
+  // Inside IFRAME
+  // openDialog("inside-iframe.html");
+  openDialogCrossOrigin();
+}
