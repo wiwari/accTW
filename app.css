@@ -114,6 +114,16 @@ https://css-tricks.com/a-css-approach-to-trap-focus-inside-of-an-element/
 	transition: background-color 0.01s;
 }
 
+#dialog .warning-container {
+  top: 15%;
+	width: 80%;
+  max-width: 400px;
+	border-radius: 5px;
+	padding: 10px 10px; 
+	background: #ffffffcf;
+	position: relative;
+}
+
 #dialog .iframe-container {
 	height: 90%;
 	border-radius: 5px;
